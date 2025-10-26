@@ -12,11 +12,5 @@ public class CartController {
         // Thêm logic để lấy dữ liệu giỏ hàng và truyền vào model
         return "cart";
     }
-
-    @GetMapping("/checkout")
-    public String checkout(Model model) {
-        // Thêm logic để chuẩn bị dữ liệu cho trang checkout
-        return "checkout";
-    }
 }
 

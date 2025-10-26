@@ -17,4 +17,10 @@ public class ProductController {
     public String productDetail(@PathVariable Long id, Model model) {
         return "product-detail";
     }
+
+    @GetMapping("/search")
+    public String searchResults(String query, Model model) {
+        model.addAttribute("query", query);
+        return "search-results";
+    }
 }
