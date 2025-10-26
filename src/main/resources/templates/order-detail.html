@@ -1,147 +1,370 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết đơn hàng</title>
+    <title>Chi Tiết Đơn Hàng</title>
+    <style>
+        .order-detail-page {
+            padding: 40px 0;
+            background: #f8f9fa;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 0;
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+        }
+        .page-header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .order-detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .main-content, .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .card-header i {
+            font-size: 20px;
+            color: #667eea;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        /* Order Status Tracker */
+        .status-tracker {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 20px 0;
+        }
+        .status-tracker::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e9ecef;
+            z-index: 0;
+        }
+        .status-step {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            width: 25%;
+        }
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e9ecef;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: 4px solid #f8f9fa;
+        }
+        .step-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #7f8c8d;
+        }
+        .status-step.completed .step-circle {
+            background: #2ecc71;
+            color: white;
+        }
+        .status-step.active .step-circle {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Info List */
+        .info-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px 25px;
+        }
+        .info-item {
+            font-size: 15px;
+        }
+        .info-item strong {
+            display: block;
+            color: #7f8c8d;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        .info-item span {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        /* Order Items Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .items-table th, .items-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .items-table th {
+            font-size: 13px;
+            font-weight: 600;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .product-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .item-price {
+            font-weight: 600;
+        }
+
+        /* Summary Card */
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-size: 15px;
+        }
+        .summary-label { color: #7f8c8d; }
+        .summary-value { font-weight: 600; color: #2c3e50; }
+        .summary-divider { height: 1px; background: #e9ecef; margin: 15px 0; }
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+        }
+        .summary-total .summary-label { font-size: 18px; font-weight: 700; color: #2c3e50; }
+        .summary-total .summary-value { font-size: 24px; font-weight: 700; color: #667eea; }
+
+        .btn-back {
+            display: inline-block;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .btn-back:hover { text-decoration: underline; }
+
+        @media (max-width: 992px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <div class="container my-5">
-        <div th:if="${order != null}">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Chi tiết đơn hàng #<span th:text="${order.id}">12345</span></h2>
-                <a href="/orders" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Quay lại
-                </a>
-            </div>
-            
-            <div class="row">
-                <!-- Order Info -->
-                <div class="col-md-8">
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">Thông tin đơn hàng</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-6">
-                                    <p><strong>Mã đơn hàng:</strong></p>
-                                    <p><strong>Ngày đặt:</strong></p>
-                                    <p><strong>Trạng thái:</strong></p>
-                                    <p><strong>Phương thức thanh toán:</strong></p>
-                                </div>
-                                <div class="col-6">
-                                    <p th:text="'#' + ${order.id}">#12345</p>
-                                    <p th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</p>
-                                    <p>
-                                        <span th:class="'badge ' + 
-                                              (${order.status == 'PENDING'} ? 'bg-warning' :
-                                               ${order.status == 'CONFIRMED'} ? 'bg-info' :
-                                               ${order.status == 'SHIPPED'} ? 'bg-primary' :
-                                               ${order.status == 'DELIVERED'} ? 'bg-success' : 'bg-danger')"
-                                              th:text="${order.status}">
-                                            PENDING
-                                        </span>
-                                    </p>
-                                    <p th:text="${order.paymentMethod}">COD</p>
-                                </div>
-                            </div>
-                            
-                            <hr>
-                            
-                            <h6 class="mb-3">Thông tin người nhận</h6>
-                            <p class="mb-1"><strong>Họ tên:</strong> <span th:text="${order.customerName}">Nguyễn Văn A</span></p>
-                            <p class="mb-1"><strong>Email:</strong> <span th:text="${order.customerEmail}">email@example.com</span></p>
-                            <p class="mb-1"><strong>Điện thoại:</strong> <span th:text="${order.customerPhone}">0123456789</span></p>
-                            <p class="mb-1"><strong>Địa chỉ:</strong> <span th:text="${order.shippingAddress}">123 Đường ABC, Quận 1, TP.HCM</span></p>
-                            
-                            <div th:if="${order.notes != null && !order.notes.isEmpty()}">
-                                <hr>
-                                <h6 class="mb-2">Ghi chú</h6>
-                                <p th:text="${order.notes}">Ghi chú của khách hàng</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Order Items -->
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">Sản phẩm đã đặt</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Sản phẩm</th>
-                                            <th>Số lượng</th>
-                                            <th>Đơn giá</th>
-                                            <th>Thành tiền</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr th:each="detail : ${order.orderDetails}">
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <img th:if="${detail.product.imageUrl != null}" 
-                                                         th:src="${detail.product.imageUrl}" 
-                                                         class="img-thumbnail me-3" 
-                                                         style="width: 60px; height: 60px; object-fit: cover;"
-                                                         alt="Product image">
-                                                    <div>
-                                                        <strong th:text="${detail.product.name}">Áo sơ mi</strong>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td th:text="${detail.quantity}">1</td>
-                                            <td th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">500,000 VNĐ</td>
-                                            <td class="fw-bold" th:text="${#numbers.formatDecimal(detail.price * detail.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">500,000 VNĐ</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Order Summary -->
-                <div class="col-md-4">
-                    <div class="card sticky-top" style="top: 20px;">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0">Tổng đơn hàng</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Tạm tính:</span>
-                                <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">1,000,000 VNĐ</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Phí vận chuyển:</span>
-                                <span class="text-success">Miễn phí</span>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between">
-                                <strong>Tổng cộng:</strong>
-                                <strong class="text-danger fs-5" 
-                                        th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
-                                    1,000,000 VNĐ
-                                </strong>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-3 d-grid">
-                        <a href="/products" class="btn btn-primary">
-                            <i class="fas fa-shopping-bag me-2"></i>Tiếp tục mua sắm
-                        </a>
-                    </div>
-                </div>
-            </div>
+    <div layout:fragment="content">
+        <!-- Page Header -->
+        <div class="page-header" th:if="${order != null}">
+            <h1>Chi Tiết Đơn Hàng</h1>
+            <p th:text="'Mã đơn: #' + ${order.id}">Mã đơn: #12345</p>
         </div>
-        
-        <div th:if="${order == null}" class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.
+
+        <div class="order-detail-container">
+            <div th:if="${order != null}" class="detail-grid">
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Status Tracker -->
+                    <div class="detail-card">
+                        <div class="card-header">
+                            <i class="fas fa-truck"></i>
+                            <h3>Trạng thái đơn hàng</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="status-tracker">
+                                <div class="status-step" th:classappend="${order.status == 'PENDING' || order.status == 'CONFIRMED' || order.status == 'SHIPPED' || order.status == 'DELIVERED'} ? 'completed' : ''">
+                                    <div class="step-circle"><i class="fas fa-check"></i></div>
+                                    <div class="step-label">Đã đặt</div>
+                                </div>
+                                <div class="status-step" th:classappend="${order.status == 'CONFIRMED' || order.status == 'SHIPPED' || order.status == 'DELIVERED'} ? 'completed' : (${order.status == 'PENDING'} ? 'active' : '')">
+                                    <div class="step-circle">2</div>
+                                    <div class="step-label">Xác nhận</div>
+                                </div>
+                                <div class="status-step" th:classappend="${order.status == 'SHIPPED' || order.status == 'DELIVERED'} ? 'completed' : (${order.status == 'CONFIRMED'} ? 'active' : '')">
+                                    <div class="step-circle">3</div>
+                                    <div class="step-label">Đang giao</div>
+                                </div>
+                                <div class="status-step" th:classappend="${order.status == 'DELIVERED'} ? 'completed' : (${order.status == 'SHIPPED'} ? 'active' : '')">
+                                    <div class="step-circle">4</div>
+                                    <div class="step-label">Đã nhận</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="detail-card">
+                        <div class="card-header">
+                            <i class="fas fa-box-open"></i>
+                            <h3>Sản phẩm đã đặt</h3>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <table class="items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>Số lượng</th>
+                                        <th>Đơn giá</th>
+                                        <th>Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="detail : ${order.orderDetails}">
+                                        <td>
+                                            <div class="product-info">
+                                                <img th:src="${detail.product.imageUrl}" alt="Product" class="product-image">
+                                                <span class="product-name" th:text="${detail.product.name}">Product Name</span>
+                                            </div>
+                                        </td>
+                                        <td th:text="${detail.quantity}">1</td>
+                                        <td class="item-price" th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">500.000đ</td>
+                                        <td class="item-price" th:text="${#numbers.formatDecimal(detail.price * detail.quantity, 0, 'COMMA', 0, 'POINT')} + 'đ'">500.000đ</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <!-- Summary -->
+                    <div class="detail-card">
+                        <div class="card-header">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <h3>Tổng quan đơn hàng</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="summary-row">
+                                <span class="summary-label">Tạm tính:</span>
+                                <span class="summary-value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Phí vận chuyển:</span>
+                                <span class="summary-value" style="color: #2ecc71;">Miễn phí</span>
+                            </div>
+                            <div class="summary-divider"></div>
+                            <div class="summary-total">
+                                <span class="summary-label">Tổng cộng:</span>
+                                <span class="summary-value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Info -->
+                    <div class="detail-card">
+                        <div class="card-header">
+                            <i class="fas fa-shipping-fast"></i>
+                            <h3>Thông tin giao hàng</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-list">
+                                <div class="info-item" style="grid-column: 1 / -1;">
+                                    <strong>Người nhận</strong>
+                                    <span th:text="${order.customerName}">Nguyễn Văn A</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Email</strong>
+                                    <span th:text="${order.customerEmail}">email@example.com</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Điện thoại</strong>
+                                    <span th:text="${order.customerPhone}">0123456789</span>
+                                </div>
+                                <div class="info-item" style="grid-column: 1 / -1;">
+                                    <strong>Địa chỉ</strong>
+                                    <span th:text="${order.shippingAddress}">123 Đường ABC, Quận 1, TP.HCM</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Thanh toán</strong>
+                                    <span th:text="${order.paymentMethod}">COD</span>
+                                </div>
+                                <div class="info-item" th:if="${order.notes != null && !order.notes.isEmpty()}">
+                                    <strong>Ghi chú</strong>
+                                    <span th:text="${order.notes}">Giao hàng giờ hành chính</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/orders" class="btn-back"><i class="fas fa-arrow-left"></i> Quay lại danh sách đơn hàng</a>
+                </div>
+            </div>
+
+            <!-- Not Found Message -->
+            <div th:if="${order == null}" class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.
+            </div>
         </div>
     </div>
 </body>

@@ -482,7 +482,7 @@
                             <h2 class="section-title">Thông Tin Giao Hàng</h2>
                         </div>
 
-                        <form>
+                        <form th:action="@{/place-order}" method="post">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">
@@ -570,8 +570,9 @@
                                 <label class="form-label">
                                     Ghi chú đơn hàng
                                 </label>
-                                <textarea class="form-control" placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay chỉ dẫn địa điểm giao hàng chi tiết hơn"></textarea>
+                                <textarea class="form-control" name="notes" placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay chỉ dẫn địa điểm giao hàng chi tiết hơn"></textarea>
                             </div>
+                            <button type="submit" class="btn-place-order" style="display: none;" id="submit-order-btn"></button>
                         </form>
                     </div>
 
@@ -706,12 +707,12 @@
                         <div class="terms-checkbox">
                             <input type="checkbox" id="terms" required>
                             <label for="terms">
-                                Tôi đã đọc và đồng ý với 
+                                Tôi đã đọc và đồng ý với
                                 <a href="#">Điều khoản và điều kiện</a> của website
                             </label>
                         </div>
 
-                        <button class="btn-place-order">
+                        <button class="btn-place-order" id="real-place-order-btn">
                             <i class="fas fa-check-circle"></i> ĐẶT HÀNG
                         </button>
 
@@ -735,9 +736,9 @@
         });
 
         // Form validation and submission
-        document.querySelector('.btn-place-order').addEventListener('click', function(e) {
+        document.querySelector('#real-place-order-btn').addEventListener('click', function(e) {
             const termsCheckbox = document.getElementById('terms');
-            
+
             if (!termsCheckbox.checked) {
                 e.preventDefault();
                 alert('Vui lòng đồng ý với điều khoản và điều kiện!');
@@ -745,10 +746,9 @@
             }
 
             // Here you would normally submit the form
-            // For demo purposes, we'll just show a success message
             if (confirm('Xác nhận đặt hàng?')) {
-                alert('Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại Fashion Store.');
-                // window.location.href = '/order-success';
+                // Kích hoạt nút submit ẩn của form
+                document.getElementById('submit-order-btn').click();
             }
         });
     </script>

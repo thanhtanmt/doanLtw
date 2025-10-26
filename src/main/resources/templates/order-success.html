@@ -1,90 +1,192 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đặt hàng thành công</title>
+    <title>Đặt Hàng Thành Công</title>
+    <style>
+        .order-success-page {
+            padding: 60px 0;
+            background: #f8f9fa;
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-container {
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transform: scale(0.95);
+            opacity: 0;
+            animation: pop-in 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes pop-in {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #2ecc71, #28a745);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 50px;
+            animation: icon-animate 0.5s 0.3s forwards;
+            transform: scale(0);
+        }
+
+        @keyframes icon-animate {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .success-card h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .success-card p {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .order-summary-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .summary-item strong {
+            color: #555;
+            font-weight: 600;
+        }
+
+        .summary-item span {
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        .summary-item .order-id {
+            color: #667eea;
+        }
+
+        .summary-item .order-total {
+            color: #e74c3c;
+            font-size: 18px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-action {
+            padding: 12px 25px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-outline-cool {
+            background: transparent;
+            border: 2px solid #e0e0e0;
+            color: #555;
+        }
+
+        .btn-outline-cool:hover {
+            background: #f8f9fa;
+            border-color: #ccc;
+        }
+
+        @media (max-width: 576px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            .success-card {
+                padding: 40px 20px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <div class="container my-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow">
-                    <div class="card-body text-center py-5">
-                        <div class="mb-4">
-                            <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+    <div layout:fragment="content">
+        <div class="order-success-page">
+            <div class="success-container">
+                <div class="success-card">
+                    <div class="success-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h1>Đặt Hàng Thành Công!</h1>
+                    <p>Cảm ơn bạn đã tin tưởng và mua sắm. Đơn hàng của bạn đang được xử lý.</p>
+
+                    <div th:if="${order}" class="order-summary-box">
+                        <div class="summary-item">
+                            <strong>Mã đơn hàng:</strong>
+                            <span class="order-id" th:text="'#' + ${order.id}">#12345</span>
                         </div>
-                        <h2 class="mb-3">Đặt hàng thành công!</h2>
-                        <p class="text-muted mb-4">Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ xử lý đơn hàng của bạn sớm nhất có thể.</p>
-                        
-                        <div th:if="${order}" class="order-info bg-light p-4 rounded mb-4">
-                            <h5 class="mb-3">Thông tin đơn hàng</h5>
-                            <div class="row text-start">
-                                <div class="col-6">
-                                    <p><strong>Mã đơn hàng:</strong></p>
-                                    <p><strong>Ngày đặt:</strong></p>
-                                    <p><strong>Trạng thái:</strong></p>
-                                    <p><strong>Tổng tiền:</strong></p>
-                                </div>
-                                <div class="col-6">
-                                    <p th:text="${order.id}">#12345</p>
-                                    <p th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</p>
-                                    <p>
-                                        <span class="badge bg-warning" th:text="${order.status}">Đang xử lý</span>
-                                    </p>
-                                    <p class="text-danger fw-bold" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">1,000,000 VNĐ</p>
-                                </div>
-                            </div>
-                            
-                            <hr class="my-3">
-                            
-                            <div class="row text-start">
-                                <div class="col-12">
-                                    <h6 class="mb-2">Thông tin giao hàng:</h6>
-                                    <p class="mb-1" th:text="${order.customerName}">Nguyễn Văn A</p>
-                                    <p class="mb-1" th:text="${order.customerPhone}">0123456789</p>
-                                    <p class="mb-1" th:text="${order.customerEmail}">email@example.com</p>
-                                    <p class="mb-1" th:text="${order.shippingAddress}">123 Đường ABC, Quận 1, TP.HCM</p>
-                                </div>
-                            </div>
-                            
-                            <hr class="my-3">
-                            
-                            <div class="row text-start">
-                                <div class="col-12">
-                                    <h6 class="mb-2">Sản phẩm đã đặt:</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm">
-                                            <thead>
-                                                <tr>
-                                                    <th>Sản phẩm</th>
-                                                    <th>Số lượng</th>
-                                                    <th>Đơn giá</th>
-                                                    <th>Thành tiền</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr th:each="detail : ${order.orderDetails}">
-                                                    <td th:text="${detail.product.name}">Áo sơ mi</td>
-                                                    <td th:text="${detail.quantity}">1</td>
-                                                    <td th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">500,000 VNĐ</td>
-                                                    <td th:text="${#numbers.formatDecimal(detail.price * detail.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">500,000 VNĐ</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="summary-item">
+                            <strong>Ngày đặt:</strong>
+                            <span th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy')}">26/10/2025</span>
                         </div>
-                        
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                            <a href="/products" class="btn btn-primary btn-lg">
-                                <i class="fas fa-shopping-bag me-2"></i>Tiếp tục mua sắm
-                            </a>
-                            <a href="/" class="btn btn-outline-secondary btn-lg">
-                                <i class="fas fa-home me-2"></i>Về trang chủ
-                            </a>
+                        <div class="summary-item">
+                            <strong>Tổng cộng:</strong>
+                            <span class="order-total" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
                         </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <a th:if="${order}" th:href="@{/order/{id}(id=${order.id})}" class="btn btn-action btn-outline-cool">
+                            <i class="fas fa-receipt"></i> Xem Chi Tiết
+                        </a>
+                        <a href="/products" class="btn btn-action btn-primary-gradient">
+                            <i class="fas fa-shopping-bag"></i> Tiếp Tục Mua Sắm
+                        </a>
                     </div>
                 </div>
             </div>

@@ -24,20 +24,32 @@ public class SecurityConfig {
         return cfg.getAuthenticationManager();
     }
 
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//            .csrf().and()
+//            .authorizeHttpRequests(auth -> auth
+//                .requestMatchers("/css/**","/home", "/js/**", "/images/**", "/register", "/login", "/", "/products").permitAll()
+//                .requestMatchers("/admin/**").hasRole("ADMIN")
+//                .anyRequest().authenticated()
+//            )
+//            .formLogin(form -> form
+//                .loginPage("/login").permitAll()
+//                .defaultSuccessUrl("/", true)
+//            )
+//            .logout(logout -> logout.logoutUrl("/logout").permitAll());
+//        return http.build();
+//    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().and()
+            .csrf().disable()  // ✅ tắt kiểm tra CSRF
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**","/home", "/js/**", "/images/**", "/register", "/login", "/", "/products").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
+                .anyRequest().permitAll() // ✅ cho phép tất cả truy cập
             )
-            .formLogin(form -> form
-                .loginPage("/login").permitAll()
-                .defaultSuccessUrl("/", true)
-            )
-            .logout(logout -> logout.logoutUrl("/logout").permitAll());
+            .formLogin(form -> form.disable()) // ✅ tắt login form
+            .logout(logout -> logout.disable()); // ✅ tắt logout
         return http.build();
     }
+
 }
