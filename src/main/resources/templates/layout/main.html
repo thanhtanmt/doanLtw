@@ -1,482 +1,56 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title layout:title-pattern="$DECORATOR_TITLE - Fashion Store">Fashion Store</title>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <title layout:title-pattern="$DECORATOR_TITLE - Clothes Shop">Clothes Shop</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Poppins', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+            margin: 0;
         }
-
-        /* Top Bar */
-        .top-bar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 10px 0;
-            font-size: 14px;
-        }
-
-        .top-bar .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .top-bar a {
-            color: white;
-            text-decoration: none;
-            margin-left: 15px;
-        }
-
-        /* Header */
         header {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            background-color: #333;
+            padding: 10px 0;
         }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-decoration: none;
-        }
-
-        /* Search Bar */
-        .search-bar {
-            flex: 1;
-            max-width: 500px;
-            margin: 0 40px;
-            position: relative;
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 12px 45px 12px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .search-bar input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .search-bar button {
-            position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        /* Header Actions */
-        .header-actions {
-            display: flex;
-            gap: 25px;
-            align-items: center;
-        }
-
-        .header-actions a {
-            color: #333;
-            text-decoration: none;
-            position: relative;
-            font-size: 20px;
-            transition: color 0.3s;
-        }
-
-        .header-actions a:hover {
-            color: #667eea;
-        }
-
-        .cart-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        /* Navigation */
         nav {
-            background: #f8f9fa;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
             display: flex;
             justify-content: center;
-            gap: 40px;
         }
-
         nav a {
-            color: #333;
+            color: white;
             text-decoration: none;
-            padding: 15px 0;
-            font-weight: 500;
-            font-size: 15px;
-            position: relative;
-            transition: color 0.3s;
+            padding: 10px 20px;
+            font-weight: bold;
         }
-
         nav a:hover {
-            color: #667eea;
+            background-color: #555;
         }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.3s;
-        }
-
-        nav a:hover::after {
-            width: 100%;
-        }
-
-        /* Main Content */
         main {
-            min-height: calc(100vh - 400px);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
             padding: 20px;
         }
-
-        /* Footer */
         footer {
-            background: #2c3e50;
-            color: white;
-            padding: 50px 0 20px;
-            margin-top: 60px;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 30px;
-        }
-
-        .footer-section h3 {
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .footer-section ul {
-            list-style: none;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 10px;
-        }
-
-        .footer-section a {
-            color: #bdc3c7;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .footer-section a:hover {
-            color: white;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .social-links a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            font-size: 18px;
-            transition: all 0.3s;
-        }
-
-        .social-links a:hover {
-            background: #667eea;
-            transform: translateY(-3px);
-        }
-
-        .footer-bottom {
             text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            color: #bdc3c7;
-            font-size: 14px;
-        }
-
-        /* User Dropdown */
-        .user-menu {
-            position: relative;
-        }
-
-        .user-menu-toggle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            padding: 8px 15px;
-            border-radius: 20px;
-            transition: background 0.3s;
-        }
-
-        .user-menu-toggle:hover {
-            background: #f0f0f0;
-        }
-
-        .user-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            min-width: 200px;
-            margin-top: 10px;
-        }
-
-        .user-menu:hover .user-dropdown {
-            display: block;
-        }
-
-        .user-dropdown a {
-            display: block;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-
-        .user-dropdown a:hover {
-            background: #f8f9fa;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-container {
-                flex-wrap: wrap;
-            }
-
-            .search-bar {
-                order: 3;
-                width: 100%;
-                margin: 15px 0 0 0;
-            }
-
-            .nav-container {
-                flex-wrap: wrap;
-                gap: 20px;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
+            padding: 15px 0;
+            background-color: #f1f1f1;
         }
     </style>
 </head>
 
 <body>
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="container">
-            <div>
-                <i class="fas fa-phone"></i> Hotline: 1900-xxxx | 
-                <i class="fas fa-envelope"></i> support@fashionstore.com
-            </div>
-            <div>
-                <a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Header -->
     <header>
-        <div class="header-container">
-            <a th:href="@{/}" class="logo">
-                <i class="fas fa-shopping-bag"></i> FASHION
-            </a>
-
-            <div class="search-bar">
-                <form th:action="@{/products}" method="get">
-                    <input type="text" name="search" placeholder="Tìm kiếm sản phẩm...">
-                    <button type="submit"><i class="fas fa-search"></i></button>
-                </form>
-            </div>
-
-            <div class="header-actions">
-                <div class="user-menu" sec:authorize="isAuthenticated()">
-                    <div class="user-menu-toggle">
-                        <i class="fas fa-user"></i>
-                        <span sec:authentication="name">User</span>
-                    </div>
-                    <div class="user-dropdown">
-                        <a th:href="@{/profile}"><i class="fas fa-user-circle"></i> Tài khoản</a>
-                        <a th:href="@{/orders}"><i class="fas fa-box"></i> Đơn hàng</a>
-                        <a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
-                    </div>
-                </div>
-                <a th:href="@{/login}" sec:authorize="!isAuthenticated()">
-                    <i class="fas fa-user"></i>
-                </a>
-                <a th:href="@{/wishlist}">
-                    <i class="fas fa-heart"></i>
-                </a>
-                <a th:href="@{/cart}">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count" th:if="${cartItemCount > 0}" th:text="${cartItemCount}">0</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Navigation -->
         <nav>
-            <div class="nav-container">
-                <a th:href="@{/}">TRANG CHỦ</a>
-                <a th:href="@{/products}">SẢN PHẨM</a>
-                <a th:href="@{/products?category=nam}">NAM</a>
-                <a th:href="@{/products?category=nu}">NỮ</a>
-                <a th:href="@{/products?category=sale}">SALE</a>
-                <a th:href="@{/about}">GIỚI THIỆU</a>
-                <a th:href="@{/contact}">LIÊN HỆ</a>
-            </div>
+            <a th:href="@{/}">Trang chủ</a>
+            <a th:href="@{/login}">Đăng nhập</a>
         </nav>
     </header>
 
-    <!-- Main Content -->
+    <!-- Nơi Thymeleaf sẽ chèn nội dung trang con -->
     <main layout:fragment="content"></main>
 
-    <!-- Footer -->
     <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3><i class="fas fa-shopping-bag"></i> FASHION STORE</h3>
-                <p>Chuyên cung cấp quần áo thời trang nam nữ cao cấp với chất lượng tốt nhất và giá cả hợp lý.</p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
-                </div>
-            </div>
-
-            <div class="footer-section">
-                <h3>Hỗ trợ khách hàng</h3>
-                <ul>
-                    <li><a href="#">Hướng dẫn đặt hàng</a></li>
-                    <li><a href="#">Chính sách đổi trả</a></li>
-                    <li><a href="#">Chính sách bảo mật</a></li>
-                    <li><a href="#">Phương thức thanh toán</a></li>
-                    <li><a href="#">Câu hỏi thường gặp</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>Về chúng tôi</h3>
-                <ul>
-                    <li><a href="#">Giới thiệu</a></li>
-                    <li><a href="#">Tuyển dụng</a></li>
-                    <li><a href="#">Tin tức</a></li>
-                    <li><a href="#">Hệ thống cửa hàng</a></li>
-                    <li><a href="#">Liên hệ</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>Liên hệ</h3>
-                <ul>
-                    <li><i class="fas fa-map-marker-alt"></i> 123 Đường ABC, Quận XYZ, TP.HCM</li>
-                    <li><i class="fas fa-phone"></i> Hotline: 1900-xxxx</li>
-                    <li><i class="fas fa-envelope"></i> support@fashionstore.com</li>
-                    <li><i class="fas fa-clock"></i> 8:00 - 22:00 (Tất cả các ngày)</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <p>© 2025 Fashion Store. All rights reserved. | Designed with <i class="fas fa-heart" style="color: #ff4757;"></i></p>
-        </div>
+        <p>© 2025 Clothes Shop</p>
     </footer>
-
-    <script>
-        // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add any interactive JavaScript here
-        });
-    </script>
 </body>
 </html>
