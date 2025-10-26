@@ -16,10 +16,19 @@ public class User {
     private String username;
 
     @Column(nullable = false)
-    private String password; // lưu hashed password
+    private String password;
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(nullable = false)
+    private String phone;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
@@ -28,6 +37,4 @@ public class User {
     private Set<Role> roles;
 
     private boolean enabled = true;
-
-    // getters/setters
 }
