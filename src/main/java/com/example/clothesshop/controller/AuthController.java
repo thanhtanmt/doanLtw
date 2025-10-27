@@ -209,10 +209,85 @@ public class AuthController {
 		return "seller-register";
 	}
 
-	@GetMapping("/shipper/dashboard")
-	public String shipper(Model model) {
-		model.addAttribute("seller", new Seller()); // ✅ thêm dòng này
-		return "/shipper/dashboard";
+	@GetMapping("/forgot-password")
+	public String showForgotPasswordForm() {
+		return "forgot-password";
+	}
 
+	@PostMapping("/forgot-password")
+	public String processForgotPassword(@RequestParam String email, Model model, RedirectAttributes redirectAttributes) {
+		User user = userService.findByEmail(email);
+		
+		if (user == null) {
+			model.addAttribute("error", "Email không tồn tại trong hệ thống");
+			return "forgot-password";
+		}
+		
+		try {
+			// Tạo mã xác thực
+			String verificationCode = generateVerificationCode();
+			user.setVerificationCode(verificationCode);
+			user.setVerificationCodeExpiry(LocalDateTime.now().plusMinutes(15));
+			userService.save(user);
+			
+			// Gửi email với mã xác thực
+			emailService.sendPasswordResetEmail(email, verificationCode);
+			
+			redirectAttributes.addFlashAttribute("message", "Mã xác thực đã được gửi đến email của bạn");
+			redirectAttributes.addFlashAttribute("email", email);
+			return "redirect:/reset-password?email=" + email;
+		} catch (MessagingException e) {
+			model.addAttribute("error", "Không thể gửi email. Vui lòng thử lại sau.");
+			return "forgot-password";
+		}
+	}
+
+	@GetMapping("/reset-password")
+	public String showResetPasswordForm(@RequestParam String email, Model model) {
+		model.addAttribute("email", email);
+		return "reset-password";
+	}
+
+	@PostMapping("/reset-password")
+	public String processResetPassword(
+			@RequestParam String email,
+			@RequestParam String code,
+			@RequestParam String password,
+			@RequestParam String confirmPassword,
+			Model model,
+			RedirectAttributes redirectAttributes) {
+		
+		if (!password.equals(confirmPassword)) {
+			model.addAttribute("error", "Mật khẩu xác nhận không khớp");
+			model.addAttribute("email", email);
+			return "reset-password";
+		}
+		
+		User user = userService.findByEmail(email);
+		if (user == null) {
+			model.addAttribute("error", "Email không tồn tại");
+			return "reset-password";
+		}
+		
+		if (user.getVerificationCode() == null || !user.getVerificationCode().equals(code)) {
+			model.addAttribute("error", "Mã xác thực không chính xác");
+			model.addAttribute("email", email);
+			return "reset-password";
+		}
+		
+		if (user.getVerificationCodeExpiry().isBefore(LocalDateTime.now())) {
+			model.addAttribute("error", "Mã xác thực đã hết hạn");
+			model.addAttribute("email", email);
+			return "reset-password";
+		}
+		
+		// Cập nhật mật khẩu mới
+		user.setPassword(password); // Raw password, sẽ được encode trong save()
+		user.setVerificationCode(null);
+		user.setVerificationCodeExpiry(null);
+		userService.save(user);
+		
+		redirectAttributes.addFlashAttribute("message", "Đặt lại mật khẩu thành công. Vui lòng đăng nhập.");
+		return "redirect:/login?reset=true";
 	}
 }

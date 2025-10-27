@@ -13,7 +13,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @Configuration
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
-    public SecurityConfig(CustomUserDetailsService uds) { this.userDetailsService = uds; }
+    private final CustomAuthenticationSuccessHandler successHandler;
+    
+    public SecurityConfig(CustomUserDetailsService uds, CustomAuthenticationSuccessHandler successHandler) { 
+        this.userDetailsService = uds; 
+        this.successHandler = successHandler;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -42,18 +47,27 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/css/**", "/js/**", "/images/**",
-                    "/register", "/login", "/", "/home", "/products",
-                    "/verify/**", "/verify-email", "/resend-verification"
+                    "/register", "/login", "/", "/home", "/products", "/product/**",
+                    "/about-us", "/contact", "/policy",
+                    "/verify/**", "/verify-email", "/resend-verification",
+                    "/forgot-password", "/reset-password",
+                    "/seller/register"
                 ).permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN") 
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/seller/**").hasRole("SELLER")
+                .requestMatchers("/shipper/**").hasRole("SHIPPER")
                 .anyRequest().authenticated()
             )
 
             // ✅ Cấu hình trang đăng nhập
             .formLogin(form -> form
                 .loginPage("/login")
+                .loginProcessingUrl("/login") // URL xử lý login
+                .usernameParameter("username") // Tên field username trong form
+                .passwordParameter("password") // Tên field password trong form
+                .successHandler(successHandler) // Sử dụng custom handler để redirect theo role
+                .failureUrl("/login?error=true") // URL khi login fail
                 .permitAll()
-                .defaultSuccessUrl("/", true)
             )
 
             // ✅ Cấu hình đăng xuất

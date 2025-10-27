@@ -29,7 +29,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // Chỉ encode password nếu nó chưa được encode (không bắt đầu bằng $2a$ hoặc $2b$)
+        String password = user.getPassword();
+        if (password != null && !password.startsWith("$2a$") && !password.startsWith("$2b$")) {
+            user.setPassword(passwordEncoder.encode(password));
+        }
         return userRepository.save(user);
     }
 
