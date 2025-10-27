@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+
+<head>
+    <title>Đặt Hàng Thành Công</title>
+    <style>
+        .order-success-page {
+            padding: 60px 0;
+            background: #f8f9fa;
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-container {
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transform: scale(0.95);
+            opacity: 0;
+            animation: pop-in 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes pop-in {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #2ecc71, #28a745);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 50px;
+            animation: icon-animate 0.5s 0.3s forwards;
+            transform: scale(0);
+        }
+
+        @keyframes icon-animate {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .success-card h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .success-card p {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .order-summary-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .summary-item strong {
+            color: #555;
+            font-weight: 600;
+        }
+
+        .summary-item span {
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        .summary-item .order-id {
+            color: #667eea;
+        }
+
+        .summary-item .order-total {
+            color: #e74c3c;
+            font-size: 18px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-action {
+            padding: 12px 25px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-outline-cool {
+            background: transparent;
+            border: 2px solid #e0e0e0;
+            color: #555;
+        }
+
+        .btn-outline-cool:hover {
+            background: #f8f9fa;
+            border-color: #ccc;
+        }
+
+        @media (max-width: 576px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            .success-card {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="order-success-page">
+            <div class="success-container">
+                <div class="success-card">
+                    <div class="success-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h1>Đặt Hàng Thành Công!</h1>
+                    <p>Cảm ơn bạn đã tin tưởng và mua sắm. Đơn hàng của bạn đang được xử lý.</p>
+
+                    <div th:if="${order}" class="order-summary-box">
+                        <div class="summary-item">
+                            <strong>Mã đơn hàng:</strong>
+                            <span class="order-id" th:text="'#' + ${order.id}">#12345</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Ngày đặt:</strong>
+                            <span th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy')}">26/10/2025</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Tổng cộng:</strong>
+                            <span class="order-total" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <a th:if="${order}" th:href="@{/order/{id}(id=${order.id})}" class="btn btn-action btn-outline-cool">
+                            <i class="fas fa-receipt"></i> Xem Chi Tiết
+                        </a>
+                        <a href="/products" class="btn btn-action btn-primary-gradient">
+                            <i class="fas fa-shopping-bag"></i> Tiếp Tục Mua Sắm
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
