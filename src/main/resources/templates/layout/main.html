@@ -78,6 +78,7 @@ header {
 	font-size: 28px;
 	font-weight: 700;
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background-clip: text;
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	text-decoration: none;
@@ -326,8 +327,41 @@ footer {
 	transition: background 0.3s;
 }
 
+.user-dropdown a i {
+	margin-right: 8px;
+}
+
 .user-dropdown a:hover {
 	background: #f8f9fa;
+}
+
+/* Style cho form và button đăng xuất */
+.user-dropdown form {
+	margin: 0;
+	padding: 0;
+}
+
+.user-dropdown button {
+	display: block;
+	width: 100%;
+	padding: 12px 20px;
+	color: #333;
+	text-decoration: none;
+	font-size: 14px;
+	transition: background 0.3s;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	text-align: left;
+	font-family: 'Poppins', sans-serif;
+}
+
+.user-dropdown button:hover {
+	background: #f8f9fa;
+}
+
+.user-dropdown button i {
+	margin-right: 8px;
 }
 
 /* Responsive */
@@ -387,22 +421,20 @@ footer {
 				<div class="user-menu" sec:authorize="isAuthenticated()">
 					<div class="user-menu-toggle">
 						<i class="fas fa-user"></i> <span sec:authentication="name">User</span>
-					</div>
-					<div class="user-dropdown">
-						<a th:href="@{/account}"><i class="fas fa-user-circle"></i>
-							Tài khoản</a> <a th:href="@{/orders}"><i class="fas fa-box"></i>
-							Đơn hàng</a> <a th:href="@{/wishlist}"><i class="fas fa-heart"></i>
-							Yêu thích</a>
-						<form th:action="@{/logout}" method="post"
-							sec:authorize="isAuthenticated()" th:if="${_csrf != null}">
-							<input type="hidden" th:name="${_csrf.parameterName}"
-								th:value="${_csrf.token}" />
-							<button type="submit">
-								<i class="fas fa-sign-out-alt"></i> Đăng xuất
-							</button>
-						</form>
-
-					</div>
+				</div>
+				<div class="user-dropdown">
+					<a th:href="@{/account}"><i class="fas fa-user-circle"></i> Tài khoản</a>
+					<a th:href="@{/orders}"><i class="fas fa-box"></i> Đơn hàng</a>
+					<a th:href="@{/wishlist}"><i class="fas fa-heart"></i> Yêu thích</a>
+					<form th:action="@{/logout}" method="post"
+						sec:authorize="isAuthenticated()" th:if="${_csrf != null}">
+						<input type="hidden" th:name="${_csrf.parameterName}"
+							th:value="${_csrf.token}" />
+						<button type="submit">
+							<i class="fas fa-sign-out-alt"></i> Đăng xuất
+						</button>
+					</form>
+				</div>
 				</div>
 				<a th:href="@{/login}" sec:authorize="!isAuthenticated()"> <i
 					class="fas fa-user"></i>

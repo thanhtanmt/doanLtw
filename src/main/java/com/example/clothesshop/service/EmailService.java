@@ -36,4 +36,27 @@ public class EmailService {
         helper.setText(content, true); // true = gửi dạng HTML
         mailSender.send(message);
     }
+
+    public void sendPasswordResetEmail(String to, String verificationCode) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(to);
+        helper.setSubject("Đặt lại mật khẩu Fashion Store");
+
+        String content = String.format("""
+            <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto;">
+                <h2 style="color: #333;">Đặt lại mật khẩu Fashion Store</h2>
+                <p>Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình. Vui lòng sử dụng mã xác thực sau:</p>
+                <div style="background: #f5f5f5; padding: 15px; margin: 20px 0; text-align: center; font-size: 24px; letter-spacing: 5px;">
+                    <strong>%s</strong>
+                </div>
+                <p>Mã xác thực này sẽ hết hạn sau 15 phút.</p>
+                <p><strong>Lưu ý:</strong> Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này và đảm bảo tài khoản của bạn được bảo mật.</p>
+            </div>
+            """, verificationCode);
+
+        helper.setText(content, true);
+        mailSender.send(message);
+    }
 }

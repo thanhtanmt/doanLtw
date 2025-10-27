@@ -92,36 +92,6 @@
 	color: #333;
 }
 
-/* Tab */
-.role-switcher {
-	display: flex;
-	width: 100%;
-	border-bottom: 1px solid #f0f0f0;
-}
-
-.role-tab {
-	flex: 1;
-	padding: 18px;
-	font-size: 16px;
-	font-weight: 600;
-	text-align: center;
-	cursor: pointer;
-	border: none;
-	background: none;
-	color: #7f8c8d;
-	border-bottom: 3px solid transparent;
-	transition: all 0.3s;
-}
-
-.role-tab:hover {
-	background: #f8f9fa;
-}
-
-.role-tab.active {
-	color: #667eea;
-	border-bottom-color: #667eea;
-}
-
 /* Form */
 .form-content {
 	padding: 30px 0 0 0;
@@ -213,14 +183,14 @@
 }
 
 /* Khách hàng */
-.customer-only .divider {
+.divider {
 	text-align: center;
 	color: #bdc3c7;
 	margin: 25px 0;
 	position: relative;
 }
 
-.customer-only .divider::before, .customer-only .divider::after {
+.divider::before, .divider::after {
 	content: '';
 	position: absolute;
 	top: 50%;
@@ -229,15 +199,15 @@
 	background: #e0e0e0;
 }
 
-.customer-only .divider::before {
+.divider::before {
 	left: 0;
 }
 
-.customer-only .divider::after {
+.divider::after {
 	right: 0;
 }
 
-.customer-only .social-login {
+.social-login {
 	display: flex;
 	gap: 15px;
 }
@@ -270,13 +240,13 @@
 	color: white;
 }
 
-.customer-only.create-account {
+.create-account {
 	text-align: center;
 	margin-top: 25px;
 	color: #333;
 }
 
-.customer-only.create-account a {
+.create-account a {
 	color: #667eea;
 	font-weight: 600;
 	text-decoration: none;
@@ -325,29 +295,21 @@
 				<div class="form-panel">
 					<div class="form-title">Đăng nhập tài khoản</div>
 
-					<div class="role-switcher">
-						<button id="customer-tab" class="role-tab active">
-							<i class="fas fa-user"></i> Khách hàng
-						</button>
-						<button id="employee-tab" class="role-tab">
-							<i class="fas fa-user-shield"></i> Nhân viên
-						</button>
-						<!-- ✅ Thêm mới -->
-						<button id="shipper-tab" class="role-tab">
-							<i class="fas fa-truck"></i> Shipper
-						</button>
-					</div>
-
 					<div class="form-content">
 
 						<form id="login-form" th:action="@{/login}" method="post">
-
+							<!-- CSRF token - Spring Security tự động thêm qua Thymeleaf -->
+							
 							<label for="username" class="form-label"> <i
 								class="fas fa-user"></i> Tên đăng nhập hoặc Email
 							</label>
 							<div class="form-group">
-								<i class="fas fa-envelope"></i> <input type="text" id="username"
-									name="username" placeholder="Nhập tên đăng nhập hoặc email"
+								<i class="fas fa-envelope"></i> 
+								<input type="text" 
+									id="username"
+									name="username" 
+									placeholder="Nhập tên đăng nhập hoặc email"
+									autocomplete="username"
 									required>
 							</div>
 
@@ -355,46 +317,50 @@
 								class="fas fa-lock"></i> Mật khẩu
 							</label>
 							<div class="form-group">
-								<i class="fas fa-key"></i> <input type="password" id="password"
-									name="password" placeholder="Nhập mật khẩu" required>
+								<i class="fas fa-key"></i> 
+								<input type="password" 
+									id="password"
+									name="password" 
+									placeholder="Nhập mật khẩu"
+									autocomplete="current-password"
+									required>
 							</div>
 
 							<div th:if="${param.error}"
 								style="color: red; font-size: 13px; text-align: center; margin-bottom: 15px;">
-								Sai email hoặc mật khẩu.</div>
+								❌ Sai tên đăng nhập hoặc mật khẩu.</div>
+							
+							<div th:if="${param.logout}"
+								style="color: green; font-size: 13px; text-align: center; margin-bottom: 15px;">
+								✅ Đăng xuất thành công.</div>
+							
+							<div th:if="${param.reset}"
+								style="color: green; font-size: 13px; text-align: center; margin-bottom: 15px;">
+								✅ Đặt lại mật khẩu thành công. Vui lòng đăng nhập.</div>
 
 							<div class="form-options">
 								<div class="remember-me">
 									<input type="checkbox" id="remember-me" name="remember-me">
 									<label for="remember-me">Ghi nhớ đăng nhập</label>
 								</div>
-								<a href="#" class="forgot-password-link">Quên mật khẩu?</a>
+								<a th:href="@{/forgot-password}" class="forgot-password-link">Quên mật khẩu?</a>
 							</div>
 
 							<button type="submit" class="login-btn">ĐĂNG NHẬP</button>
 
-							<div class="customer-only">
-								<div class="divider">HOẶC</div>
-								<div class="social-login">
-									<a href="#" class="social-btn google"> <i
-										class="fab fa-google"></i> Google
-									</a> <a href="#" class="social-btn facebook"> <i
-										class="fab fa-facebook-f"></i> Facebook
-									</a>
-								</div>
+							<div class="divider">HOẶC</div>
+							<div class="social-login">
+								<a href="#" class="social-btn google"> 
+									<i class="fab fa-google"></i> Google
+								</a> 
+								<a href="#" class="social-btn facebook"> 
+									<i class="fab fa-facebook-f"></i> Facebook
+								</a>
 							</div>
 						</form>
 
-						<div class="customer-only create-account">
-							Chưa có tài khoản? <a th:href="@{/register}">Tạo tài khoản
-								ngay</a>
-						</div>
-						<!-- ✅ Vùng hiển thị khi chọn tab Người bán -->
-						<div class="seller-only create-account"
-							style="display: none; text-align: center; margin-top: 25px; color: #333;">
-							Chưa có shop? <a th:href="@{/seller/register}"
-								style="color: #667eea; font-weight: 600; text-decoration: none;">
-								Đăng ký shop ngay </a>
+						<div class="create-account">
+							Chưa có tài khoản? <a th:href="@{/register}">Tạo tài khoản ngay</a>
 						</div>
 
 
@@ -403,84 +369,7 @@
 			</div>
 		</div>
 
-		<script th:inline="javascript">
-/*<![CDATA[*/
-document.addEventListener('DOMContentLoaded', function() {
-
-    // 🔹 Lấy phần tử DOM
-    const customerTab = document.getElementById('customer-tab');
-    const employeeTab = document.getElementById('employee-tab');
-    const shipperTab = document.getElementById('shipper-tab');
-    const loginForm = document.getElementById('login-form');
-    const customerOnlyElements = document.querySelectorAll('.customer-only');
-
-    // 🔹 Đảm bảo tất cả tồn tại trước khi chạy
-    if (!customerTab || !employeeTab || !shipperTab || !loginForm) {
-        console.error("❌ Không tìm thấy một số phần tử trong trang đăng nhập!");
-        return;
-    }
-
-    // 🔹 URL login cho từng vai trò
-    const customerLoginUrl = /*[[@{/login}]]*/ '/login';
-    const employeeLoginUrl = /*[[@{/admin/login}]]*/ '/admin/login';
-    const shipperLoginUrl = /*[[@{/shipper/login}]]*/ '/shipper/login';
-
-    // 🔹 Xóa trạng thái active tất cả tab
-    function clearActiveTabs() {
-        [customerTab, employeeTab, shipperTab].forEach(tab => tab.classList.remove('active'));
-    }
-
-    // 🔹 Hiển thị từng chế độ
-    function showCustomerView() {
-        clearActiveTabs();
-        customerTab.classList.add('active');
-        loginForm.setAttribute('action', customerLoginUrl);
-        customerOnlyElements.forEach(el => el.style.display = 'block');
-    }
-
-    function showEmployeeView() {
-        clearActiveTabs();
-        employeeTab.classList.add('active');
-        loginForm.setAttribute('action', employeeLoginUrl);
-        customerOnlyElements.forEach(el => el.style.display = 'none');
-    }
-
-    function showShipperView() {
-        clearActiveTabs();
-        shipperTab.classList.add('active');
-        loginForm.setAttribute('action', shipperLoginUrl);
-        customerOnlyElements.forEach(el => el.style.display = 'none');
-    }
-
-    // 🔹 Gán sự kiện click cho các tab
-    customerTab.addEventListener('click', showCustomerView);
-    employeeTab.addEventListener('click', showEmployeeView);
-    shipperTab.addEventListener('click', showShipperView);
-
-    // 🔹 Mặc định: chọn tab khách hàng
-    showCustomerView();
-
-    // 🔹 Xử lý sự kiện submit (mô phỏng chuyển hướng khi là nhân viên)
-    loginForm.addEventListener('submit', function(event) {
-        const adminHomeUrl = /*[[@{/admin/home}]]*/ '/admin/home';
-        const shipperHomeUrl = /*[[@{/shipper/dashboard}]]*/ '/shipper/dashboard';
-
-        if (employeeTab.classList.contains('active')) {
-            event.preventDefault();
-            console.log('➡️ Chuyển hướng đến Admin:', adminHomeUrl);
-            window.location.href = adminHomeUrl;
-        }
-
-        if (shipperTab.classList.contains('active')) {
-            event.preventDefault();
-            console.log('➡️ Chuyển hướng đến Shipper:', shipperHomeUrl);
-            window.location.href = shipperHomeUrl;
-        }
-    });
-});
-/*]]>*/
-</script>
-
+		<!-- Không cần JavaScript cho tab switching nữa -->
 
 	</main>
 </body>

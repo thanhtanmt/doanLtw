@@ -531,11 +531,13 @@ header {
     font-size: 14px;
     transition: background 0.3s ease, color 0.3s ease; /* Thêm transition cho color */
     white-space: nowrap; 
-    
-    /* Đảm bảo bo góc vẫn hoạt động cho các item đầu/cuối */
-    /* Đây là một kỹ thuật nhỏ để bo góc chỉ áp dụng cho item đầu/cuối */
-    /* Bạn có thể bỏ qua nếu không cần bo góc cho từng item trong dropdown */
     border-radius: 0; /* Mặc định không bo góc */
+}
+
+.user-dropdown a i {
+    margin-right: 8px;
+    width: 16px;
+    text-align: center;
 }
 
 /* Style khi hover vào link trong dropdown */
@@ -562,6 +564,46 @@ header {
 }
 
 .user-dropdown a:last-child:hover {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+/* Style cho button đăng xuất trong dropdown - giống như các link khác */
+.user-dropdown form {
+    margin: 0;
+    padding: 0;
+}
+
+.user-dropdown button {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.3s ease, color 0.3s ease;
+    white-space: nowrap;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    border-radius: 0;
+}
+
+.user-dropdown button:hover {
+    background: #f0f2f5;
+    color: #667eea;
+}
+
+.user-dropdown button i {
+    margin-right: 8px;
+    width: 16px;
+    text-align: center;
+}
+
+/* Bo góc cho button nếu nó là item cuối cùng */
+.user-dropdown form:last-child button {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
 }

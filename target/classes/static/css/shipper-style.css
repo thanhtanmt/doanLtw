@@ -146,6 +146,51 @@ header.shipper-header {
 .shipper-header .user-dropdown a i { width: 16px; text-align: center; color: var(--shipper-text-light); }
 .shipper-header .user-dropdown a:hover i { color: var(--shipper-primary); }
 
+/* Style cho button đăng xuất trong shipper dropdown */
+.shipper-header .user-dropdown form {
+    margin: 0;
+    padding: 0;
+}
+
+.shipper-header .user-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 15px;
+    color: var(--shipper-text);
+    text-decoration: none;
+    font-size: 14px;
+    transition: background var(--transition), color var(--transition);
+    white-space: nowrap;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    border-radius: 0;
+}
+
+.shipper-header .user-dropdown button:hover {
+    background: #f1f5f9;
+    color: var(--shipper-primary);
+}
+
+.shipper-header .user-dropdown button i {
+    width: 16px;
+    text-align: center;
+    color: var(--shipper-text-light);
+}
+
+.shipper-header .user-dropdown button:hover i {
+    color: var(--shipper-primary);
+}
+
+.shipper-header .user-dropdown form:last-child button {
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
 
 /* ----- Navigation ----- */
 nav.shipper-nav {

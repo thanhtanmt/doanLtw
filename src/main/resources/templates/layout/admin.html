@@ -32,16 +32,20 @@
 				</a> <a href="#" title="Thông báo"> <i class="fas fa-bell"></i>
 				</a>
 
-				<div class="user-menu" sec:authorize="isAuthenticated()">
-					<div class="user-menu-toggle">
-						<i class="fas fa-user-circle"></i> <span sec:authentication="name">Admin</span>
-					</div>
-					<div class="user-dropdown">
-						<a th:href="@{/admin/profile}"><i class="fas fa-user-circle"></i>
-							Hồ sơ</a> <a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i>
-							Đăng xuất</a>
-					</div>
+			<div class="user-menu" sec:authorize="isAuthenticated()">
+				<div class="user-menu-toggle">
+					<i class="fas fa-user-circle"></i> <span sec:authentication="name">Admin</span>
 				</div>
+				<div class="user-dropdown">
+					<a th:href="@{/admin/profile}"><i class="fas fa-user-circle"></i> Hồ sơ</a>
+					<form th:action="@{/logout}" method="post" th:if="${_csrf != null}">
+						<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+						<button type="submit">
+							<i class="fas fa-sign-out-alt"></i> Đăng xuất
+						</button>
+					</form>
+				</div>
+			</div>
 			</div>
 		</div>
 
