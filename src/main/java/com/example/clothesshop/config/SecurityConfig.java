@@ -8,8 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.http.SessionCreationPolicy;
-
 
 @Configuration
 public class SecurityConfig {
@@ -29,43 +27,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // ✅ Luôn tạo session để CSRF token có chỗ lưu
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-            )
-
-            // ✅ Bật CSRF (để Spring sinh token) — bạn có thể thêm ignore nếu cần
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/h2-console/**") // nếu không dùng H2 thì bỏ dòng này
-            )
-
-            // ✅ Phân quyền truy cập
+            .csrf().and()
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/css/**", "/js/**", "/images/**",
-                    "/register", "/login", "/", "/home", "/products"
-                ).permitAll()
+                .requestMatchers("/css/**","/home", "/js/**", "/images/**", "/register", "/login", "/", "/seller/register", "/products").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
-
-            // ✅ Cấu hình trang đăng nhập
             .formLogin(form -> form
-                .loginPage("/login")
-                .permitAll()
+                .loginPage("/login").permitAll()
                 .defaultSuccessUrl("/", true)
             )
-
-            // ✅ Cấu hình đăng xuất
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
-                .permitAll()
-            );
-
+            .logout(logout -> logout.logoutUrl("/logout").permitAll());
         return http.build();
     }
-
 //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 //        http

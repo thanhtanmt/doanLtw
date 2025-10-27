@@ -94,5 +94,8 @@ public class AuthController {
 		}
 	}
 
-	
+	@GetMapping("/seller/register")
+	public String sellerRegister() {
+		return "seller-register";
+	}
 }

@@ -1,341 +1,412 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/main}">
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/main}">
 
 <head>
-    <title>Đăng nhập</title>
-    
-    <style>
-        .login-wrapper-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: calc(100vh - 200px);
-            padding: 40px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
+<title>Đăng nhập</title>
 
-        .login-page-container {
-            width: 100%;
-            max-width: 1000px;
-            min-height: 650px;
-            display: flex;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+<style>
+.login-wrapper-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: calc(100vh - 200px);
+	padding: 40px 20px;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
 
-        /* ----- Cột thông tin (Bên trái) ----- */
-        .info-panel {
-            flex: 1;
-            padding: 50px;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative; 
-            background-size: cover;
-            background-position: center center;
-            background-image: 
-                linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%),
-                url('https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=1000');
-        }
-        
-        .info-panel h1 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-        .info-panel p {
-            font-size: 16px;
-            line-height: 1.7;
-            margin-bottom: 30px;
-            opacity: 0.9;
-        }
-        .info-features { list-style: none; padding-left: 0; }
-        .info-features li {
-            font-size: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .info-features i { font-size: 18px; width: 20px; text-align: center; }
+.login-page-container {
+	width: 100%;
+	max-width: 1000px;
+	min-height: 650px;
+	display: flex;
+	background: white;
+	border-radius: 15px;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+}
 
-        /* ----- Cột Form (Bên phải) ----- */
-        .form-panel {
-            flex: 1.1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 40px;
-        }
-        .form-title {
-             padding-bottom: 20px;
-             text-align: center;
-             font-size: 24px;
-             font-weight: 700;
-             color: #333;
-        }
+/* ----- Cột thông tin (Bên trái) ----- */
+.info-panel {
+	flex: 1;
+	padding: 50px;
+	color: white;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	position: relative;
+	background-size: cover;
+	background-position: center center;
+	background-image: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%,
+		rgba(118, 75, 162, 0.9) 100%),
+		url('https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=1000');
+}
 
-        /* Tab */
-        .role-switcher {
-            display: flex;
-            width: 100%;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .role-tab {
-            flex: 1;
-            padding: 18px;
-            font-size: 16px;
-            font-weight: 600;
-            text-align: center;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: #7f8c8d;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-        .role-tab:hover { background: #f8f9fa; }
-        .role-tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
+.info-panel h1 {
+	font-size: 32px;
+	font-weight: 700;
+	margin-bottom: 20px;
+}
 
-        /* Form */
-        .form-content { padding: 30px 0 0 0; }
-        .form-label {
-            display: block;
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 8px;
-            color: #333;
-        }
-        .form-label i { margin-right: 5px; color: #667eea; }
-        .form-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .form-group i {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #bdc3c7;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 15px 15px 15px 50px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 15px;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        }
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            font-size: 14px;
-        }
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #333;
-        }
-        .remember-me input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
-        .forgot-password-link {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
+.info-panel p {
+	font-size: 16px;
+	line-height: 1.7;
+	margin-bottom: 30px;
+	opacity: 0.9;
+}
 
-        /* Khách hàng */
-        .customer-only .divider {
-            text-align: center;
-            color: #bdc3c7;
-            margin: 25px 0;
-            position: relative;
-        }
-        .customer-only .divider::before,
-        .customer-only .divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 1px;
-            background: #e0e0e0;
-        }
-        .customer-only .divider::before { left: 0; }
-        .customer-only .divider::after { right: 0; }
-        .customer-only .social-login { display: flex; gap: 15px; }
-        .social-btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: transform 0.2s;
-        }
-        .social-btn:hover { transform: translateY(-2px); }
-        .social-btn.google {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            color: #333;
-        }
-        .social-btn.facebook { background: #1877f2; color: white; }
-        .customer-only.create-account {
-            text-align: center;
-            margin-top: 25px;
-            color: #333;
-        }
-        .customer-only.create-account a {
-            color: #667eea;
-            font-weight: 600;
-            text-decoration: none;
-        }
-        
-        @media (max-width: 992px) {
-            .login-page-container {
-                flex-direction: column;
-                min-height: auto;
-                max-width: 500px;
-            }
-            .info-panel { display: none; }
-            .form-panel { padding: 30px; }
-            .login-wrapper-container { padding: 30px 20px; }
-        }
-    </style>
+.info-features {
+	list-style: none;
+	padding-left: 0;
+}
+
+.info-features li {
+	font-size: 15px;
+	margin-bottom: 15px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.info-features i {
+	font-size: 18px;
+	width: 20px;
+	text-align: center;
+}
+
+/* ----- Cột Form (Bên phải) ----- */
+.form-panel {
+	flex: 1.1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 40px;
+}
+
+.form-title {
+	padding-bottom: 20px;
+	text-align: center;
+	font-size: 24px;
+	font-weight: 700;
+	color: #333;
+}
+
+/* Tab */
+.role-switcher {
+	display: flex;
+	width: 100%;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.role-tab {
+	flex: 1;
+	padding: 18px;
+	font-size: 16px;
+	font-weight: 600;
+	text-align: center;
+	cursor: pointer;
+	border: none;
+	background: none;
+	color: #7f8c8d;
+	border-bottom: 3px solid transparent;
+	transition: all 0.3s;
+}
+
+.role-tab:hover {
+	background: #f8f9fa;
+}
+
+.role-tab.active {
+	color: #667eea;
+	border-bottom-color: #667eea;
+}
+
+/* Form */
+.form-content {
+	padding: 30px 0 0 0;
+}
+
+.form-label {
+	display: block;
+	font-weight: 600;
+	font-size: 14px;
+	margin-bottom: 8px;
+	color: #333;
+}
+
+.form-label i {
+	margin-right: 5px;
+	color: #667eea;
+}
+
+.form-group {
+	margin-bottom: 20px;
+	position: relative;
+}
+
+.form-group i {
+	position: absolute;
+	left: 18px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #bdc3c7;
+}
+
+.form-group input {
+	width: 100%;
+	padding: 15px 15px 15px 50px;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	font-size: 15px;
+}
+
+.form-group input:focus {
+	outline: none;
+	border-color: #667eea;
+	box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.form-options {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 25px;
+	font-size: 14px;
+}
+
+.remember-me {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #333;
+}
+
+.remember-me input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}
+
+.forgot-password-link {
+	color: #667eea;
+	text-decoration: none;
+	font-weight: 500;
+}
+
+.login-btn {
+	width: 100%;
+	padding: 15px;
+	border: none;
+	border-radius: 8px;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s;
+}
+
+.login-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Khách hàng */
+.customer-only .divider {
+	text-align: center;
+	color: #bdc3c7;
+	margin: 25px 0;
+	position: relative;
+}
+
+.customer-only .divider::before, .customer-only .divider::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	width: 40%;
+	height: 1px;
+	background: #e0e0e0;
+}
+
+.customer-only .divider::before {
+	left: 0;
+}
+
+.customer-only .divider::after {
+	right: 0;
+}
+
+.customer-only .social-login {
+	display: flex;
+	gap: 15px;
+}
+
+.social-btn {
+	flex: 1;
+	padding: 12px;
+	border-radius: 8px;
+	text-decoration: none;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	transition: transform 0.2s;
+}
+
+.social-btn:hover {
+	transform: translateY(-2px);
+}
+
+.social-btn.google {
+	background: #f8f9fa;
+	border: 1px solid #e0e0e0;
+	color: #333;
+}
+
+.social-btn.facebook {
+	background: #1877f2;
+	color: white;
+}
+
+.customer-only.create-account {
+	text-align: center;
+	margin-top: 25px;
+	color: #333;
+}
+
+.customer-only.create-account a {
+	color: #667eea;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+@media ( max-width : 992px) {
+	.login-page-container {
+		flex-direction: column;
+		min-height: auto;
+		max-width: 500px;
+	}
+	.info-panel {
+		display: none;
+	}
+	.form-panel {
+		padding: 30px;
+	}
+	.login-wrapper-container {
+		padding: 30px 20px;
+	}
+}
+</style>
 </head>
 
 <body>
 
-    <main layout:fragment="content">
-    
-        <div class="login-wrapper-container">
-            <div class="login-page-container">
-                
-                <div class="info-panel">
-                    <h1>Chào mừng trở lại!</h1>
-                    <p>Đăng nhập để khám phá những bộ sưu tập thời trang mới nhất và nhận được các ưu đãi đặc biệt dành riêng cho bạn.</p>
-                    <ul class="info-features">
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <span>Mua sắm dễ dàng, nhanh chóng</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-star"></i>
-                            <span>Ưu đãi độc quyền cho thành viên</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-truck"></i>
-                            <span>Theo dõi đơn hàng mọi lúc</span>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="form-panel">
-                    <div class="form-title">
-                        Đăng nhập tài khoản
-                    </div>
-                    
-                    <div class="role-switcher">
-                        <button id="customer-tab" class="role-tab active">
-                            <i class="fas fa-user"></i> Khách hàng
-                        </button>
-                        <button id="employee-tab" class="role-tab">
-                            <i class="fas fa-user-shield"></i> Nhân viên
-                        </button>
-                    </div>
-                    
-                    <div class="form-content">
-                        
-                        <form id="login-form" th:action="@{/login}" method="post">
-                            
-                            <label for="username" class="form-label">
-                                <i class="fas fa-user"></i> Tên đăng nhập hoặc Email
-                            </label>
-                            <div class="form-group">
-                                <i class="fas fa-envelope"></i>
-                                <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập hoặc email" required>
-                            </div>
-                            
-                            <label for="password" class="form-label">
-                                <i class="fas fa-lock"></i> Mật khẩu
-                            </label>
-                            <div class="form-group">
-                                <i class="fas fa-key"></i>
-                                <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
-                            </div>
-                            
-                            <div th:if="${param.error}" style="color: red; font-size: 13px; text-align: center; margin-bottom: 15px;">
-                                Sai email hoặc mật khẩu.
-                            </div>
-                            
-                            <div class="form-options">
-                                <div class="remember-me">
-                                    <input type="checkbox" id="remember-me" name="remember-me">
-                                    <label for="remember-me">Ghi nhớ đăng nhập</label>
-                                </div>
-                                <a href="#" class="forgot-password-link">Quên mật khẩu?</a>
-                            </div>
-                            
-                            <button type="submit" class="login-btn">ĐĂNG NHẬP</button>
-                            
-                            <div class="customer-only">
-                                <div class="divider">HOẶC</div>
-                                <div class="social-login">
-                                    <a href="#" class="social-btn google">
-                                        <i class="fab fa-google"></i> Google
-                                    </a>
-                                    <a href="#" class="social-btn facebook">
-                                        <i class="fab fa-facebook-f"></i> Facebook
-                                    </a>
-                                </div>
-                            </div>
-                        </form>
-                        
-                        <div class="customer-only create-account">
-                            Chưa có tài khoản? <a th:href="@{/register}">Tạo tài khoản ngay</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+	<main layout:fragment="content">
 
-        <script th:inline="javascript">
+		<div class="login-wrapper-container">
+			<div class="login-page-container">
+
+				<div class="info-panel">
+					<h1>Chào mừng trở lại!</h1>
+					<p>Đăng nhập để khám phá những bộ sưu tập thời trang mới nhất
+						và nhận được các ưu đãi đặc biệt dành riêng cho bạn.</p>
+					<ul class="info-features">
+						<li><i class="fas fa-check-circle"></i> <span>Mua sắm
+								dễ dàng, nhanh chóng</span></li>
+						<li><i class="fas fa-star"></i> <span>Ưu đãi độc quyền
+								cho thành viên</span></li>
+						<li><i class="fas fa-truck"></i> <span>Theo dõi đơn
+								hàng mọi lúc</span></li>
+					</ul>
+				</div>
+
+				<div class="form-panel">
+					<div class="form-title">Đăng nhập tài khoản</div>
+
+					<div class="role-switcher">
+						<button id="customer-tab" class="role-tab active">
+							<i class="fas fa-user"></i> Khách hàng
+						</button>
+						<button id="employee-tab" class="role-tab">
+							<i class="fas fa-user-shield"></i> Nhân viên
+						</button>
+						<!-- ✅ Thêm mới -->
+						<button id="seller-tab" class="role-tab">
+							<i class="fas fa-store"></i> Người bán
+						</button>
+						<button id="shipper-tab" class="role-tab">
+							<i class="fas fa-truck"></i> Shipper
+						</button>
+					</div>
+
+					<div class="form-content">
+
+						<form id="login-form" th:action="@{/login}" method="post">
+
+							<label for="username" class="form-label"> <i
+								class="fas fa-user"></i> Tên đăng nhập hoặc Email
+							</label>
+							<div class="form-group">
+								<i class="fas fa-envelope"></i> <input type="text" id="username"
+									name="username" placeholder="Nhập tên đăng nhập hoặc email"
+									required>
+							</div>
+
+							<label for="password" class="form-label"> <i
+								class="fas fa-lock"></i> Mật khẩu
+							</label>
+							<div class="form-group">
+								<i class="fas fa-key"></i> <input type="password" id="password"
+									name="password" placeholder="Nhập mật khẩu" required>
+							</div>
+
+							<div th:if="${param.error}"
+								style="color: red; font-size: 13px; text-align: center; margin-bottom: 15px;">
+								Sai email hoặc mật khẩu.</div>
+
+							<div class="form-options">
+								<div class="remember-me">
+									<input type="checkbox" id="remember-me" name="remember-me">
+									<label for="remember-me">Ghi nhớ đăng nhập</label>
+								</div>
+								<a href="#" class="forgot-password-link">Quên mật khẩu?</a>
+							</div>
+
+							<button type="submit" class="login-btn">ĐĂNG NHẬP</button>
+
+							<div class="customer-only">
+								<div class="divider">HOẶC</div>
+								<div class="social-login">
+									<a href="#" class="social-btn google"> <i
+										class="fab fa-google"></i> Google
+									</a> <a href="#" class="social-btn facebook"> <i
+										class="fab fa-facebook-f"></i> Facebook
+									</a>
+								</div>
+							</div>
+						</form>
+
+						<div class="customer-only create-account">
+							Chưa có tài khoản? <a th:href="@{/register}">Tạo tài khoản
+								ngay</a>
+						</div>
+						<!-- ✅ Vùng hiển thị khi chọn tab Người bán -->
+						<div class="seller-only create-account"
+							style="display: none; text-align: center; margin-top: 25px; color: #333;">
+							Chưa có shop? <a th:href="@{/seller/register}"
+								style="color: #667eea; font-weight: 600; text-decoration: none;">
+								Đăng ký shop ngay </a>
+						</div>
+
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script th:inline="javascript">
             /*<![CDATA[*/
             
             // Đặt code vào trong DOMContentLoaded để đảm bảo HTML đã được tải
@@ -343,8 +414,21 @@
                 
                 const customerTab = document.getElementById('customer-tab');
                 const employeeTab = document.getElementById('employee-tab');
+                const sellerTab = document.getElementById('seller-tab');
+                const shipperTab = document.getElementById('shipper-tab');
+                
+				
+             // Hàm bỏ active khỏi tất cả các tab
+                function clearActiveTabs() {
+                    [customerTab, employeeTab, sellerTab, shipperTab].forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                }
+
+                
                 const loginForm = document.getElementById('login-form');
                 const customerOnlyElements = document.querySelectorAll('.customer-only');
+                const sellerOnlyElements = document.querySelectorAll('.seller-only');
 
                 if (!customerTab || !employeeTab || !loginForm) {
                     // Nếu không tìm thấy phần tử, in ra lỗi để biết
@@ -355,34 +439,51 @@
                 // Lấy URL từ Thymeleaf một cách an toàn
                 const customerLoginUrl = /*[[@{/login}]]*/ '/login';
                 const employeeLoginUrl = /*[[@{/admin/login}]]*/ '/admin/login'; // Đổi URL này nếu cần
+                const sellerLoginUrl = /*[[@{/seller/login}]]*/ '/seller/login';
+                const shipperLoginUrl = /*[[@{/shipper/login}]]*/ '/shipper/login';
+
 
                 function showCustomerView() {
+                    clearActiveTabs();
                     customerTab.classList.add('active');
-                    employeeTab.classList.remove('active');
                     loginForm.setAttribute('action', customerLoginUrl);
-                    
-                    customerOnlyElements.forEach(el => {
-                        el.style.display = 'block';
-                    });
-                    const socialLogin = document.querySelector('.social-login');
-                    if (socialLogin) {
-                        socialLogin.style.display = 'flex';
-                    }
+                    customerOnlyElements.forEach(el => el.style.display = 'block');
+                    sellerOnlyElements.forEach(el => el.style.display = 'none');
                 }
-                
+
                 function showEmployeeView() {
+                    clearActiveTabs();
                     employeeTab.classList.add('active');
-                    customerTab.classList.remove('active');
                     loginForm.setAttribute('action', employeeLoginUrl);
-                    
-                    customerOnlyElements.forEach(el => {
-                        el.style.display = 'none';
-                    });
+                    customerOnlyElements.forEach(el => el.style.display = 'none');
+                    sellerOnlyElements.forEach(el => el.style.display = 'none');
                 }
+
+                function showSellerView() {
+                    clearActiveTabs();
+                    sellerTab.classList.add('active');
+                    loginForm.setAttribute('action', sellerLoginUrl);
+                    customerOnlyElements.forEach(el => el.style.display = 'none');
+                    sellerOnlyElements.forEach(el => el.style.display = 'block');
+                }
+
+                function showShipperView() {
+                    clearActiveTabs();
+                    shipperTab.classList.add('active');
+                    loginForm.setAttribute('action', shipperLoginUrl);
+                    customerOnlyElements.forEach(el => el.style.display = 'none');
+                    sellerOnlyElements.forEach(el => el.style.display = 'none');
+                }
+
+
+
 
                 // Gán sự kiện click
                 customerTab.addEventListener('click', showCustomerView);
                 employeeTab.addEventListener('click', showEmployeeView);
+                sellerTab.addEventListener('click', showSellerView);
+                shipperTab.addEventListener('click', showShipperView);
+	
                 
                 // Kích hoạt view mặc định
                 showCustomerView();
@@ -422,5 +523,6 @@
             /*]]>*/
         </script>
 
-    </main> </body>
+	</main>
+</body>
 </html>
