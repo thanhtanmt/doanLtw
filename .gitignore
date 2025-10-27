@@ -1,0 +1,49 @@
+# =========================
+# 🧰 Spring Boot / Maven
+# =========================
+target/
+logs/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+build/
+
+# =========================
+# ☕ Java
+# =========================
+*.class
+*.jar
+*.war
+*.ear
+
+# =========================
+# 💻 Eclipse / Spring Tool Suite (STS)
+# =========================
+.classpath
+.project
+.settings/
+bin/
+.metadata/
+.apt_generated/
+.factorypath
+.springBeans
+.sts4-cache/
+
+# =========================
+# 🔧 IntelliJ IDEA
+# =========================
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# =========================
+# 🧪 OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# 🔐 Environment files
+# =========================
+.env
