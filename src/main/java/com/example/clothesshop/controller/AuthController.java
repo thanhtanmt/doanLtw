@@ -10,6 +10,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.clothesshop.dto.UserRegistrationDto;
 import com.example.clothesshop.service.UserService;
+import com.example.clothesshop.model.Seller;
 
 import jakarta.validation.Valid;
 
@@ -95,7 +96,8 @@ public class AuthController {
 	}
 
 	@GetMapping("/seller/register")
-	public String sellerRegister() {
-		return "seller-register";
+	public String sellerRegister(Model model) {
+	    model.addAttribute("seller", new Seller()); // ✅ thêm dòng này
+	    return "seller-register";
 	}
 }
