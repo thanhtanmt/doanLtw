@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/shipper}">
+<head>
+<title>Hồ sơ Shipper</title>
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="page-header">
+			<h1 class="page-title">Thông tin Tài khoản Shipper</h1>
+		</div>
+		<div class="profile-row-grid">
+			<div class="content-box profile-section scale-in"
+				style="animation-delay: 0.1s;">
+				<div class="profile-section-header">
+					<h2>Thông tin cá nhân</h2>
+					<button class="btn btn-secondary btn-sm btn-edit-profile">
+						<i class="fas fa-edit"></i> Chỉnh sửa
+					</button>
+				</div>
+				<div class="profile-info-grid">
+					<div class="info-row">
+						<span class="info-label">Họ và tên</span> <span class="info-value">Nguyễn
+							Văn Shipper</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label">Email</span> <span class="info-value">shipper@fashionstore.com</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label">Số điện thoại</span> <span
+							class="info-value">090xxxx123</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label">Khu vực hoạt động</span> <span
+							class="info-value">Quận 1, Quận 3</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label">Phương tiện</span> <span
+							class="info-value">Xe máy - Biển số: 59-A1 12345</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="content-box profile-section scale-in"
+				style="animation-delay: 0.2s;">
+				<h2>Thay đổi mật khẩu</h2>
+				<form th:action="@{/shipper/profile/change-password}" method="post">
+					<div class="form-group">
+						<label for="currentPassword" class="form-label">Mật khẩu
+							hiện tại</label> <input type="password" id="currentPassword"
+							name="currentPassword" class="form-control" required>
+					</div>
+
+					<div class="form-group">
+						<label for="newPassword" class="form-label">Mật khẩu mới</label> <input
+							type="password" id="newPassword" name="newPassword"
+							class="form-control" required minlength="6">
+					</div>
+					<div class="form-group">
+						<label for="confirmNewPassword" class="form-label">Xác
+							nhận mật khẩu mới</label> <input type="password" id="confirmNewPassword"
+							name="confirmNewPassword" class="form-control" required>
+					</div>
+
+					<div class="form-actions">
+						<button type="submit" class="btn btn-primary">
+							<i class="fas fa-key"></i> Cập nhật mật khẩu
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="profile-row-grid">
+			<div class="content-box text-center scale-in"
+				style="animation-delay: 0.3s;">
+				<img th:src="@{/images/default-avatar.png}" alt="Avatar"
+					class="profile-avatar">
+				<h3 class="profile-name">Nguyễn Văn Shipper</h3>
+				<p class="profile-role">Shipper</p>
+				<button class="btn btn-secondary btn-sm btn-change-avatar">
+					<i class="fas fa-camera"></i> Đổi ảnh
+				</button>
+				<input type="file" id="avatarUpload" style="display: none;"
+					accept="image/*">
+			</div>
+
+			<div class="content-box scale-in" style="animation-delay: 0.4s;">
+				<h2>Thống kê tháng này</h2>
+				<div class="profile-info-grid stats-compact">
+					<div class="info-row">
+						<span class="info-label"><i
+							class="fas fa-check-double text-success"></i> Đơn thành công</span> <span
+							class="info-value">152</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label"><i
+							class="fas fa-times-circle text-danger"></i> Đơn thất bại</span> <span
+							class="info-value">8</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label"><i
+							class="fas fa-coins text-warning"></i> Thu nhập (Ước tính)</span> <span
+							class="info-value">5.800.000đ</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label"><i class="fas fa-star"
+							style="color: #f59e0b;"></i> Đánh giá</span> <span class="info-value">4.8
+							/ 5.0</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+	</div>
+
+	<th:block layout:fragment="scripts">
+		<script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function() {
+            // Code xử lý nút "Đổi ảnh"
+            const changeAvatarBtn = document.querySelector('.btn-change-avatar');
+            const avatarUploadInput = document.getElementById('avatarUpload');
+            if (changeAvatarBtn && avatarUploadInput) {
+                changeAvatarBtn.addEventListener('click', () => {
+                    avatarUploadInput.click();
+                });
+                // Thêm xử lý khi chọn file ảnh...
+            }
+            // Thêm code JS khác nếu cần...
+        });
+        /*]]>*/
+        </script>
+	</th:block>
+
+</body>
+</html>

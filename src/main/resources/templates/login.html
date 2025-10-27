@@ -333,9 +333,6 @@
 							<i class="fas fa-user-shield"></i> Nhân viên
 						</button>
 						<!-- ✅ Thêm mới -->
-						<button id="seller-tab" class="role-tab">
-							<i class="fas fa-store"></i> Người bán
-						</button>
 						<button id="shipper-tab" class="role-tab">
 							<i class="fas fa-truck"></i> Shipper
 						</button>
@@ -407,121 +404,83 @@
 		</div>
 
 		<script th:inline="javascript">
-            /*<![CDATA[*/
-            
-            // Đặt code vào trong DOMContentLoaded để đảm bảo HTML đã được tải
-            document.addEventListener('DOMContentLoaded', function() {
-                
-                const customerTab = document.getElementById('customer-tab');
-                const employeeTab = document.getElementById('employee-tab');
-                const sellerTab = document.getElementById('seller-tab');
-                const shipperTab = document.getElementById('shipper-tab');
-                
-				
-             // Hàm bỏ active khỏi tất cả các tab
-                function clearActiveTabs() {
-                    [customerTab, employeeTab, sellerTab, shipperTab].forEach(tab => {
-                        tab.classList.remove('active');
-                    });
-                }
+/*<![CDATA[*/
+document.addEventListener('DOMContentLoaded', function() {
 
-                
-                const loginForm = document.getElementById('login-form');
-                const customerOnlyElements = document.querySelectorAll('.customer-only');
-                const sellerOnlyElements = document.querySelectorAll('.seller-only');
+    // 🔹 Lấy phần tử DOM
+    const customerTab = document.getElementById('customer-tab');
+    const employeeTab = document.getElementById('employee-tab');
+    const shipperTab = document.getElementById('shipper-tab');
+    const loginForm = document.getElementById('login-form');
+    const customerOnlyElements = document.querySelectorAll('.customer-only');
 
-                if (!customerTab || !employeeTab || !loginForm) {
-                    // Nếu không tìm thấy phần tử, in ra lỗi để biết
-                    console.error("Không tìm thấy các phần tử tab đăng nhập!");
-                    return;
-                }
-                
-                // Lấy URL từ Thymeleaf một cách an toàn
-                const customerLoginUrl = /*[[@{/login}]]*/ '/login';
-                const employeeLoginUrl = /*[[@{/admin/login}]]*/ '/admin/login'; // Đổi URL này nếu cần
-                const sellerLoginUrl = /*[[@{/seller/login}]]*/ '/seller/login';
-                const shipperLoginUrl = /*[[@{/shipper/login}]]*/ '/shipper/login';
+    // 🔹 Đảm bảo tất cả tồn tại trước khi chạy
+    if (!customerTab || !employeeTab || !shipperTab || !loginForm) {
+        console.error("❌ Không tìm thấy một số phần tử trong trang đăng nhập!");
+        return;
+    }
 
+    // 🔹 URL login cho từng vai trò
+    const customerLoginUrl = /*[[@{/login}]]*/ '/login';
+    const employeeLoginUrl = /*[[@{/admin/login}]]*/ '/admin/login';
+    const shipperLoginUrl = /*[[@{/shipper/login}]]*/ '/shipper/login';
 
-                function showCustomerView() {
-                    clearActiveTabs();
-                    customerTab.classList.add('active');
-                    loginForm.setAttribute('action', customerLoginUrl);
-                    customerOnlyElements.forEach(el => el.style.display = 'block');
-                    sellerOnlyElements.forEach(el => el.style.display = 'none');
-                }
+    // 🔹 Xóa trạng thái active tất cả tab
+    function clearActiveTabs() {
+        [customerTab, employeeTab, shipperTab].forEach(tab => tab.classList.remove('active'));
+    }
 
-                function showEmployeeView() {
-                    clearActiveTabs();
-                    employeeTab.classList.add('active');
-                    loginForm.setAttribute('action', employeeLoginUrl);
-                    customerOnlyElements.forEach(el => el.style.display = 'none');
-                    sellerOnlyElements.forEach(el => el.style.display = 'none');
-                }
+    // 🔹 Hiển thị từng chế độ
+    function showCustomerView() {
+        clearActiveTabs();
+        customerTab.classList.add('active');
+        loginForm.setAttribute('action', customerLoginUrl);
+        customerOnlyElements.forEach(el => el.style.display = 'block');
+    }
 
-                function showSellerView() {
-                    clearActiveTabs();
-                    sellerTab.classList.add('active');
-                    loginForm.setAttribute('action', sellerLoginUrl);
-                    customerOnlyElements.forEach(el => el.style.display = 'none');
-                    sellerOnlyElements.forEach(el => el.style.display = 'block');
-                }
+    function showEmployeeView() {
+        clearActiveTabs();
+        employeeTab.classList.add('active');
+        loginForm.setAttribute('action', employeeLoginUrl);
+        customerOnlyElements.forEach(el => el.style.display = 'none');
+    }
 
-                function showShipperView() {
-                    clearActiveTabs();
-                    shipperTab.classList.add('active');
-                    loginForm.setAttribute('action', shipperLoginUrl);
-                    customerOnlyElements.forEach(el => el.style.display = 'none');
-                    sellerOnlyElements.forEach(el => el.style.display = 'none');
-                }
+    function showShipperView() {
+        clearActiveTabs();
+        shipperTab.classList.add('active');
+        loginForm.setAttribute('action', shipperLoginUrl);
+        customerOnlyElements.forEach(el => el.style.display = 'none');
+    }
 
+    // 🔹 Gán sự kiện click cho các tab
+    customerTab.addEventListener('click', showCustomerView);
+    employeeTab.addEventListener('click', showEmployeeView);
+    shipperTab.addEventListener('click', showShipperView);
 
+    // 🔹 Mặc định: chọn tab khách hàng
+    showCustomerView();
 
+    // 🔹 Xử lý sự kiện submit (mô phỏng chuyển hướng khi là nhân viên)
+    loginForm.addEventListener('submit', function(event) {
+        const adminHomeUrl = /*[[@{/admin/home}]]*/ '/admin/home';
+        const shipperHomeUrl = /*[[@{/shipper/dashboard}]]*/ '/shipper/dashboard';
 
-                // Gán sự kiện click
-                customerTab.addEventListener('click', showCustomerView);
-                employeeTab.addEventListener('click', showEmployeeView);
-                sellerTab.addEventListener('click', showSellerView);
-                shipperTab.addEventListener('click', showShipperView);
-	
-                
-                // Kích hoạt view mặc định
-                showCustomerView();
-                
-                
-                
-             // === BẮT ĐẦU ĐOẠN CODE MỚI ĐỂ CHÈN ===
+        if (employeeTab.classList.contains('active')) {
+            event.preventDefault();
+            console.log('➡️ Chuyển hướng đến Admin:', adminHomeUrl);
+            window.location.href = adminHomeUrl;
+        }
 
-             // Bắt sự kiện submit của form
-             loginForm.addEventListener('submit', function(event) {
-                 
-                 // Đổi URL này thành trang admin home của bạn
-                 // (Ví dụ: 'admin-home.html' hoặc '/admin/home')
-                 const adminHomeUrl = /*[[@{/admin/home}]]*/ '/admin/home'; 
-                 
-                 // Kiểm tra xem tab "Nhân viên" có đang active không
-                 if (employeeTab.classList.contains('active')) {
-                     
-                     // 1. Ngăn form gửi đi (ngăn hành động POST thật)
-                     event.preventDefault(); 
-                     
-                     // 2. "Nhảy" thẳng đến trang admin home (chỉ-frontend)
-                     console.log('Chuyển hướng (frontend-only) đến:', adminHomeUrl);
-                     window.location.href = adminHomeUrl;
-                 }
-                 
-                 // Nếu là tab "Khách hàng", không làm gì cả, cứ để form submit bình thường.
-             });
+        if (shipperTab.classList.contains('active')) {
+            event.preventDefault();
+            console.log('➡️ Chuyển hướng đến Shipper:', shipperHomeUrl);
+            window.location.href = shipperHomeUrl;
+        }
+    });
+});
+/*]]>*/
+</script>
 
-             // === KẾT THÚC ĐOẠN CODE MỚI ===
-            	 
-            	 
-            	 
-            	 
-            });
-            
-            /*]]>*/
-        </script>
 
 	</main>
 </body>

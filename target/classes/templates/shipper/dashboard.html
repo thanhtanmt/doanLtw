@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/shipper}"> <head>
+    <title>Trang chủ Shipper</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="page-header">
+            <h1 class="page-title">Tổng quan hôm nay</h1>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card income scale-in" style="animation-delay: 0.1s;">
+                <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                <div class="stat-info">
+                    <h3>150.000đ</h3>
+                    <p>Thu nhập hôm nay (Ước tính)</p>
+                </div>
+            </div>
+            <div class="stat-card pending scale-in" style="animation-delay: 0.2s;">
+                <div class="stat-icon"><i class="fas fa-box-open"></i></div>
+                <div class="stat-info">
+                    <h3>5</h3>
+                    <p>Đơn hàng cần giao</p>
+                </div>
+            </div>
+            <div class="stat-card completed scale-in" style="animation-delay: 0.3s;">
+                <div class="stat-icon"><i class="fas fa-check-double"></i></div>
+                <div class="stat-info">
+                    <h3>12</h3>
+                    <p>Đơn hàng đã giao</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-box fade-in" style="animation-delay: 0.4s;">
+            <h2>Đơn hàng mới cần giao</h2>
+            <div class="shipment-list" style="margin-top: 20px;">
+                <div class="shipment-item">
+                     <span class="shipment-id">#DH3001</span>
+                     <i class="fas fa-map-marker-alt shipment-icon"></i>
+                     <div class="shipment-details">
+                         <p><strong>Địa chỉ:</strong> 123 Đường ABC, Phường XYZ, Quận 1, TP. HCM</p>
+                         <p><i class="fas fa-phone"></i> <strong>SĐT:</strong> 090xxxx123</p>
+                         <p><i class="fas fa-money-bill-wave"></i> <strong>Thu hộ (COD):</strong> 350.000đ</p>
+                     </div>
+                     <div class="shipment-actions">
+                         <a href="#" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Chi tiết</a>
+                     </div>
+                </div>
+                <div class="shipment-item">
+                     <span class="shipment-id">#DH3002</span>
+                     <i class="fas fa-map-marker-alt shipment-icon"></i>
+                     <div class="shipment-details">
+                          <p><strong>Địa chỉ:</strong> 456 Đường DEF, Phường UVW, Quận 7, TP. HCM</p>
+                          <p><i class="fas fa-phone"></i> <strong>SĐT:</strong> 091xxxx456</p>
+                          <p><i class="fas fa-credit-card"></i> <strong>Đã thanh toán</strong></p>
+                     </div>
+                     <div class="shipment-actions">
+                          <a href="#" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Chi tiết</a>
+                     </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/shipper}">
+
+<head>
+    <title>Đơn hàng cần giao</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="page-header">
+            <h1 class="page-title">Đơn hàng cần giao</h1>
+        </div>
+
+        <div class="content-box fade-in">
+             <div class="filter-bar">
+                 <div class="filter-controls">
+                     <input type="text" placeholder="Tìm theo Mã ĐH, Địa chỉ, SĐT...">
+                     <select name="area">
+                         <option value="">Tất cả khu vực</option>
+                         <option value="q1">Quận 1</option>
+                         <option value="q7">Quận 7</option>
+                         <option value="qtb">Quận Tân Bình</option>
+                     </select>
+                 </div>
+            </div>
+
+            <div class="shipment-list" style="margin-top: 20px;">
+                <div class="shipment-item scale-in" style="animation-delay: 0.1s;">
+                     <span class="shipment-id">#DH3001</span>
+                     <i class="fas fa-map-marker-alt shipment-icon"></i>
+                     <div class="shipment-details">
+                         <p><strong>Địa chỉ:</strong> 123 Đường ABC, P.XYZ, Q.1, TP. HCM</p>
+                         <p><i class="fas fa-phone"></i> <strong>SĐT:</strong> 090xxxx123 | <i class="fas fa-user"></i> Nguyễn Văn A</p>
+                         <p><i class="fas fa-money-bill-wave"></i> <strong>Thu hộ (COD):</strong> 350.000đ</p>
+                         <p><i class="far fa-clock"></i> <strong>Thời gian dự kiến:</strong> Hôm nay, Trước 17:00</p>
+                     </div>
+                     <div class="shipment-actions">
+                         <a href="#" class="btn btn-primary"><i class="fas fa-motorcycle"></i> Bắt đầu giao</a>
+                     </div>
+                </div>
+                <div class="shipment-item scale-in" style="animation-delay: 0.2s;">
+                     <span class="shipment-id">#DH3002</span>
+                     <i class="fas fa-map-marker-alt shipment-icon"></i>
+                     <div class="shipment-details">
+                          <p><strong>Địa chỉ:</strong> 456 Đường DEF, P.UVW, Q.7, TP. HCM</p>
+                          <p><i class="fas fa-phone"></i> <strong>SĐT:</strong> 091xxxx456 | <i class="fas fa-user"></i> Trần Thị B</p>
+                          <p><i class="fas fa-credit-card"></i> <strong>Đã thanh toán</strong></p>
+                          <p><i class="far fa-clock"></i> <strong>Thời gian dự kiến:</strong> Ngày mai, 9:00 - 11:00</p>
+                     </div>
+                     <div class="shipment-actions">
+                          <a href="#" class="btn btn-primary"><i class="fas fa-motorcycle"></i> Bắt đầu giao</a>
+                     </div>
+                </div>
+                 <div class="shipment-item scale-in" style="animation-delay: 0.3s;">
+                     <span class="shipment-id">#DH3003</span>
+                     <i class="fas fa-map-marker-alt shipment-icon"></i>
+                     <div class="shipment-details">
+                          <p><strong>Địa chỉ:</strong> 789 Đường GHI, P.RST, Q.Tân Bình, TP. HCM</p>
+                          <p><i class="fas fa-phone"></i> <strong>SĐT:</strong> 098xxxx789 | <i class="fas fa-user"></i> Lê Văn C</p>
+                          <p><i class="fas fa-money-bill-wave"></i> <strong>Thu hộ (COD):</strong> 850.000đ</p>
+                          <p><i class="far fa-clock"></i> <strong>Thời gian dự kiến:</strong> Hôm nay, Trước 12:00</p>
+                     </div>
+                     <div class="shipment-actions">
+                          <a href="#" class="btn btn-primary"><i class="fas fa-motorcycle"></i> Bắt đầu giao</a>
+                     </div>
+                </div>
+            </div>
+            </div>
+    </div>
+</body>
+</html>

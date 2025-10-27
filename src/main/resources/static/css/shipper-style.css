@@ -1,0 +1,644 @@
+/* === CSS CHO GIAO DIỆN SHIPPER === */
+
+/* ----- Biến Màu & Cơ bản ----- */
+:root {
+    /* Đổi màu chính thành xanh tím */
+    --shipper-primary: #5b21b6; /* Màu tím đậm (Violet-700) */
+    --shipper-secondary: #4f46e5; /* Màu Indigo-600 */
+    --shipper-accent: #f59e0b; /* Giữ nguyên màu vàng cam làm điểm nhấn phụ */
+    
+    /* Các màu khác giữ nguyên hoặc điều chỉnh nếu cần */
+    --shipper-bg: #f8fafc; /* Nền xám rất nhạt (Slate-50) */
+    --shipper-card-bg: #ffffff;
+    --shipper-text: #1e293b; /* Slate-800 */
+    --shipper-text-light: #64748b; /* Slate-500 */
+    --radius-md: 0.75rem; 
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --success: #10b981; /* Giữ màu xanh lá cho success */
+    --warning: #f59e0b; /* Giữ màu vàng cam */
+    --error: #ef4444; /* Giữ màu đỏ */
+}
+
+/* Keyframes Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0;}
+.scale-in { animation: scaleIn 0.4s ease-out forwards; opacity: 0; }
+
+/* ----- Layout Cơ bản ----- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--shipper-bg);
+    color: var(--shipper-text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+main {
+    flex-grow: 1;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 30px auto 0 auto;
+    width: 100%;
+}
+
+/* ----- Header ----- */
+/* ----- 2. Sửa màu nền Header ----- */
+header.shipper-header {
+    /* Đổi gradient nền header */
+    background: linear-gradient(135deg, var(--shipper-secondary) 0%, var(--shipper-primary) 100%);
+    /* Các style khác giữ nguyên */
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.shipper-header .header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.shipper-header .logo {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.shipper-header .header-actions {
+    display: flex; gap: 20px; align-items: center;
+}
+/* User Menu & Dropdown (Tái sử dụng style nhưng có thể tùy chỉnh) */
+.shipper-header .user-menu { position: relative; }
+.shipper-header .user-menu-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 15px;
+    border-radius: 20px;
+    transition: background var(--transition);
+    color: white;
+}
+.shipper-header .user-menu-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.shipper-header .user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-md);
+    min-width: 180px; /* Hẹp hơn chút */
+    z-index: 1001;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(5px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+}
+.shipper-header .user-menu:hover .user-dropdown,
+.shipper-header .user-dropdown:hover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+.shipper-header .user-dropdown a {
+    display: flex; /* Canh icon và chữ */
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px; /* Padding nhỏ hơn */
+    color: var(--shipper-text);
+    text-decoration: none;
+    font-size: 14px;
+    transition: background var(--transition), color var(--transition);
+    white-space: nowrap;
+    border-radius: 0; /* Bo góc riêng cho first/last */
+}
+.shipper-header .user-dropdown a:hover {
+    background: #f1f5f9; /* Nền hover nhạt hơn */
+    color: var(--shipper-primary);
+}
+.shipper-header .user-dropdown a:first-child { border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); }
+.shipper-header .user-dropdown a:last-child { border-bottom-left-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md); }
+.shipper-header .user-dropdown a i { width: 16px; text-align: center; color: var(--shipper-text-light); }
+.shipper-header .user-dropdown a:hover i { color: var(--shipper-primary); }
+
+
+/* ----- Navigation ----- */
+nav.shipper-nav {
+    background: var(--shipper-card-bg);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 60px; /* Cần khớp chiều cao header */
+    z-index: 999;
+}
+.shipper-nav .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: flex;
+    justify-content: flex-start;
+    gap: 35px;
+}
+.shipper-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--shipper-text-light);
+    text-decoration: none;
+    padding: 18px 0;
+    font-weight: 600;
+    font-size: 15px;
+    position: relative;
+    transition: color var(--transition);
+}
+nav.shipper-nav a:hover,
+nav.shipper-nav a.active {
+    color: var(--shipper-primary); /* Đổi màu active/hover */
+}
+.shipper-nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--shipper-primary);
+    transform: scaleX(0);
+    transform-origin: bottom left;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.shipper-nav a.active::after {
+    transform: scaleX(1);
+}
+.shipper-nav a i { width: 18px; text-align: center; } /* Đảm bảo icon thẳng hàng */
+
+/* ----- Footer ----- */
+footer.shipper-footer {
+    background: #1e293b;
+    color: #94a3b8;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 30px; /* Thêm khoảng cách trên footer */
+}
+
+/* ----- Components Chung ----- */
+.page-header {
+    margin-bottom: 30px;
+}
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--shipper-primary);
+}
+
+.content-box {
+    background: var(--shipper-card-bg);
+    padding: 30px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 30px;
+    border: 1px solid #e2e8f0;
+    transition: transform var(--transition), box-shadow var(--transition);
+    overflow: hidden; /* Giúp các hiệu ứng bên trong không bị tràn */
+}
+.content-box:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+.content-box h2 { /* Style tiêu đề trong box */
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--shipper-text);
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.btn {
+    padding: 12px 28px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+}
+.btn-primary {
+    /* Đổi gradient nền nút */
+    background: linear-gradient(135deg, var(--shipper-secondary) 0%, var(--shipper-primary) 100%);
+    color: white;
+    /* Điều chỉnh bóng đổ cho hợp màu mới */
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4); /* Bóng màu Indigo */
+}
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    /* Bóng đậm hơn khi hover */
+    box-shadow: 0 7px 15px rgba(91, 33, 182, 0.5); /* Bóng màu Violet đậm */
+}
+
+.btn-secondary {
+    background-color: #e2e8f0;
+    color: #475569;
+}
+.btn-secondary:hover {
+    background-color: #cbd5e1;
+    transform: translateY(-2px); /* Hiệu ứng nhẹ hơn */
+}
+
+/* ----- Dashboard Specific ----- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px; /* Tăng khoảng cách dưới từ 30px lên 40px (hoặc hơn) */
+}
+.stat-card {
+    background: var(--shipper-card-bg);
+    padding: 25px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), box-shadow var(--transition);
+    overflow: hidden; /* Giữ icon nền không tràn */
+    position: relative; /* Cho icon nền */
+}
+/* Hiệu ứng nâng cao khi hover */
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: var(--shadow-lg);
+}
+.stat-card::before { /* Icon nền mờ */
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 80px;
+    color: rgba(0, 0, 0, 0.04);
+    transition: transform 0.4s ease-out;
+    transform: rotate(15deg);
+}
+/* Sửa lại icon nền mờ cho khớp màu mới */
+.stat-card.pending::before { content: "\f49e"; color: rgba(91, 33, 182, 0.05); } /* fas fa-box-open, màu tím mờ */
+.stat-card.completed::before { content: "\f560"; color: rgba(79, 70, 229, 0.05); } /* fas fa-check-double, màu indigo mờ */
+/* Thu nhập giữ nguyên icon nền màu xanh lá */
+.stat-card.income::before { content: "\f51e"; color: rgba(16, 185, 129, 0.04); }
+.stat-card:hover::before {
+    transform: rotate(5deg) scale(1.1);
+}
+
+.stat-icon {
+    font-size: 28px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    z-index: 1; /* Nằm trên icon nền */
+}
+/* Màu riêng cho shipper stats */
+.stat-card.income .stat-icon { 
+    /* Giữ màu xanh lá cho Thu nhập */
+    background: linear-gradient(135deg, #10b981, #059669); 
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+}
+.stat-card.pending .stat-icon { 
+    /* Đổi màu Cần giao thành màu tím */
+    background: linear-gradient(135deg, #a78bfa, var(--shipper-primary)); /* Violet-400 -> Violet-700 */
+    box-shadow: 0 4px 10px rgba(91, 33, 182, 0.4); 
+}
+.stat-card.completed .stat-icon { 
+    /* Đổi màu Đã giao thành màu indigo */
+    background: linear-gradient(135deg, #818cf8, var(--shipper-secondary)); /* Indigo-400 -> Indigo-600 */
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
+}
+.stat-info h3 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--shipper-text);
+    margin-bottom: 2px;
+}
+.stat-info p {
+    font-size: 14px;
+    color: var(--shipper-text-light);
+}
+
+/* ----- Shipment List ----- */
+.shipment-list {
+    display: grid;
+    gap: 20px;
+}
+.shipment-item {
+    background: var(--shipper-card-bg);
+    padding: 20px 25px;
+    border-radius: var(--radius-md);
+    border: 1px solid #e2e8f0;
+    box-shadow: var(--shadow-sm);
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* Icon/Mã | Thông tin | Nút */
+    gap: 15px 25px; /* Tăng gap cột */
+    align-items: center;
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+.shipment-item:hover {
+    transform: translateX(5px) scale(1.01);
+    box-shadow: var(--shadow-md);
+}
+.shipment-id {
+    font-weight: 600;
+    color: var(--shipper-primary);
+    font-size: 14px;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    align-self: end; /* Căn xuống dưới */
+}
+.shipment-icon {
+    font-size: 20px;
+    color: var(--shipper-text-light);
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    justify-self: center;
+    align-self: start; /* Căn lên trên */
+    margin-top: 5px;
+}
+.shipment-details {
+    grid-column: 2 / 3;
+    grid-row: 1 / 3;
+}
+.shipment-details p {
+    font-size: 14px;
+    color: var(--shipper-text-light);
+    margin-bottom: 8px; /* Tăng khoảng cách */
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Tăng khoảng cách icon-chữ */
+}
+.shipment-details p:last-child { margin-bottom: 0; }
+.shipment-details p i { /* Style icon trong details */
+    width: 16px;
+    text-align: center;
+    color: var(--shipper-secondary);
+    flex-shrink: 0;
+}
+.shipment-details p strong {
+    color: var(--shipper-text);
+    font-weight: 500;
+}
+.shipment-actions {
+    grid-column: 3 / 4;
+    grid-row: 1 / 3;
+    justify-self: end;
+}
+.shipment-actions .btn {
+    padding: 10px 20px; /* Nút lớn hơn chút */
+    font-size: 14px;
+}
+
+/* Status Badges (Copy từ modern.css nếu chưa có) */
+.status {
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Bóng đổ nhẹ */
+    display: inline-block; /* Để nó không chiếm cả hàng */
+}
+/* Màu riêng cho Shipper Status */
+.status.pending { background-color: var(--shipper-accent); }
+.status.shipping { background-color: var(--shipper-secondary); }
+.status.delivered { background-color: var(--success); }
+.status.failed { background-color: var(--error); }
+
+
+/* Filter Bar (Giống Admin nhưng có thể đổi màu nếu muốn) */
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px; /* Tăng khoảng cách */
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    flex-grow: 1;
+}
+.filter-controls input, .filter-controls select {
+    padding: 12px 18px;
+    border: 2px solid #e2e8f0; /* Viền nhạt hơn */
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    background: var(--shipper-card-bg);
+    transition: all var(--transition);
+    height: 48px;
+    vertical-align: middle;
+}
+.filter-controls input[type="text"] {
+    min-width: 250px; /* Rộng hơn chút */
+    flex-grow: 1;
+}
+.filter-controls input:focus, .filter-controls select:focus {
+    outline: none;
+    border-color: var(--shipper-primary);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1); /* Bóng focus màu xanh đậm */
+}
+.filter-bar .btn {
+    height: 48px;
+    padding: 12px 20px;
+    flex-shrink: 0;
+}
+
+/* Modal (Giữ nguyên từ modern.css) */
+.modal-overlay { /*...*/ }
+.modal-box { /*...*/ }
+/* ... (các style modal khác) ... */
+.modal-footer .btn-secondary { /* Style lại nút Hủy bỏ nếu cần */
+    background-color: #e2e8f0; color: #475569;
+}
+.modal-footer .btn-secondary:hover { background-color: #cbd5e1;}
+.modal-footer .btn-danger { /* Style lại nút Đăng xuất nếu cần */
+    background-color: var(--error); color: white;
+}
+.modal-footer .btn-danger:hover { background-color: #dc2626; }
+
+
+/* ----- Responsive ----- */
+@media (max-width: 768px) {
+    main { padding: 20px; margin-top: 20px; }
+    .page-title { font-size: 28px; }
+    .stats-grid { gap: 20px; }
+    .shipment-item {
+        grid-template-columns: 1fr auto;
+        gap: 15px;
+    }
+    .shipment-id { grid-column: 1 / 2; grid-row: 1 / 2; }
+    .shipment-icon { display: none; }
+    .shipment-details { grid-column: 1 / 2; grid-row: 2 / 3; }
+    .shipment-actions { grid-column: 2 / 3; grid-row: 1 / 3; }
+    .shipper-nav .nav-container { gap: 15px; padding: 0 15px; justify-content: space-around;}
+    .shipper-nav a { padding: 15px 0; gap: 5px;}
+    .filter-bar { flex-direction: column; align-items: stretch; }
+    .filter-bar .btn { align-self: flex-end; }
+}
+/* === CSS CHO BỐ CỤC PROFILE SHIPPER (Dàn đều) === */
+
+/* ----- Bỏ bố cục grid cũ (nếu bạn đã xóa) ----- */
+/* Bạn có thể bỏ qua phần reset này nếu class profile-container không còn trong HTML */
+.profile-container {
+    display: block; 
+    grid-template-columns: none; 
+    gap: 0;
+}
+.profile-main-content,
+.profile-sidebar {
+    display: block; 
+    gap: 0;
+}
+
+/* ----- Xóa max-width và margin auto ----- */
+/* Quan trọng: Phần này sẽ làm các box dàn ra */
+.profile-section, .profile-row-grid > .content-box {
+    /* Đảm bảo không còn max-width và margin auto */
+     max-width: none; /* Ghi đè nếu có */
+     margin-left: 0; /* Ghi đè nếu có */
+     margin-right: 0; /* Ghi đè nếu có */
+}
+
+/* Bố cục grid cho hàng chứa Avatar và Stats */
+.profile-row-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 30px; 
+    /* Đảm bảo không còn max-width và margin auto */
+     max-width: none; /* Ghi đè nếu có */
+     margin-left: 0; /* Ghi đè nếu có */
+     margin-right: 0; /* Ghi đè nếu có */
+    margin-bottom: 30px; 
+}
+
+/* ----- Điều chỉnh style bên trong (Giữ nguyên từ trước) ----- */
+/* Giảm padding của info-row trong box stats */
+.stats-compact .info-row {
+    padding: 8px 0; 
+    border-bottom: 1px solid #f8f9fa; 
+}
+.stats-compact .info-row:last-child {
+    border-bottom: none;
+}
+.stats-compact .info-label {
+    grid-template-columns: 20px 1fr; 
+    gap: 10px;
+    font-size: 13px; 
+    color: var(--shipper-text); 
+}
+.stats-compact .info-label i {
+    width: 20px;
+    text-align: center;
+}
+.stats-compact .info-value {
+    font-size: 14px; 
+    font-weight: 600; 
+    text-align: right; 
+}
+
+/* === TINH CHỈNH CSS CHO FORM ĐỔI MẬT KHẨU (SHIPPER PROFILE) === */
+
+/* Đảm bảo style .form-control chung được áp dụng */
+/* (Phần này đã có sẵn) */
+.form-control {
+    width: 100%;
+    padding: 12px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: var(--radius-md); /* Sử dụng biến bo góc chung */
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    transition: all var(--transition);
+    background: var(--shipper-card-bg);
+    height: 48px; /* Giữ chiều cao cố định */
+    vertical-align: middle;
+}
+.form-control:focus {
+    outline: none;
+    border-color: var(--shipper-primary); /* Dùng màu shipper */
+    box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1); /* Bóng focus màu tím nhạt */
+}
+
+/* Style cho label */
+.profile-section form .form-label {
+    display: block;
+    font-weight: 500; /* Hơi mảnh hơn */
+    font-size: 14px;
+    margin-bottom: 8px; 
+    color: var(--shipper-text-light); /* Màu nhạt hơn */
+}
+
+/* Khoảng cách giữa các group */
+.profile-section form .form-group {
+     margin-bottom: 20px; /* Tăng khoảng cách giữa các dòng input */
+}
+
+/* Nút bấm */
+.profile-section form .form-actions {
+     margin-top: 30px; /* Tăng khoảng cách trên nút */
+     display: flex; 
+     justify-content: flex-end; /* Nút căn phải */
+}
+
+/* Xóa style của .form-row nếu bạn không dùng (để tránh xung đột) */
+/* Hoặc đảm bảo nó hoạt động đúng nếu bạn dùng 2 cột */
+.profile-main-content .content-box form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; 
+}
+
+/* Đảm bảo input password chiếm đủ rộng */
+.profile-main-content .content-box form input[type="password"]{
+     width: 100%;
+}
