@@ -100,4 +100,10 @@ public class AuthController {
 	    model.addAttribute("seller", new Seller()); // ✅ thêm dòng này
 	    return "seller-register";
 	}
+	
+	@GetMapping("/shipper/dashboard")
+	public String shipper(Model model) {
+	    model.addAttribute("seller", new Seller()); // ✅ thêm dòng này
+	    return "/shipper/dashboard";
+	}
 }

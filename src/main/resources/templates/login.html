@@ -463,10 +463,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // 🔹 Xử lý sự kiện submit (mô phỏng chuyển hướng khi là nhân viên)
     loginForm.addEventListener('submit', function(event) {
         const adminHomeUrl = /*[[@{/admin/home}]]*/ '/admin/home';
+        const shipperHomeUrl = /*[[@{/shipper/dashboard}]]*/ '/shipper/dashboard';
+
         if (employeeTab.classList.contains('active')) {
             event.preventDefault();
-            console.log('➡️ Chuyển hướng đến:', adminHomeUrl);
+            console.log('➡️ Chuyển hướng đến Admin:', adminHomeUrl);
             window.location.href = adminHomeUrl;
+        }
+
+        if (shipperTab.classList.contains('active')) {
+            event.preventDefault();
+            console.log('➡️ Chuyển hướng đến Shipper:', shipperHomeUrl);
+            window.location.href = shipperHomeUrl;
         }
     });
 });
