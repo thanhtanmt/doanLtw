@@ -2,9 +2,15 @@ package com.example.clothesshop.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import java.time.LocalDateTime;
 
 @Data
 public class UserRegistrationDto {
+    private String verificationCode;
+    private LocalDateTime verificationCodeExpiry;
+    private boolean emailVerified;
+    private boolean enabled;
+    
     @NotBlank(message = "Họ không được để trống")
     private String firstName;
 
@@ -29,4 +35,36 @@ public class UserRegistrationDto {
     @NotBlank(message = "Số điện thoại không được để trống")
     @Pattern(regexp = "(84|0[3|5|7|8|9])+([0-9]{8})\\b", message = "Số điện thoại không hợp lệ")
     private String phone;
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public LocalDateTime getVerificationCodeExpiry() {
+        return verificationCodeExpiry;
+    }
+
+    public void setVerificationCodeExpiry(LocalDateTime verificationCodeExpiry) {
+        this.verificationCodeExpiry = verificationCodeExpiry;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 }

@@ -236,7 +236,11 @@
                         <p th:text="${param.error}">Error message here</p>
                     </div>
 
-                    <form th:action="@{/register}" th:object="${user}" method="post">
+                    <div class="alert alert-info" role="alert" style="margin-bottom: 20px;">
+                        <i class="fas fa-info-circle"></i> Sau khi đăng ký, bạn sẽ nhận được email xác thực để kích hoạt tài khoản.
+                    </div>
+
+                    <form th:action="@{/register}" th:object="${userDto}" method="post">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="firstName">

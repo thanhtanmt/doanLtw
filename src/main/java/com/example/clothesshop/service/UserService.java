@@ -15,4 +15,5 @@ public interface UserService {
     List<User> findAll();
     void deleteById(Long id);
     User registerNewUser(UserRegistrationDto registrationDto);
+    User findByEmail(String email);
 }

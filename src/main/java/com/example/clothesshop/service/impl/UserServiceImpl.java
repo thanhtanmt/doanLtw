@@ -10,6 +10,7 @@ import com.example.clothesshop.dto.UserRegistrationDto;
 import java.util.List;
 import java.util.Optional;
 import java.util.Collections;
+import java.util.HashSet;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -74,25 +75,32 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Email đã được sử dụng");
         }
 
+        // Tạo một đối tượng User từ DTO nhưng KHÔNG lưu vào DB ở đây.
+        // Việc lưu và mã hóa password được thực hiện khi gọi save(user).
         User user = new User();
         user.setUsername(registrationDto.getUsername());
-        user.setPassword(registrationDto.getPassword());
+        user.setPassword(registrationDto.getPassword()); // raw password, will be encoded in save()
         user.setEmail(registrationDto.getEmail());
         user.setFirstName(registrationDto.getFirstName());
         user.setLastName(registrationDto.getLastName());
         user.setPhone(registrationDto.getPhone());
-        user.setEnabled(true);
+        user.setEnabled(false); // sẽ bật khi user xác thực email
 
-        // Set default role
-        Role userRole = roleRepository.findByName("ROLE_USER")
-            .orElseThrow(() -> new RuntimeException("Role not found"));
-        user.setRoles(Collections.singleton(userRole));
+        // Set role mặc định là ROLE_USER
+        Role defaultRole = roleRepository.findByName("ROLE_USER")
+            .orElseThrow(() -> new RuntimeException("Role USER not found"));
+        user.setRoles(new HashSet<>(Collections.singleton(defaultRole)));
 
-        return save(user);
+        return user;
     }
 
     @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 }

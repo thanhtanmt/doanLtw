@@ -35,16 +35,17 @@ public class SecurityConfig {
 
             // ✅ Bật CSRF (để Spring sinh token) — bạn có thể thêm ignore nếu cần
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/h2-console/**") // nếu không dùng H2 thì bỏ dòng này
-            )
+            	    .ignoringRequestMatchers("/h2-console/**", "/verify-email", "/verify/**", "/resend-verification")
+            	)
 
             // ✅ Phân quyền truy cập
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/css/**", "/js/**", "/images/**",
-                    "/register", "/login", "/", "/home", "/products"
+                    "/register", "/login", "/", "/home", "/products",
+                    "/verify/**", "/verify-email", "/resend-verification"
                 ).permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**").hasRole("ADMIN") 
                 .anyRequest().authenticated()
             )
 
