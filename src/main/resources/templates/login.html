@@ -5,6 +5,7 @@
 
 <head>
 <title>Đăng nhập</title>
+<link rel="stylesheet" th:href="@{/css/login-social.css}">
 
 <style>
 .login-wrapper-container {
@@ -294,6 +295,11 @@
 
 					<div class="form-content">
 
+						<!-- Error message for OAuth2 login -->
+						<div th:if="${param.error == 'oauth2'}" class="alert alert-danger">
+							Email này chưa được đăng ký trong hệ thống. Vui lòng sử dụng nút đăng nhập hiện có.
+						</div>
+
 						<form id="login-form" th:action="@{/login}" method="post">
 							<!-- CSRF token - Spring Security tự động thêm qua Thymeleaf -->
 							
@@ -347,9 +353,13 @@
 
 							<div class="divider">HOẶC</div>
 							<div class="social-login">
-								<a href="#" class="social-btn google"> 
+								<a href="/oauth2/authorization/google" class="social-btn google"> 
 									<i class="fab fa-google"></i> Đăng nhập bằng Google
 								</a>
+							</div>
+							
+							<div th:if="${param.error == 'oauth2'}" class="alert alert-danger">
+								Email này chưa được đăng ký trong hệ thống. Vui lòng sử dụng nút đăng nhập hiện có.
 							</div>
 						</form>
 

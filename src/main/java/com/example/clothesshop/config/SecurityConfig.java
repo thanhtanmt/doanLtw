@@ -1,5 +1,6 @@
 package com.example.clothesshop.config;
 
+import com.example.clothesshop.service.CustomOAuth2UserService;
 import com.example.clothesshop.service.impl.CustomUserDetailsService;
 import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,16 +9,19 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.http.SessionCreationPolicy; 
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 @Configuration
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final CustomAuthenticationSuccessHandler successHandler;
+    private final CustomOAuth2UserService oAuth2UserService;
     
-    public SecurityConfig(CustomUserDetailsService uds, CustomAuthenticationSuccessHandler successHandler) { 
+    public SecurityConfig(CustomUserDetailsService uds, CustomAuthenticationSuccessHandler successHandler, CustomOAuth2UserService oAuth2UserService) { 
         this.userDetailsService = uds; 
         this.successHandler = successHandler;
+        this.oAuth2UserService = oAuth2UserService;
     }
 
     @Bean
@@ -42,6 +46,15 @@ public class SecurityConfig {
             .csrf(csrf -> csrf
             	    .ignoringRequestMatchers("/h2-console/**", "/verify-email", "/verify/**", "/resend-verification")
             	)
+
+            // ✅ Configure OAuth2 login
+            .oauth2Login(oauth2 -> oauth2
+                .loginPage("/login")
+                .defaultSuccessUrl("/home")
+                .failureUrl("/login?error=oauth2")
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(oAuth2UserService)
+                ))
 
             // ✅ Phân quyền truy cập
             .authorizeHttpRequests(auth -> auth
