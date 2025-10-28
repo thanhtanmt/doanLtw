@@ -64,14 +64,17 @@ public class SecurityConfig {
                     "/register", "/login", 
                     "/verify/**", "/verify-email", "/resend-verification",
                     "/forgot-password", "/reset-password",
-                    "/seller/register"
+                    "/seller/register",
+                    // Public pages - không cần đăng nhập
+                    "/", "/home", "/products", "/products/**", "/product/**",
+                    "/about-us", "/contact", "/policy", "/search"
                 ).permitAll()
                 // Admin paths
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                // Other paths that admin should not access
-                .requestMatchers("/", "/home", "/products", "/product/**",
-                    "/about-us", "/contact", "/policy",
-                    "/cart/**", "/checkout/**", "/wishlist/**").hasAnyRole("USER", "SELLER", "SHIPPER")
+                // Protected pages - cần đăng nhập
+                .requestMatchers("/cart/**", "/checkout/**", "/wishlist/**", 
+                    "/orders", "/orders/**", "/account", "/account/**")
+                    .hasAnyRole("USER", "SELLER", "SHIPPER")
                 .requestMatchers("/seller/**").hasRole("SELLER")
                 .requestMatchers("/shipper/**").hasRole("SHIPPER")
                 .anyRequest().authenticated()
