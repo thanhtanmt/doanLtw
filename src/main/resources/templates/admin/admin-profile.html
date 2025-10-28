@@ -24,19 +24,24 @@
                     <div class="profile-info-grid">
                         <div class="info-row">
                             <span class="info-label">Họ và tên</span>
-                            <span class="info-value">Admin User</span>
+                            <span class="info-value" th:text="${currentUser != null ? currentUser.firstName + ' ' + currentUser.lastName : 'Admin'}">Admin User</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Email</span>
-                            <span class="info-value">admin@fashionstore.com</span>
+                            <span class="info-value" th:text="${currentUser != null ? currentUser.email : 'admin@fashionstore.com'}">admin@fashionstore.com</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Số điện thoại</span>
-                            <span class="info-value">Chưa cập nhật</span>
+                            <span class="info-value" th:text="${currentUser != null and not #strings.isEmpty(currentUser.phone) ? currentUser.phone : 'Chưa cập nhật'}">Chưa cập nhật</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Vai trò</span>
-                            <span class="info-value"><span class="role-badge admin">Quản trị viên</span></span>
+                            <span class="info-value">
+                                <span th:if="${currentUser == null}"><span class="role-badge admin">Quản trị viên</span></span>
+                                <span th:if="${currentUser != null}" th:each="role : ${currentUser.roles}">
+                                    <span class="role-badge" th:classappend="${role.name}=='ROLE_ADMIN' ? ' admin' : (${role.name}=='ROLE_SELLER' ? ' seller' : (${role.name}=='ROLE_SHIPPER' ? ' shipper' : ''))" th:text="${role.name}">ROLE_ADMIN</span>
+                                </span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -70,13 +75,22 @@
 
             <div class="profile-sidebar scale-in" style="animation-delay: 0.3s;">
                 <div class="content-box text-center">
-                    <img th:src="@{/images/default-avatar.png}" alt="Avatar" class="profile-avatar">
-                    <h3 class="profile-name">Admin User</h3>
-                    <p class="profile-role">Quản trị viên</p>
-                    <button class="btn btn-secondary btn-sm btn-change-avatar">
-                        <i class="fas fa-camera"></i> Đổi ảnh
-                    </button>
-                    <input type="file" id="avatarUpload" style="display: none;" accept="image/*">
+                    <img th:src="${currentUser != null and not #strings.isEmpty(currentUser.avatarUrl) ? currentUser.avatarUrl : '/images/default-avatar.png'}" alt="Avatar" class="profile-avatar">
+                    <h3 class="profile-name" th:text="${currentUser != null ? currentUser.firstName + ' ' + currentUser.lastName : 'Admin User'}">Admin User</h3>
+                    <p class="profile-role">
+                        <span th:if="${currentUser == null}">Quản trị viên</span>
+                        <span th:if="${currentUser != null}" th:each="role,iter : ${currentUser.roles}">
+                            <span th:text="${role.name}">ROLE_ADMIN</span><span th:if="${!iter.last}">, </span>
+                        </span>
+                    </p>
+                    <form th:action="@{/admin/profile/avatar}" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <input type="file" name="file" accept="image/*" class="form-control" required>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" type="submit">
+                            <i class="fas fa-camera"></i> Đổi ảnh
+                        </button>
+                    </form>
                 </div>
 
                 <div class="content-box">

@@ -11,17 +11,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 @Configuration
 public class SecurityConfig {
-    private final CustomUserDetailsService userDetailsService;
     private final CustomAuthenticationSuccessHandler successHandler;
     private final CustomOAuth2UserService oAuth2UserService;
+    private final AdminAccessDeniedHandler adminAccessDeniedHandler;
     
-    public SecurityConfig(CustomUserDetailsService uds, CustomAuthenticationSuccessHandler successHandler, CustomOAuth2UserService oAuth2UserService) { 
-        this.userDetailsService = uds; 
+    public SecurityConfig(CustomAuthenticationSuccessHandler successHandler, 
+                        CustomOAuth2UserService oAuth2UserService,
+                        AdminAccessDeniedHandler adminAccessDeniedHandler) {
         this.successHandler = successHandler;
         this.oAuth2UserService = oAuth2UserService;
+        this.adminAccessDeniedHandler = adminAccessDeniedHandler;
     }
 
     @Bean
@@ -50,7 +53,7 @@ public class SecurityConfig {
             // ✅ Configure OAuth2 login
             .oauth2Login(oauth2 -> oauth2
                 .loginPage("/login")
-                .defaultSuccessUrl("/home")
+                .defaultSuccessUrl("/admin/dashboard") // Change default success URL for admin
                 .failureUrl("/login?error=oauth2")
                 .userInfoEndpoint(userInfo -> userInfo
                     .userService(oAuth2UserService)
@@ -58,15 +61,20 @@ public class SecurityConfig {
 
             // ✅ Phân quyền truy cập
             .authorizeHttpRequests(auth -> auth
+                // Public resources and pages
                 .requestMatchers(
                     "/css/**", "/js/**", "/images/**",
-                    "/register", "/login", "/", "/home", "/products", "/product/**",
-                    "/about-us", "/contact", "/policy",
+                    "/register", "/login", 
                     "/verify/**", "/verify-email", "/resend-verification",
                     "/forgot-password", "/reset-password",
                     "/seller/register"
                 ).permitAll()
+                // Admin paths
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                // Other paths that admin should not access
+                .requestMatchers("/", "/home", "/products", "/product/**",
+                    "/about-us", "/contact", "/policy",
+                    "/cart/**", "/checkout/**", "/wishlist/**").hasAnyRole("USER", "SELLER", "SHIPPER")
                 .requestMatchers("/seller/**").hasRole("SELLER")
                 .requestMatchers("/shipper/**").hasRole("SHIPPER")
                 .anyRequest().authenticated()
@@ -75,11 +83,11 @@ public class SecurityConfig {
             // ✅ Cấu hình trang đăng nhập
             .formLogin(form -> form
                 .loginPage("/login")
-                .loginProcessingUrl("/login") // URL xử lý login
-                .usernameParameter("username") // Tên field username trong form
-                .passwordParameter("password") // Tên field password trong form
-                .successHandler(successHandler) // Sử dụng custom handler để redirect theo role
-                .failureUrl("/login?error=true") // URL khi login fail
+                .loginProcessingUrl("/login")
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .successHandler(successHandler)
+                .failureUrl("/login?error=true")
                 .permitAll()
             )
 
@@ -88,6 +96,11 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/")
                 .permitAll()
+            )
+
+            // ✅ Configure access denied handler
+            .exceptionHandling(ex -> ex
+                .accessDeniedHandler(adminAccessDeniedHandler)
             );
 
         return http.build();
