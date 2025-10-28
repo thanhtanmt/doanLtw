@@ -43,18 +43,22 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     
+    @Column(columnDefinition = "NVARCHAR(500)")
     private String failureReason;
+    
+    @Column(columnDefinition = "NVARCHAR(500)")
     private String address;
     
-    @Column(name = "shipping_address")
+    @Column(name = "shipping_address", columnDefinition = "NVARCHAR(500)")
     private String shippingAddress;
     
     @Column(name = "shipping_phone")
     private String shippingPhone;
     
-    @Column(name = "shipping_name")
+    @Column(name = "shipping_name", columnDefinition = "NVARCHAR(255)")
     private String shippingName;
     
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String paymentMethod;
     
     @Column(name = "delivered_date")
@@ -66,7 +70,7 @@ public class Order extends BaseEntity {
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
     
-    @Column(name = "delivery_notes")
+    @Column(name = "delivery_notes", columnDefinition = "NVARCHAR(MAX)")
     private String deliveryNotes;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

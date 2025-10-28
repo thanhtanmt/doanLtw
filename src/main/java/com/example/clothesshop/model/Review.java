@@ -13,6 +13,8 @@ public class Review extends BaseEntity {
     private Long id;
 
     private int rating;
+    
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)

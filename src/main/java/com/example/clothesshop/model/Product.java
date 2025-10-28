@@ -15,15 +15,26 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String name;
+    
     private BigDecimal price;
+    
+    @Column(columnDefinition = "NVARCHAR(50)")
     private String gender;
+    
     @Lob
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description; // giới thiệu
+    
     @Lob
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String detail; // mô tả chi tiết
+    
     @Lob
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String specification; // thông số
+    
     private int quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)

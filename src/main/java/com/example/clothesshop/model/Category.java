@@ -14,10 +14,10 @@ public class Category extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, columnDefinition = "NVARCHAR(255)")
     private String name;
 
-    @Column
+    @Column(columnDefinition = "NVARCHAR(500)")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

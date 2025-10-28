@@ -13,7 +13,7 @@ public class PasswordHashGenerator {
         
         // Các password cần hash
         String[] passwords = {
-            "password123",  // Password mặc định cho test
+            "123456",  // Password mặc định cho test
             "admin123",     // Password cho admin
             "seller123",    // Password cho seller
             "shipper123",   // Password cho shipper
