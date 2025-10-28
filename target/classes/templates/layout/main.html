@@ -126,16 +126,24 @@ header {
 	align-items: center;
 }
 
-.header-actions a {
-	color: #333;
+.login-btn {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: white;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	padding: 10px 20px;
+	border-radius: 25px;
 	text-decoration: none;
-	position: relative;
-	font-size: 20px;
-	transition: color 0.3s;
+	font-size: 14px;
+	font-weight: 500;
+	transition: all 0.3s;
 }
 
-.header-actions a:hover {
-	color: #667eea;
+.login-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+	color: white;
 }
 
 .cart-count {
@@ -292,26 +300,43 @@ footer {
 	align-items: center;
 	gap: 8px;
 	cursor: pointer;
-	padding: 8px 15px;
-	border-radius: 20px;
-	transition: background 0.3s;
+	padding: 10px 20px;
+	border-radius: 25px;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	font-weight: 500;
+	font-size: 14px;
+	transition: all 0.3s;
 }
 
 .user-menu-toggle:hover {
-	background: #f0f0f0;
+	transform: translateY(-2px);
+	box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
 .user-dropdown {
 	display: none;
 	position: absolute;
-	top: 100%;
+	top: calc(100% + 10px);
 	right: 0;
 	background: white;
-	box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-	border-radius: 8px;
-	min-width: 200px;
-	margin-top: 10px;
-	z-index: 1010; /* Đảm bảo dropdown luôn ở trên cùng */
+	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+	border-radius: 12px;
+	min-width: 220px;
+	overflow: hidden;
+	z-index: 1010;
+	animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .user-dropdown.active {
@@ -319,20 +344,48 @@ footer {
 }
 
 .user-dropdown a {
-	display: block;
-	padding: 12px 20px;
+	display: flex;
+	align-items: center;
+	padding: 14px 20px;
 	color: #333;
 	text-decoration: none;
 	font-size: 14px;
-	transition: background 0.3s;
+	transition: all 0.3s;
+	position: relative;
 }
 
 .user-dropdown a i {
-	margin-right: 8px;
+	margin-right: 12px;
+	width: 20px;
+	text-align: center;
+	color: #667eea;
+	font-size: 16px;
 }
 
 .user-dropdown a:hover {
-	background: #f8f9fa;
+	background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%);
+	padding-left: 25px;
+}
+
+.user-dropdown a.cart-link {
+	position: relative;
+}
+
+.cart-badge {
+	position: absolute;
+	right: 20px;
+	background: #ff4757;
+	color: white;
+	border-radius: 12px;
+	padding: 2px 8px;
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.dropdown-divider {
+	height: 1px;
+	background: #e0e0e0;
+	margin: 8px 0;
 }
 
 /* Style cho form và button đăng xuất */
@@ -342,26 +395,32 @@ footer {
 }
 
 .user-dropdown button {
-	display: block;
+	display: flex;
+	align-items: center;
 	width: 100%;
-	padding: 12px 20px;
-	color: #333;
+	padding: 14px 20px;
+	color: #dc3545;
 	text-decoration: none;
 	font-size: 14px;
-	transition: background 0.3s;
+	transition: all 0.3s;
 	border: none;
 	background: transparent;
 	cursor: pointer;
 	text-align: left;
 	font-family: 'Poppins', sans-serif;
+	font-weight: 500;
 }
 
 .user-dropdown button:hover {
-	background: #f8f9fa;
+	background: linear-gradient(90deg, #ffe5e5 0%, #ffcccc 100%);
+	padding-left: 25px;
 }
 
 .user-dropdown button i {
-	margin-right: 8px;
+	margin-right: 12px;
+	width: 20px;
+	text-align: center;
+	font-size: 16px;
 }
 
 /* Responsive */
@@ -418,30 +477,42 @@ footer {
 			</div>
 
 			<div class="header-actions">
+				<!-- User Menu (Khi đã đăng nhập) -->
 				<div class="user-menu" sec:authorize="isAuthenticated()">
 					<div class="user-menu-toggle">
-						<i class="fas fa-user"></i> <span sec:authentication="name">User</span>
+						<i class="fas fa-user"></i> 
+						<span sec:authentication="name">User</span>
+						<i class="fas fa-chevron-down" style="font-size: 12px; margin-left: 5px;"></i>
+					</div>
+					<div class="user-dropdown">
+						<a th:href="@{/account}">
+							<i class="fas fa-user-circle"></i> Tài khoản
+						</a>
+						<a th:href="@{/orders}">
+							<i class="fas fa-box"></i> Đơn hàng
+						</a>
+						<a th:href="@{/wishlist}">
+							<i class="fas fa-heart"></i> Yêu thích
+						</a>
+						<a th:href="@{/cart}" class="cart-link">
+							<i class="fas fa-shopping-cart"></i> Giỏ hàng
+							<span class="cart-badge" th:if="${cartItemCount > 0}" th:text="${cartItemCount}">0</span>
+						</a>
+						<div class="dropdown-divider"></div>
+						<form th:action="@{/logout}" method="post"
+							sec:authorize="isAuthenticated()" th:if="${_csrf != null}">
+							<input type="hidden" th:name="${_csrf.parameterName}"
+								th:value="${_csrf.token}" />
+							<button type="submit">
+								<i class="fas fa-sign-out-alt"></i> Đăng xuất
+							</button>
+						</form>
+					</div>
 				</div>
-				<div class="user-dropdown">
-					<a th:href="@{/account}"><i class="fas fa-user-circle"></i> Tài khoản</a>
-					<a th:href="@{/orders}"><i class="fas fa-box"></i> Đơn hàng</a>
-					<a th:href="@{/wishlist}"><i class="fas fa-heart"></i> Yêu thích</a>
-					<form th:action="@{/logout}" method="post"
-						sec:authorize="isAuthenticated()" th:if="${_csrf != null}">
-						<input type="hidden" th:name="${_csrf.parameterName}"
-							th:value="${_csrf.token}" />
-						<button type="submit">
-							<i class="fas fa-sign-out-alt"></i> Đăng xuất
-						</button>
-					</form>
-				</div>
-				</div>
-				<a th:href="@{/login}" sec:authorize="!isAuthenticated()"> <i
-					class="fas fa-user"></i>
-				</a> <a th:href="@{/wishlist}"> <i class="fas fa-heart"></i>
-				</a> <a th:href="@{/cart}"> <i class="fas fa-shopping-cart"></i> <span
-					class="cart-count" th:if="${cartItemCount > 0}"
-					th:text="${cartItemCount}">0</span>
+				
+				<!-- Login Button (Khi chưa đăng nhập) -->
+				<a th:href="@{/login}" sec:authorize="!isAuthenticated()" class="login-btn"> 
+					<i class="fas fa-user"></i> Đăng nhập
 				</a>
 			</div>
 		</div>

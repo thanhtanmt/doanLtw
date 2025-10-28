@@ -16,4 +16,5 @@ public interface UserService {
     void deleteById(Long id);
     User registerNewUser(UserRegistrationDto registrationDto);
     User findByEmail(String email);
+    boolean matchesPassword(String rawPassword, String encodedPassword);
 }

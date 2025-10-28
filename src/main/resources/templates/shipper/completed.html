@@ -14,56 +14,132 @@
         </div>
 
         <div class="content-box fade-in">
-             <div class="filter-bar">
+            <div class="filter-bar">
                  <div class="filter-controls">
-                     <input type="text" placeholder="Tìm theo Mã ĐH, Địa chỉ...">
-                     <input type="date" name="delivery_date"> <select name="status">
+                     <input id="searchInput" type="text" placeholder="Tìm theo Mã ĐH, Địa chỉ...">
+                     <input id="dateInput" type="date" name="delivery_date"> <select id="statusSelect" name="status">
                          <option value="">Tất cả trạng thái</option>
-                         <option value="delivered">Giao thành công</option>
-                         <option value="failed">Giao thất bại</option>
+                         <option value="DELIVERED">Giao thành công</option>
+                         <option value="FAILED">Giao thất bại</option>
                      </select>
                  </div>
             </div>
 
-            <div class="shipment-list" style="margin-top: 20px;">
-                <div class="shipment-item scale-in" style="animation-delay: 0.1s;">
-                     <span class="shipment-id">#DH2990</span>
-                     <i class="fas fa-check-circle shipment-icon" style="color: var(--success, #22c55e);"></i>
-                     <div class="shipment-details">
-                         <p><strong>Địa chỉ:</strong> 111 Đường KLM, P.NOP, Q.3, TP. HCM</p>
-                         <p><i class="far fa-calendar-check"></i> <strong>Ngày giao:</strong> 26/10/2025 - 14:30</p>
-                         <p><span class="status delivered">Giao thành công</span></p>
-                     </div>
-                     <div class="shipment-actions">
-                         <a href="#" class="btn btn-secondary"><i class="fas fa-info-circle"></i> Xem chi tiết</a>
-                     </div>
-                </div>
-                <div class="shipment-item scale-in" style="animation-delay: 0.2s;">
-                     <span class="shipment-id">#DH2985</span>
-                     <i class="fas fa-times-circle shipment-icon" style="color: var(--error, #ef4444);"></i>
-                     <div class="shipment-details">
-                          <p><strong>Địa chỉ:</strong> 222 Đường XYZ, P.QRS, Q.Bình Thạnh, TP. HCM</p>
-                          <p><i class="far fa-calendar-times"></i> <strong>Ngày thử giao:</strong> 26/10/2025 - 10:15</p>
-                          <p><span class="status failed">Giao thất bại</span> (Lý do: Khách hẹn lại)</p>
-                     </div>
-                     <div class="shipment-actions">
-                           <a href="#" class="btn btn-secondary"><i class="fas fa-info-circle"></i> Xem chi tiết</a>
-                     </div>
-                </div>
-                 <div class="shipment-item scale-in" style="animation-delay: 0.3s;">
-                     <span class="shipment-id">#DH2980</span>
-                      <i class="fas fa-check-circle shipment-icon" style="color: var(--success, #22c55e);"></i>
-                     <div class="shipment-details">
-                          <p><strong>Địa chỉ:</strong> 333 Đường ABC, P.DEF, Q.10, TP. HCM</p>
-                          <p><i class="far fa-calendar-check"></i> <strong>Ngày giao:</strong> 25/10/2025 - 16:00</p>
-                          <p><span class="status delivered">Giao thành công</span></p>
-                     </div>
-                     <div class="shipment-actions">
-                          <a href="#" class="btn btn-secondary"><i class="fas fa-info-circle"></i> Xem chi tiết</a>
-                     </div>
-                </div>
-            </div>
+            <div id="deliveredList" class="shipment-list" style="margin-top: 20px;"></div>
+            <div id="pagination" class="pagination-container mt-3"></div>
             </div>
     </div>
+    <th:block layout:fragment="scripts">
+        <script>
+        const ITEMS_PER_PAGE = 5;
+        let allItems = [];
+        let filteredItems = [];
+        let currentPage = 1;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCompleted();
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('dateInput').addEventListener('change', applyFilters);
+            document.getElementById('statusSelect').addEventListener('change', applyFilters);
+        });
+        async function loadCompleted() {
+            try {
+                const [resDelivered, resFailed] = await Promise.all([
+                    fetch('/api/shipper/orders/delivered'),
+                    fetch('/api/shipper/orders/failed')
+                ]);
+                const delivered = await resDelivered.json();
+                const failed = await resFailed.json();
+                if (!delivered.success && !failed.success) return;
+                allItems = [];
+                if (delivered.success) allItems = allItems.concat(delivered.data.map(o => ({...o, _status: 'DELIVERED'})));
+                if (failed.success) allItems = allItems.concat(failed.data.map(o => ({...o, _status: 'FAILED'})));
+                // Sort by deliveredAt desc when available, fallback createdAt
+                allItems.sort((a,b) => new Date(b.deliveredAt || b.createdAt || 0) - new Date(a.deliveredAt || a.createdAt || 0));
+                applyFilters();
+            } catch (e) { console.error(e); }
+        }
+
+        function applyFilters() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            const date = document.getElementById('dateInput').value;
+            const status = document.getElementById('statusSelect').value;
+            filteredItems = allItems.filter(o => {
+                const matchesQ = !q || o.orderCode.toLowerCase().includes(q) || (o.shippingAddress||'').toLowerCase().includes(q);
+                const matchesStatus = !status || (o._status || o.status) === status;
+                const matchesDate = !date || (o.deliveredAt && new Date(o.deliveredAt).toISOString().slice(0,10) === date);
+                return matchesQ && matchesStatus && matchesDate;
+            });
+            currentPage = 1;
+            renderPage();
+        }
+
+        function renderPage() {
+            const container = document.getElementById('deliveredList');
+            if (filteredItems.length === 0) { container.innerHTML = '<div class="text-muted">Không có đơn phù hợp.</div>'; document.getElementById('pagination').innerHTML=''; return; }
+            const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pageItems = filteredItems.slice(start, start + ITEMS_PER_PAGE);
+            container.innerHTML = pageItems.map((o, idx) => {
+                    const isDelivered = (o._status || o.status) === 'DELIVERED';
+                    const icon = isDelivered ? 'fa-check-circle' : 'fa-times-circle';
+                    const color = isDelivered ? '#22c55e' : '#ef4444';
+                    const statusText = isDelivered ? 'Giao thành công' : 'Giao thất bại';
+                    const reason = !isDelivered && o.failureReason ? ` (Lý do: ${o.failureReason})` : '';
+                    const timeLabel = o.deliveredAt ? new Date(o.deliveredAt).toLocaleString('vi-VN') : '';
+                    const earning = calcEarning(o.totalAmount);
+                    return `
+                    <div class="shipment-item scale-in" style="animation-delay: ${(idx+1)*0.1}s;">
+                        <span class="shipment-id">#${o.orderCode}</span>
+                        <i class="fas ${icon} shipment-icon" style="color: ${color};"></i>
+                        <div class="shipment-details">
+                            <p><strong>Địa chỉ:</strong> ${o.shippingAddress}</p>
+                            <p><i class="far fa-calendar-check"></i> <strong>Ngày giao:</strong> ${timeLabel}</p>
+                            <p><span class="status ${isDelivered ? 'delivered' : 'failed'}">${statusText}</span>${reason}</p>
+                            ${isDelivered ? `<p><strong>Tiền công:</strong> ${formatCurrency(earning)}</p>` : ''}
+                        </div>
+                        <div class="shipment-actions">
+                            <button class="btn btn-gradient-info btn-elevated js-view-order" data-order-code="${o.orderCode}"><i class="fas fa-info-circle"></i> Xem chi tiết</button>
+                        </div>
+                    </div>`;
+                }).join('');
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination');
+            if (totalPages <= 1) { container.innerHTML = ''; return; }
+            let html = '<nav><ul class="pagination justify-content-center">';
+            html += `<li class="page-item ${currentPage===1?'disabled':''}"><a class="page-link" href="#" onclick="changePage(${currentPage-1});return false;">Trước</a></li>`;
+            for (let i=1;i<=totalPages;i++) {
+                html += i===currentPage ? `<li class="page-item active"><span class="page-link">${i}</span></li>` : `<li class="page-item"><a class="page-link" href="#" onclick="changePage(${i});return false;">${i}</a></li>`;
+            }
+            html += `<li class="page-item ${currentPage===totalPages?'disabled':''}"><a class="page-link" href="#" onclick="changePage(${currentPage+1});return false;">Sau</a></li>`;
+            html += '</ul></nav>';
+            container.innerHTML = html;
+        }
+
+        window.changePage = function(page) {
+            const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+            if (page<1 || page>totalPages) return;
+            currentPage = page;
+            renderPage();
+        }
+        // delegate view details
+        document.addEventListener('click', function(e){
+            const btn = e.target.closest('.js-view-order');
+            if (!btn) return;
+            const code = btn.getAttribute('data-order-code');
+            if (code && window.viewOrderDetails) window.viewOrderDetails(code);
+        });
+        function calcEarning(amount){
+            if (!amount) return 0;
+            const v = Number(amount);
+            if (v <= 300000) return 10000;
+            if (v <= 700000) return 15000;
+            return 20000;
+        }
+        </script>
+    </th:block>
 </body>
 </html>

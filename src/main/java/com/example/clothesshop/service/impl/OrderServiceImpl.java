@@ -1,6 +1,7 @@
 package com.example.clothesshop.service.impl;
 
 import com.example.clothesshop.model.Order;
+import com.example.clothesshop.model.OrderStatus;
 import com.example.clothesshop.model.User;
 import com.example.clothesshop.model.OrderDetail;
 import com.example.clothesshop.dto.OrderDto;
@@ -44,11 +45,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> findPendingOrders() {
-        return orderRepository.findPendingOrders(Order.OrderStatus.CONFIRMED);
+        return orderRepository.findPendingOrders(OrderStatus.CONFIRMED);
     }
 
     @Override
-    public List<Order> findOrdersByShipperAndStatus(User shipper, Order.OrderStatus status) {
+    public List<Order> findOrdersByShipperAndStatus(User shipper, OrderStatus status) {
         return orderRepository.findByShipperAndStatus(shipper, status);
     }
 
@@ -62,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
         }
         
         order.setShipper(shipper);
-        order.setStatus(Order.OrderStatus.SHIPPING);
+        order.setStatus(OrderStatus.DELIVERING);
         order.setAssignedAt(LocalDateTime.now());
         
         return orderRepository.save(order);
@@ -78,11 +79,11 @@ public class OrderServiceImpl implements OrderService {
         }
         
         if (deliveryUpdate.getStatus().equals("DELIVERED")) {
-            order.setStatus(Order.OrderStatus.DELIVERED);
+            order.setStatus(OrderStatus.DELIVERED);
             order.setDeliveredAt(LocalDateTime.now());
             order.setDeliveryNotes(deliveryUpdate.getDeliveryNotes());
         } else if (deliveryUpdate.getStatus().equals("FAILED")) {
-            order.setStatus(Order.OrderStatus.FAILED);
+            order.setStatus(OrderStatus.FAILED);
             order.setFailureReason(deliveryUpdate.getFailureReason());
         }
         
@@ -95,19 +96,19 @@ public class OrderServiceImpl implements OrderService {
         LocalDateTime endOfMonth = LocalDateTime.now();
         
         Long totalDelivered = orderRepository.countDeliveredOrdersByShipperAndDateRange(
-            shipper, Order.OrderStatus.DELIVERED, startOfMonth, endOfMonth);
+            shipper, OrderStatus.DELIVERED, startOfMonth, endOfMonth);
         
         Long totalFailed = orderRepository.countDeliveredOrdersByShipperAndDateRange(
-            shipper, Order.OrderStatus.FAILED, startOfMonth, endOfMonth);
+            shipper, OrderStatus.FAILED, startOfMonth, endOfMonth);
         
-        Long totalPending = (long) orderRepository.findByShipperAndStatus(shipper, Order.OrderStatus.SHIPPING).size();
+        Long totalPending = (long) orderRepository.findByShipperAndStatus(shipper, OrderStatus.DELIVERING).size();
         
         // Tính thu nhập theo bậc 10k/15k/20k mỗi đơn (đơn càng lớn ăn càng nhiều)
         // Quy ước:
         //  - <= 300.000đ  => 10.000đ/đơn
         //  - 300.001-700.000đ => 15.000đ/đơn
         //  - > 700.000đ => 20.000đ/đơn
-        List<Order> allDeliveredByShipper = orderRepository.findByShipperAndStatus(shipper, Order.OrderStatus.DELIVERED);
+        List<Order> allDeliveredByShipper = orderRepository.findByShipperAndStatus(shipper, OrderStatus.DELIVERED);
         double estimatedIncome = allDeliveredByShipper.stream()
             .filter(o -> o.getDeliveredAt() != null && !o.getDeliveredAt().isBefore(startOfMonth) && !o.getDeliveredAt().isAfter(endOfMonth))
             .mapToDouble(o -> {
@@ -123,7 +124,7 @@ public class OrderServiceImpl implements OrderService {
         Double rating = 4.8;
         
         // Lấy ngày giao hàng cuối cùng
-        List<Order> deliveredOrders = orderRepository.findByShipperAndStatus(shipper, Order.OrderStatus.DELIVERED);
+        List<Order> deliveredOrders = orderRepository.findByShipperAndStatus(shipper, OrderStatus.DELIVERED);
         LocalDateTime lastDeliveryDate = deliveredOrders.stream()
             .map(Order::getDeliveredAt)
             .filter(date -> date != null)
@@ -166,7 +167,7 @@ public class OrderServiceImpl implements OrderService {
         dto.setShippingPhone(order.getShippingPhone());
         dto.setShippingName(order.getShippingName());
         dto.setStatus(order.getStatus().name());
-        dto.setPaymentMethod(order.getPaymentMethod().name());
+        dto.setPaymentMethod(order.getPaymentMethod());
         dto.setTotalAmount(order.getTotalAmount());
         dto.setCodAmount(order.getCodAmount());
         

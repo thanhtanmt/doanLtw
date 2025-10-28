@@ -1,6 +1,7 @@
 package com.example.clothesshop.controller;
 
 import com.example.clothesshop.model.Order;
+import com.example.clothesshop.model.OrderStatus;
 import com.example.clothesshop.model.User;
 import com.example.clothesshop.dto.OrderDto;
 import com.example.clothesshop.dto.ShipperStatsDto;
@@ -67,7 +68,7 @@ public class ShipperApiController {
             try { shipper = getCurrentShipper(); } catch (Exception ignored) {}
             List<Order> pendingOrders = orderService.findPendingOrders();
             if (shipper != null) {
-                List<Order> shippingOrders = orderService.findOrdersByShipperAndStatus(shipper, Order.OrderStatus.SHIPPING);
+                List<Order> shippingOrders = orderService.findOrdersByShipperAndStatus(shipper, OrderStatus.DELIVERING);
                 pendingOrders.addAll(shippingOrders);
             }
             List<OrderDto> orderDtos = orderService.convertToDtoList(pendingOrders);
@@ -91,7 +92,7 @@ public class ShipperApiController {
     public ResponseEntity<Map<String, Object>> getShippingOrders() {
         try {
             User shipper = getCurrentShipper();
-            List<Order> shippingOrders = orderService.findOrdersByShipperAndStatus(shipper, Order.OrderStatus.SHIPPING);
+            List<Order> shippingOrders = orderService.findOrdersByShipperAndStatus(shipper, OrderStatus.DELIVERING);
             List<OrderDto> orderDtos = orderService.convertToDtoList(shippingOrders);
             
             Map<String, Object> response = new HashMap<>();
@@ -113,7 +114,7 @@ public class ShipperApiController {
     public ResponseEntity<Map<String, Object>> getDeliveredOrders() {
         try {
             User shipper = getCurrentShipper();
-            List<Order> deliveredOrders = orderService.findOrdersByShipperAndStatus(shipper, Order.OrderStatus.DELIVERED);
+            List<Order> deliveredOrders = orderService.findOrdersByShipperAndStatus(shipper, OrderStatus.DELIVERED);
             List<OrderDto> orderDtos = orderService.convertToDtoList(deliveredOrders);
             
             Map<String, Object> response = new HashMap<>();
@@ -135,7 +136,7 @@ public class ShipperApiController {
     public ResponseEntity<Map<String, Object>> getFailedOrders() {
         try {
             User shipper = getCurrentShipper();
-            List<Order> failedOrders = orderService.findOrdersByShipperAndStatus(shipper, Order.OrderStatus.FAILED);
+            List<Order> failedOrders = orderService.findOrdersByShipperAndStatus(shipper, OrderStatus.FAILED);
             List<OrderDto> orderDtos = orderService.convertToDtoList(failedOrders);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

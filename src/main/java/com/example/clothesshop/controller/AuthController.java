@@ -1,6 +1,5 @@
 package com.example.clothesshop.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,7 +10,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.clothesshop.dto.UserRegistrationDto;
 import com.example.clothesshop.service.UserService;
 import com.example.clothesshop.service.EmailService;
-import com.example.clothesshop.model.Seller;
 import com.example.clothesshop.model.User;
 
 import jakarta.mail.MessagingException;
@@ -25,7 +23,6 @@ public class AuthController {
 	private final UserService userService;
 	private final EmailService emailService;
 
-	@Autowired
 	public AuthController(UserService userService, EmailService emailService) {
 		this.userService = userService;
 		this.emailService = emailService;
@@ -205,7 +202,7 @@ public class AuthController {
 
 	@GetMapping("/seller/register")
 	public String sellerRegister(Model model) {
-		model.addAttribute("seller", new Seller()); // ✅ thêm dòng này
+		model.addAttribute("user", new UserRegistrationDto());
 		return "seller-register";
 	}
 
