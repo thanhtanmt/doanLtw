@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+
+<head>
+    <title>Hồ sơ Admin</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="profile-container fade-in">
+
+            <div class="profile-main-content">
+                
+                <div class="content-box scale-in" style="animation-delay: 0.1s;">
+                    <div class="profile-section-header">
+                        <h2>Thông tin tài khoản</h2>
+                        <button class="btn btn-secondary btn-edit-profile">
+                            <i class="fas fa-edit"></i> Chỉnh sửa
+                        </button>
+                    </div>
+
+                    <div class="profile-info-grid">
+                        <div class="info-row">
+                            <span class="info-label">Họ và tên</span>
+                            <span class="info-value">Admin User</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email</span>
+                            <span class="info-value">admin@fashionstore.com</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Số điện thoại</span>
+                            <span class="info-value">Chưa cập nhật</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Vai trò</span>
+                            <span class="info-value"><span class="role-badge admin">Quản trị viên</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-box scale-in" style="animation-delay: 0.2s;">
+                    <h2>Thay đổi mật khẩu</h2>
+                    <form th:action="@{/admin/profile/change-password}" method="post">
+                        <div class="form-group">
+                            <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                            <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                                <input type="password" id="newPassword" name="newPassword" class="form-control" required minlength="6">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmNewPassword" class="form-label">Xác nhận mật khẩu mới</label>
+                                <input type="password" id="confirmNewPassword" name="confirmNewPassword" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-key"></i> Cập nhật mật khẩu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+            <div class="profile-sidebar scale-in" style="animation-delay: 0.3s;">
+                <div class="content-box text-center">
+                    <img th:src="@{/images/default-avatar.png}" alt="Avatar" class="profile-avatar">
+                    <h3 class="profile-name">Admin User</h3>
+                    <p class="profile-role">Quản trị viên</p>
+                    <button class="btn btn-secondary btn-sm btn-change-avatar">
+                        <i class="fas fa-camera"></i> Đổi ảnh
+                    </button>
+                    <input type="file" id="avatarUpload" style="display: none;" accept="image/*">
+                </div>
+
+                <div class="content-box">
+                    <h2>Hoạt động gần đây</h2>
+                    <ul class="activity-list">
+                        <li><i class="fas fa-plus-circle text-success"></i> Thêm sản phẩm mới #SP1004</li>
+                        <li><i class="fas fa-edit text-warning"></i> Cập nhật đơn hàng #DH2002</li>
+                        <li><i class="fas fa-lock text-danger"></i> Khóa tài khoản #KH003</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div> </div>
+
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        const changeAvatarBtn = document.querySelector('.btn-change-avatar');
+        const avatarUploadInput = document.getElementById('avatarUpload');
+        if (changeAvatarBtn && avatarUploadInput) {
+            changeAvatarBtn.addEventListener('click', () => {
+                avatarUploadInput.click(); 
+            });
+            avatarUploadInput.addEventListener('change', (event) => {
+                if (event.target.files && event.target.files[0]) {
+                    console.log("Ảnh mới đã chọn:", event.target.files[0].name);
+                }
+            });
+        }
+    });
+    /*]]>*/
+    </script>
+</body>
+</html>

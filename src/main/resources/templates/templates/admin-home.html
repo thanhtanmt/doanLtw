@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}"> <head>
+    <title>Dashboard</title> <style>
+        /* CSS cho các thẻ thống kê */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        /* Cập nhật màu sắc cho các icon thống kê */
+        .stat-card.revenue .stat-icon { background: linear-gradient(135deg, #764ba2, #667eea); } /* Tím-xanh */
+        .stat-card.orders .stat-icon { background: linear-gradient(135deg, #a8c0ff, #392b58); } /* Xanh nhạt-Tím đậm */
+        .stat-card.customers .stat-icon { background: linear-gradient(135deg, #f5af19, #f12711); } /* Vàng-cam */
+        .stat-card.products .stat-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); } /* Xanh biển-xanh ngọc */
+        
+        .stat-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .stat-info p {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* CSS cho các khu vực nội dung */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+        
+        .content-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .content-box h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        /* Bảng */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .data-table th {
+            font-size: 14px;
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+        .data-table td {
+            font-size: 14px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        /* Màu trạng thái có thể giữ nguyên hoặc điều chỉnh cho phù hợp hơn */
+        .status.pending { background-color: #f1c40f; color: white; } /* Vàng */
+        .status.completed { background-color: #2ecc71; color: white; } /* Xanh lá */
+        .status.cancelled { background-color: #e74c3c; color: white; } /* Đỏ */
+
+        /* Biểu đồ (placeholder) */
+        .chart-placeholder {
+            height: 300px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #bdc3c7;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 992px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <h1 style="font-size: 28px; color: #2c3e50; margin-bottom: 25px;">Dashboard</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card revenue">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>250.000.000đ</h3>
+                    <p>Tổng doanh thu</p>
+                </div>
+            </div>
+            
+            <div class="stat-card orders">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>1,250</h3>
+                    <p>Đơn hàng mới</p>
+                </div>
+            </div>
+            
+            <div class="stat-card customers">
+                <div class="stat-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>320</h3>
+                    <p>Khách hàng mới</p>
+                </div>
+            </div>
+            
+            <div class="stat-card products">
+                <div class="stat-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>5,400</h3>
+                    <p>Sản phẩm trong kho</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="content-box">
+                <h2>Doanh thu theo tháng</h2>
+                <div class="chart-placeholder">
+                    [Biểu đồ đường (Line Chart) sẽ hiển thị ở đây]
+                </div>
+            </div>
+            
+            <div class="content-box">
+                <h2>Top Sản phẩm bán chạy</h2>
+                <div class="chart-placeholder" style="height: 300px;">
+                    [Biểu đồ tròn (Pie Chart) sẽ hiển thị ở đây]
+                </div>
+            </div>
+        </div>
+
+        <div class="content-box" style="margin-top: 25px;">
+            <h2>Đơn hàng gần đây</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Mã ĐH</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#10521</td>
+                        <td>Nguyễn Văn A</td>
+                        <td>25/10/2025</td>
+                        <td>1.200.000đ</td>
+                        <td><span class="status completed">Hoàn thành</span></td>
+                    </tr>
+                    <tr>
+                        <td>#10520</td>
+                        <td>Trần Thị B</td>
+                        <td>25/10/2025</td>
+                        <td>850.000đ</td>
+                        <td><span class="status pending">Đang xử lý</span></td>
+                    </tr>
+                    <tr>
+                        <td>#10519</td>
+                        <td>Lê Văn C</td>
+                        <td>24/10/2025</td>
+                        <td>2.500.000đ</td>
+                        <td><span class="status completed">Hoàn thành</span></td>
+                    </tr>
+                    <tr>
+                        <td>#10518</td>
+                        <td>Phạm Thị D</td>
+                        <td>23/10/2025</td>
+                        <td>450.000đ</td>
+                        <td><span class="status cancelled">Đã hủy</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</body>
+</html>

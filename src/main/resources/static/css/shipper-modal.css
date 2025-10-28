@@ -1,0 +1,236 @@
+/* Modal và Pagination Styles cho Shipper */
+
+.shipper-theme:root {}
+
+/* Theme variables */
+:root {
+    --shipper-primary: #6c2bd9; /* Indigo/Purple */
+    --shipper-primary-600: #7c3aed;
+    --shipper-primary-700: #5b21b6;
+    --shipper-primary-800: #4c1d95;
+    --shipper-surface: #f7f5ff;
+}
+
+/* Override Bootstrap primary to purple */
+.bg-primary {
+    background-color: var(--shipper-primary) !important;
+}
+
+.text-primary {
+    color: var(--shipper-primary) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--shipper-primary-600), var(--shipper-primary));
+    border-color: var(--shipper-primary-600);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(108, 43, 217, 0.28);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: linear-gradient(135deg, var(--shipper-primary-700), var(--shipper-primary-600));
+    border-color: var(--shipper-primary-700);
+    box-shadow: 0 8px 18px rgba(92, 39, 211, 0.36);
+}
+
+.btn-primary:active {
+    background: linear-gradient(135deg, var(--shipper-primary-800), var(--shipper-primary-700));
+    border-color: var(--shipper-primary-800);
+}
+
+.modal-header.bg-primary {
+    background: linear-gradient(135deg, var(--shipper-primary-700), var(--shipper-primary));
+}
+
+/* Fancy buttons for actions */
+.btn-elevated {
+    border: none;
+    border-radius: 14px;
+    padding: 10px 18px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.btn-elevated:hover { transform: translateY(-1px); }
+.btn-elevated:active { transform: translateY(0); filter: brightness(.96); }
+
+.btn-gradient-info {
+    background: linear-gradient(135deg, #06b6d4, #22d3ee);
+    color: #0b1220;
+    box-shadow: 0 6px 14px rgba(34, 211, 238, 0.28);
+}
+.btn-gradient-info:hover { box-shadow: 0 10px 18px rgba(34, 211, 238, 0.36); }
+
+.btn-gradient-success {
+    background: linear-gradient(135deg, #10b981, #22c55e);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(34, 197, 94, 0.28);
+}
+.btn-gradient-success:hover { box-shadow: 0 10px 18px rgba(34, 197, 94, 0.36); }
+
+.btn-gradient-danger {
+    background: linear-gradient(135deg, #ef4444, #f43f5e);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(244, 63, 94, 0.28);
+}
+.btn-gradient-danger:hover { box-shadow: 0 10px 18px rgba(244, 63, 94, 0.36); }
+
+.badge.bg-warning {
+    background-color: #fde68a !important;
+    color: #7c2d12 !important;
+}
+
+.modal-header {
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.modal-content {
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border: 1px solid rgba(108, 43, 217, 0.08);
+}
+
+.shipment-item {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.shipment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.pagination-container {
+    margin-top: 2rem;
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.table-sm td {
+    padding: 0.5rem;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+
+.shipment-actions .btn {
+    margin-left: 0.25rem;
+}
+
+.shipment-actions .btn:first-child {
+    margin-left: 0;
+}
+
+/* Animation cho modal */
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}
+
+/* Style cho pagination */
+.pagination .page-link {
+    color: var(--shipper-primary);
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+    background-color: #fff;
+    border-radius: 10px;
+    transition: all .15s ease;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--shipper-primary);
+    border-color: var(--shipper-primary);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(108, 43, 217, 0.28);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.pagination .page-link:hover {
+    filter: brightness(0.96);
+    text-decoration: none;
+}
+
+.pagination .page-item { margin: 0 4px; }
+
+/* Style cho filter bar */
+.filter-bar {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-controls input,
+.filter-controls select {
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+.filter-controls input {
+    flex: 1;
+    max-width: 300px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-controls input,
+    .filter-controls select {
+        width: 100%;
+    }
+    
+    .shipment-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .shipment-actions .btn {
+        margin-left: 0;
+    }
+}
+
+/* Minor polish for order detail modal */
+#orderDetailModal .table td,
+#orderDetailModal .table th {
+    vertical-align: middle;
+}
+
+#orderDetailModal .modal-body h6 {
+    font-weight: 600;
+    color: var(--shipper-primary-700);
+}
+
+

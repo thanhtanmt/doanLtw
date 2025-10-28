@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+
+<head>
+    <title>Quản lý Sản phẩm</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="page-header">
+            <h1 class="page-title">Quản lý Sản phẩm</h1>
+            </div>
+
+        <div class="content-box">
+            
+            <div class="filter-bar">
+                <div class="filter-controls">
+                    <input type="text" placeholder="Tìm kiếm theo tên sản phẩm, SKU...">
+                    <select name="category">
+                        <option value="">Tất cả danh mục</option>
+                        <option value="nam">Nam</option>
+                        <option value="nu">Nữ</option>
+                        <option value="sale">Sale</option>
+                    </select>
+                    <select name="status">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active">Đang bán</option>
+                        <option value="inactive">Hết hàng</option>
+                    </select>
+                </div>
+                
+                <a th:href="@{/admin/products/new}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Thêm Sản phẩm mới
+                </a>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Hình ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Giá</th>
+                            <th>Số lượng (Kho)</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#SP1001</td>
+                            <td><img src="https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=100" class="table-img" alt="Product"></td>
+                            <td>Áo Thun Cotton Cao Cấp</td>
+                            <td>350.000đ</td>
+                            <td>120</td>
+                            <td><span class="status active">Đang bán</span></td>
+                            <td>
+                                <button class="btn-action btn-edit" title="Sửa"><i class="fas fa-edit"></i></button>
+                                <button class="btn-action btn-delete" title="Xóa"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#SP1002</td>
+                            <td><img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=100" class="table-img" alt="Product"></td>
+                            <td>Quần Jean Slim Fit</td>
+                            <td>550.000đ</td>
+                            <td>85</td>
+                            <td><span class="status active">Đang bán</span></td>
+                            <td>
+                                <button class="btn-action btn-edit" title="Sửa"><i class="fas fa-edit"></i></button>
+                                <button class="btn-action btn-delete" title="Xóa"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#SP1003</td>
+                            <td><img src="https://images.unsplash.com/photo-1542272604-787c3835535d?w=100" class="table-img" alt="Product"></td>
+                            <td>Áo Khoác Dù Chống Nước</td>
+                            <td>750.000đ</td>
+                            <td>0</td>
+                            <td><span class="status inactive">Hết hàng</span></td>
+                            <td>
+                                <button class="btn-action btn-edit" title="Sửa"><i class="fas fa-edit"></i></button>
+                                <button class="btn-action btn-delete" title="Xóa"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

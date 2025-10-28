@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/shipper}">
+<head>
+    <title>Hồ sơ Shipper</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar (Profile Menu, always fixed layout) -->
+            <div class="col-12 col-md-4 col-lg-3 mb-3">
+                <div class="content-box">
+                    <div class="d-flex align-items-center mb-3">
+                        <img id="avatarImg" th:src="@{/images/default-avatar.png}" alt="Avatar" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;">
+                        <div class="ms-3">
+                            <div class="fw-semibold" id="displayName">Shipper</div>
+                            <div class="text-muted small" id="displayEmail">email@example.com</div>
+                        </div>
+                    </div>
+                     <div class="list-group" id="profileMenu">
+                         <a class="list-group-item list-group-item-action active" href="#" data-src="/shipper/profile/info">Thông tin tài khoản</a>
+                         <a class="list-group-item list-group-item-action" href="#" data-src="/shipper/profile/security">Bảo mật & Đăng nhập</a>
+                         <a class="list-group-item list-group-item-action" href="#" data-src="/shipper/orders">Lịch sử đơn hàng</a>
+                         <a class="list-group-item list-group-item-action" href="#" data-src="/shipper/feedback">Đánh giá và phản hồi</a>
+                         <a class="list-group-item list-group-item-action" href="#" data-src="/shipper/policy">Chính sách & FAQ</a>
+                         <a class="list-group-item list-group-item-action" th:href="@{/logout}">Đăng xuất</a>
+                     </div>
+                </div>
+            </div>
+             <!-- Main content area: iframe to load section pages -->
+             <div class="col-12 col-md-8 col-lg-9">
+                 <div class="content-box p-0" style="overflow:hidden;">
+                     <iframe id="profileContentFrame" src="/shipper/profile/info" width="100%" height="700" frameborder="0" style="border-radius: 12px; background:#fff;"></iframe>
+                 </div>
+             </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar section switching -> load page via iframe
+            const frame = document.getElementById('profileContentFrame');
+            document.querySelectorAll('#profileMenu a[data-src]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // remove all active
+                    document.querySelectorAll('#profileMenu a[data-src]').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                    const src = this.getAttribute('data-src');
+                    if (src && frame) frame.src = src;
+                });
+            });
+
+            // Set default
+            const firstLink = document.querySelector('#profileMenu a[data-src]');
+            if (firstLink) firstLink.click();
+        });
+        /*]]>*/
+    </script>
+</th:block>
+</body>
+</html>
