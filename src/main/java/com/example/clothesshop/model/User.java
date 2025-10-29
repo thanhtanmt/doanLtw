@@ -8,8 +8,9 @@ import lombok.*;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "users")
-public class User {
+public class User extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -48,12 +49,6 @@ public class User {
 
     @Column(name = "email_verified")
     private boolean emailVerified = false;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     @Column(name = "avatar_url")
     private String avatarUrl;

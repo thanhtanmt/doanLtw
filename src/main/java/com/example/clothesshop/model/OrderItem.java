@@ -2,13 +2,7 @@ package com.example.clothesshop.model;
 
 import java.math.BigDecimal;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,6 +22,22 @@ public class OrderItem {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variant_id", nullable = false)
+    private ProductVariant variant;
+
     private int quantity;
     private BigDecimal unitPrice;
+
+    @Column(columnDefinition = "NVARCHAR(50)")
+    private String sizeAtOrder; // Lưu kích thước tại thời điểm đặt hàng
+
+    // Helper methods
+    public BigDecimal getSubtotal() {
+        return unitPrice.multiply(new BigDecimal(quantity));
+    }
+
+    public String getVariantInfo() {
+        return String.format("Size %s", sizeAtOrder);
+    }
 }

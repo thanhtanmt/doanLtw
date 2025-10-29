@@ -18,24 +18,28 @@ public class Product extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(255)")
     private String name;
     
-    private BigDecimal price;
+    @Column(columnDefinition = "NVARCHAR(100)")
+    private String brand; // Thương hiệu
     
     @Column(columnDefinition = "NVARCHAR(50)")
-    private String gender;
+    private String gender; // Nam/Nữ/Unisex
     
     @Lob
     @Column(columnDefinition = "NVARCHAR(MAX)")
-    private String description; // giới thiệu
+    private String description; // Giới thiệu ngắn
     
     @Lob
     @Column(columnDefinition = "NVARCHAR(MAX)")
-    private String detail; // mô tả chi tiết
+    private String detail; // Mô tả chi tiết
     
     @Lob
     @Column(columnDefinition = "NVARCHAR(MAX)")
-    private String specification; // thông số
+    private String specification; // Thông số kỹ thuật (chất liệu, hướng dẫn bảo quản, etc.)
     
-    private int quantity;
+    @Column(columnDefinition = "NVARCHAR(100)")
+    private String material; // Chất liệu (Cotton, Polyester, etc.)
+    
+    private boolean active = true; // Sản phẩm còn kinh doanh hay không
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id")
@@ -45,14 +49,11 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductVariant> variants = new ArrayList<>();
+
     @OneToMany(mappedBy = "product")
     private List<Review> reviews = new ArrayList<>();
-
-    @OneToMany(mappedBy = "product")
-    private List<CartItem> cartItems = new ArrayList<>();
-
-    @OneToMany(mappedBy = "product")
-    private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
     private List<Favorite> favorites = new ArrayList<>();
@@ -67,4 +68,36 @@ public class Product extends BaseEntity {
         inverseJoinColumns = @JoinColumn(name = "voucher_id")
     )
     private List<Voucher> vouchers = new ArrayList<>();
+
+    // Helper methods
+    public BigDecimal getMinPrice() {
+        return variants.stream()
+            .map(ProductVariant::getPrice)
+            .min(BigDecimal::compareTo)
+            .orElse(BigDecimal.ZERO);
+    }
+
+    public BigDecimal getMaxPrice() {
+        return variants.stream()
+            .map(ProductVariant::getPrice)
+            .max(BigDecimal::compareTo)
+            .orElse(BigDecimal.ZERO);
+    }
+
+    public int getTotalQuantity() {
+        return variants.stream()
+            .mapToInt(ProductVariant::getQuantity)
+            .sum();
+    }
+
+    public boolean hasStock() {
+        return variants.stream().anyMatch(ProductVariant::isInStock);
+    }
+
+    public List<String> getAvailableSizes() {
+        return variants.stream()
+            .map(ProductVariant::getSize)
+            .distinct()
+            .toList();
+    }
 }

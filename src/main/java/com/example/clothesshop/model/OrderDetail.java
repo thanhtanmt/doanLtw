@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Table(name = "order_details")
-public class OrderDetail extends BaseEntity {
+public class OrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,6 +22,10 @@ public class OrderDetail extends BaseEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variant_id")
+    private ProductVariant variant;
+
     private Integer quantity;
     
     @Column(name = "unit_price")
@@ -29,4 +33,7 @@ public class OrderDetail extends BaseEntity {
     
     @Column(name = "total_price")
     private BigDecimal totalPrice;
+
+    @Column(columnDefinition = "NVARCHAR(50)")
+    private String sizeAtOrder;
 }

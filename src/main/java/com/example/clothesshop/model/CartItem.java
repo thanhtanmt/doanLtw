@@ -28,6 +28,22 @@ public class CartItem {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variant_id", nullable = false)
+    private ProductVariant variant;
+
     private int quantity;
     private BigDecimal priceAtAddTime;
+
+    // Helper methods
+    public BigDecimal getSubtotal() {
+        return priceAtAddTime.multiply(new BigDecimal(quantity));
+    }
+
+    public String getVariantInfo() {
+        if (variant != null) {
+            return variant.getDisplayName();
+        }
+        return "";
+    }
 }
