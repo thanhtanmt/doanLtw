@@ -9,23 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/seller")
 public class SellerController {
 
-    @GetMapping("/dashboard")
-    public String sellerDashboard(Model model) {
-        return "seller/dashboard";
-    }
-
-    @GetMapping("/products")
-    public String sellerProducts(Model model) {
-        return "seller/products";
-    }
-
-    @GetMapping("/orders")
-    public String sellerOrders(Model model) {
-        return "seller/orders";
-    }
-
-    @GetMapping("/profile")
-    public String sellerProfile(Model model) {
-        return "seller/profile";
+    @GetMapping
+    public String seller(Model model) {
+        return "seller";
     }
 }

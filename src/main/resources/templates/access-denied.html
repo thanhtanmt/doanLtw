@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout/main}">
+<head>
+<meta charset="UTF-8">
+<title>Truy cập bị từ chối</title>
+<style>
+.access-denied-container {
+  max-width: 700px;
+  margin: 100px auto;
+  padding: 60px 40px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  text-align: center;
+  animation: slideUp 0.6s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.access-denied-icon {
+  font-size: 120px;
+  color: #dc3545;
+  margin-bottom: 30px;
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
+.access-denied-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.access-denied-message {
+  font-size: 18px;
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 30px;
+}
+
+.access-denied-message strong {
+  color: #dc3545;
+}
+
+.access-denied-info {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+  border-left: 4px solid #dc3545;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 30px 0;
+  text-align: left;
+}
+
+.access-denied-info h5 {
+  color: #dc3545;
+  font-weight: 600;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.access-denied-info ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.access-denied-info li {
+  padding: 8px 0;
+  color: #555;
+  display: flex;
+  align-items: start;
+  gap: 10px;
+}
+
+.access-denied-info li i {
+  color: #dc3545;
+  margin-top: 3px;
+}
+
+.contact-admin-box {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 16px;
+  padding: 30px;
+  margin: 30px 0;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.contact-icon {
+  font-size: 50px;
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-info {
+  text-align: left;
+  color: white;
+}
+
+.contact-info h6 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.phone-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.phone-number:hover {
+  transform: translateX(5px);
+  color: #fff;
+}
+
+.phone-number i {
+  font-size: 24px;
+}
+
+.btn-group-custom {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.btn-custom {
+  padding: 15px 35px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.btn-custom:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.btn-primary-custom {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+}
+
+.btn-primary-custom:hover {
+  color: white;
+}
+</style>
+</head>
+<body>
+
+<div layout:fragment="content">
+  <div class="access-denied-container">
+    <div class="access-denied-icon">
+      <i class="fas fa-store-slash"></i>
+    </div>
+    
+    <h1 class="access-denied-title">Truy cập bị từ chối</h1>
+    
+    <p class="access-denied-message">
+      <strong>Bạn không có quyền truy cập trang này!</strong><br>
+      Tính năng này dành riêng cho người bán hàng (Seller).
+    </p>
+    
+    <div class="access-denied-info">
+      <h5>
+        <i class="fas fa-info-circle"></i>
+        Bạn muốn trở thành người bán?
+      </h5>
+      <ul>
+        <li>
+          <i class="fas fa-phone"></i>
+          <span>Liên hệ <strong>Admin</strong> qua số điện thoại để được cấp quyền seller</span>
+        </li>
+        <li>
+          <i class="fas fa-check-circle"></i>
+          <span>Cung cấp thông tin cửa hàng và giấy phép kinh doanh (nếu có)</span>
+        </li>
+        <li>
+          <i class="fas fa-check-circle"></i>
+          <span>Chờ xét duyệt từ hệ thống (1-2 ngày làm việc)</span>
+        </li>
+        <li>
+          <i class="fas fa-check-circle"></i>
+          <span>Bắt đầu bán hàng và kiếm tiền ngay!</span>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="contact-admin-box">
+      <div class="contact-icon">
+        <i class="fas fa-phone-alt"></i>
+      </div>
+      <div class="contact-info">
+        <h6>Liên hệ Admin</h6>
+        <a href="tel:0123456789" class="phone-number">
+          <i class="fas fa-phone"></i> 0123 456 789
+        </a>
+      </div>
+    </div>
+    
+    <div class="btn-group-custom">
+      <a href="/" class="btn-custom btn-primary-custom">
+        <i class="fas fa-home"></i>
+        Về trang chủ
+      </a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

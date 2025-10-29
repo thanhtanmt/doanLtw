@@ -30,7 +30,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             redirectUrl = "/admin/dashboard";
             System.out.println("✅ Detected ROLE_ADMIN -> Redirect to: " + redirectUrl);
         } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SELLER"))) {
-            redirectUrl = "/seller/dashboard";
+            redirectUrl = "/seller";
             System.out.println("✅ Detected ROLE_SELLER -> Redirect to: " + redirectUrl);
         } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SHIPPER"))) {
             redirectUrl = "/shipper/dashboard";

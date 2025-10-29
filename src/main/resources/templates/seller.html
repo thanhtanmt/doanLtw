@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout/main}">
+<head>
+<meta charset="UTF-8">
+<title>Cửa hàng của bạn</title>
+<style>
+:root {
+  --purple1: #667eea;
+  --purple2: #764ba2;
+  --gradient: linear-gradient(135deg, var(--purple1), var(--purple2));
+  --shadow: 0 10px 40px rgba(0,0,0,0.08);
+  --shadow-hover: 0 15px 50px rgba(102, 126, 234, 0.25);
+}
+
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+/* Container */
+.seller-container {
+  max-width: 1400px;
+  margin: 50px auto;
+  background: white;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  animation: slideUp 0.6s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.seller-header {
+  background: var(--gradient);
+  color: white;
+  padding: 40px 45px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.seller-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+}
+
+.seller-header::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -5%;
+  width: 300px;
+  height: 300px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+
+.seller-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.seller-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.seller-header .info {
+  font-size: 15px;
+  opacity: 0.95;
+  font-weight: 300;
+}
+
+.seller-header .user-info {
+  text-align: right;
+  font-size: 16px;
+  font-weight: 500;
+  background: rgba(255,255,255,0.15);
+  padding: 12px 24px;
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+}
+
+/* Tabs */
+.seller-tabs {
+  display: flex;
+  background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+  border-bottom: 3px solid #e9ecef;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+.seller-tab {
+  flex: 1;
+  text-align: center;
+  padding: 20px 0;
+  cursor: pointer;
+  font-weight: 600;
+  color: #6c757d;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.seller-tab::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 3px;
+  background: var(--gradient);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.seller-tab.active {
+  color: var(--purple1);
+  background: linear-gradient(to bottom, rgba(102, 126, 234, 0.05), transparent);
+}
+
+.seller-tab.active::before {
+  width: 80%;
+}
+
+.seller-tab:hover {
+  color: var(--purple1);
+  background: rgba(102, 126, 234, 0.03);
+}
+
+.seller-tab i {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* Content */
+.seller-content {
+  padding: 45px;
+  animation: fadeIn 0.5s ease;
+  min-height: 500px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dashboard Cards */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.dashboard-card {
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+  padding: 35px;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient);
+  transform: scaleX(0);
+  transition: transform 0.4s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover);
+}
+
+.dashboard-card:hover::before {
+  transform: scaleX(1);
+}
+
+.dashboard-card .icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+  background: var(--gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dashboard-card h2 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #2d3436;
+  margin: 15px 0;
+}
+
+.dashboard-card p {
+  font-size: 16px;
+  color: #636e72;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+/* Table */
+.table-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  overflow: hidden;
+  margin-top: 25px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: var(--gradient);
+  color: white;
+}
+
+.table th {
+  padding: 18px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.table td {
+  padding: 18px 20px;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 14px;
+  color: #495057;
+}
+
+.table tbody tr {
+  transition: all 0.3s;
+}
+
+.table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.03), transparent);
+  transform: scale(1.01);
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: var(--gradient);
+  color: white;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  letter-spacing: 0.3px;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn i {
+  margin-right: 6px;
+}
+
+.btn.btn-danger {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+  box-shadow: 0 4px 15px rgba(238, 90, 111, 0.3);
+}
+
+.btn.btn-danger:hover {
+  box-shadow: 0 8px 25px rgba(238, 90, 111, 0.4);
+}
+
+.btn.btn-success {
+  background: linear-gradient(135deg, #51cf66, #37b24d);
+  box-shadow: 0 4px 15px rgba(55, 178, 77, 0.3);
+}
+
+.btn.btn-info {
+  background: linear-gradient(135deg, #4dabf7, #339af0);
+  box-shadow: 0 4px 15px rgba(51, 154, 240, 0.3);
+}
+
+/* Status Badges */
+.status {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.status.pending {
+  background: linear-gradient(135deg, #ffd43b, #fab005);
+  color: #495057;
+}
+
+.status.shipping {
+  background: linear-gradient(135deg, #74c0fc, #4dabf7);
+  color: white;
+}
+
+.status.done {
+  background: linear-gradient(135deg, #8ce99a, #51cf66);
+  color: white;
+}
+
+.status.cancel {
+  background: linear-gradient(135deg, #ffa8a8, #ff6b6b);
+  color: white;
+}
+
+/* Action Bar */
+.action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+.action-bar h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d3436;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .seller-container {
+    margin: 20px;
+    border-radius: 16px;
+  }
+  
+  .seller-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 25px;
+  }
+  
+  .seller-header .user-info {
+    margin-top: 15px;
+  }
+  
+  .seller-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .seller-tab {
+    flex: 1 1 50%;
+    font-size: 13px;
+  }
+  
+  .seller-content {
+    padding: 25px;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .action-bar {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+}
+</style>
+</head>
+
+<body>
+<div layout:fragment="content">
+  <div class="seller-container">
+    <!-- Header -->
+    <div class="seller-header">
+      <div>
+        <h1><i class="fas fa-store"></i> Cửa hàng của bạn</h1>
+        <div class="info">Quản lý sản phẩm, đơn hàng và khuyến mãi của shop một cách dễ dàng</div>
+      </div>
+      <div class="user-info">
+        <i class="fas fa-user-circle"></i>
+        <span th:text="'Xin chào, ' + ${#authentication.name}">Xin chào, seller</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="seller-tabs">
+      <div class="seller-tab active" data-tab="dashboard">
+        <i class="fas fa-chart-line"></i> Tổng quan
+      </div>
+      <div class="seller-tab" data-tab="products">
+        <i class="fas fa-box"></i> Sản phẩm
+      </div>
+      <div class="seller-tab" data-tab="orders">
+        <i class="fas fa-shopping-cart"></i> Đơn hàng
+      </div>
+      <div class="seller-tab" data-tab="vouchers">
+        <i class="fas fa-tags"></i> Khuyến mãi
+      </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="seller-content" id="dashboard" style="display:block;">
+      <div class="dashboard-grid">
+        <div class="dashboard-card">
+          <div class="icon">💰</div>
+          <h2>12,500,000 đ</h2>
+          <p>Doanh thu tháng này</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="icon">📦</div>
+          <h2>56</h2>
+          <p>Đơn hàng đã bán</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="icon">👕</div>
+          <h2>24</h2>
+          <p>Sản phẩm đang bán</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="icon">⭐</div>
+          <h2>4.8/5</h2>
+          <p>Đánh giá trung bình</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Content -->
+    <div class="seller-content" id="products" style="display:none;">
+      <div class="action-bar">
+        <h2><i class="fas fa-box"></i> Quản lý sản phẩm</h2>
+        <a href="#" class="btn">
+          <i class="fas fa-plus"></i> Thêm sản phẩm mới
+        </a>
+      </div>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Tên sản phẩm</th>
+              <th>Danh mục</th>
+              <th>Giá bán</th>
+              <th>Kho</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Áo phông Basic</strong></td>
+              <td>Áo Nam</td>
+              <td><strong>250,000 đ</strong></td>
+              <td>48</td>
+              <td><span class="status done">Đang bán</span></td>
+              <td>
+                <a href="#" class="btn btn-info"><i class="fas fa-edit"></i> Sửa</a>
+                <a href="#" class="btn btn-danger"><i class="fas fa-trash"></i> Xóa</a>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Quần Jeans Slim Fit</strong></td>
+              <td>Quần Nam</td>
+              <td><strong>450,000 đ</strong></td>
+              <td>32</td>
+              <td><span class="status done">Đang bán</span></td>
+              <td>
+                <a href="#" class="btn btn-info"><i class="fas fa-edit"></i> Sửa</a>
+                <a href="#" class="btn btn-danger"><i class="fas fa-trash"></i> Xóa</a>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Áo sơ mi công sở</strong></td>
+              <td>Áo Nam</td>
+              <td><strong>320,000 đ</strong></td>
+              <td>5</td>
+              <td><span class="status pending">Sắp hết</span></td>
+              <td>
+                <a href="#" class="btn btn-info"><i class="fas fa-edit"></i> Sửa</a>
+                <a href="#" class="btn btn-danger"><i class="fas fa-trash"></i> Xóa</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Orders Content -->
+    <div class="seller-content" id="orders" style="display:none;">
+      <div class="action-bar">
+        <h2><i class="fas fa-shopping-cart"></i> Quản lý đơn hàng</h2>
+      </div>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Mã đơn hàng</th>
+              <th>Khách hàng</th>
+              <th>Sản phẩm</th>
+              <th>Tổng tiền</th>
+              <th>Ngày đặt</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>#DH1001</strong></td>
+              <td>Nguyễn Văn A</td>
+              <td>Áo phông Basic x2</td>
+              <td><strong>500,000 đ</strong></td>
+              <td>28/10/2025</td>
+              <td><span class="status pending">Chờ xử lý</span></td>
+              <td>
+                <a href="#" class="btn btn-success"><i class="fas fa-check"></i> Xác nhận</a>
+                <a href="#" class="btn btn-danger"><i class="fas fa-times"></i> Hủy</a>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>#DH1002</strong></td>
+              <td>Trần Thị B</td>
+              <td>Quần Jeans x1</td>
+              <td><strong>450,000 đ</strong></td>
+              <td>27/10/2025</td>
+              <td><span class="status shipping">Đang giao</span></td>
+              <td>
+                <a href="#" class="btn btn-info"><i class="fas fa-eye"></i> Chi tiết</a>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>#DH1003</strong></td>
+              <td>Lê Văn C</td>
+              <td>Áo sơ mi x1</td>
+              <td><strong>320,000 đ</strong></td>
+              <td>26/10/2025</td>
+              <td><span class="status done">Hoàn thành</span></td>
+              <td>
+                <a href="#" class="btn btn-info"><i class="fas fa-eye"></i> Chi tiết</a>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>#DH1004</strong></td>
+              <td>Phạm Thị D</td>
+              <td>Áo phông x3</td>
+              <td><strong>750,000 đ</strong></td>
+              <td>25/10/2025</td>
+              <td><span class="status cancel">Đã hủy</span></td>
+              <td>
+                <a href="#" class="btn btn-info"><i class="fas fa-eye"></i> Chi tiết</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Vouchers Content -->
+    <div class="seller-content" id="vouchers" style="display:none;">
+      <div class="action-bar">
+        <h2><i class="fas fa-tags"></i> Quản lý khuyến mãi</h2>
+        <a href="#" class="btn">
+          <i class="fas fa-plus"></i> Tạo voucher mới
+        </a>
+      </div>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Mã voucher</th>
+              <th>Loại giảm giá</th>
+              <th>Giá trị</th>
+              <th>Số lượng</th>
+              <th>Đã dùng</th>
+              <th>Hạn sử dụng</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>SALE10</strong></td>
+              <td>Phần trăm</td>
+              <td><strong>10%</strong></td>
+              <td>100</td>
+              <td>23</td>
+              <td>31/12/2025</td>
+              <td><span class="status done">Đang hoạt động</span></td>
+              <td>
+                <a href="#" class="btn btn-info"><i class="fas fa-edit"></i> Sửa</a>
+                <a href="#" class="btn btn-danger"><i class="fas fa-ban"></i> Vô hiệu</a>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>FREESHIP</strong></td>
+              <td>Miễn phí ship</td>
+              <td><strong>30,000 đ</strong></td>
+              <td>50</td>
+              <td>12</td>
+              <td>15/11/2025</td>
+              <td><span class="status done">Đang hoạt động</span></td>
+              <td>
+                <a href="#" class="btn btn-info"><i class="fas fa-edit"></i> Sửa</a>
+                <a href="#" class="btn btn-danger"><i class="fas fa-ban"></i> Vô hiệu</a>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>WELCOME50K</strong></td>
+              <td>Giảm tiền</td>
+              <td><strong>50,000 đ</strong></td>
+              <td>200</td>
+              <td>156</td>
+              <td>30/11/2025</td>
+              <td><span class="status shipping">Sắp hết</span></td>
+              <td>
+                <a href="#" class="btn btn-info"><i class="fas fa-edit"></i> Sửa</a>
+                <a href="#" class="btn btn-danger"><i class="fas fa-ban"></i> Vô hiệu</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Thêm Sản Phẩm (Bootstrap Style) -->
+  <div id="productModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="fas fa-box-open me-2"></i>
+            Thêm sản phẩm mới
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="productForm">
+            <!-- Tabs Navigation -->
+            <ul class="nav nav-tabs mb-4" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+                  <i class="fas fa-info-circle me-1"></i> Thông tin cơ bản
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="variants-tab" data-bs-toggle="tab" data-bs-target="#variants" type="button" role="tab">
+                  <i class="fas fa-th me-1"></i> Phân loại hàng
+                </button>
+              </li>
+            </ul>
+            
+            <!-- Tab Content -->
+            <div class="tab-content">
+              <!-- Tab 1: Thông tin cơ bản -->
+              <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">
+                      <i class="fas fa-tag text-primary me-1"></i> Tên sản phẩm <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" name="name" required placeholder="Ví dụ: Áo phông basic">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">
+                      <i class="fas fa-copyright text-primary me-1"></i> Thương hiệu
+                    </label>
+                    <input type="text" class="form-control" name="brand" placeholder="Ví dụ: Nike">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">
+                      <i class="fas fa-list text-primary me-1"></i> Danh mục <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" name="categoryId" required>
+                      <option value="">-- Chọn danh mục --</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">
+                      <i class="fas fa-venus-mars text-primary me-1"></i> Giới tính
+                    </label>
+                    <select class="form-select" name="gender">
+                      <option value="">-- Chọn giới tính --</option>
+                      <option value="Nam">Nam</option>
+                      <option value="Nữ">Nữ</option>
+                      <option value="Unisex">Unisex</option>
+                    </select>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">
+                      <i class="fas fa-tshirt text-primary me-1"></i> Chất liệu
+                    </label>
+                    <input type="text" class="form-control" name="material" placeholder="Ví dụ: Cotton 100%">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">
+                      <i class="fas fa-align-left text-primary me-1"></i> Mô tả ngắn
+                    </label>
+                    <textarea class="form-control" name="description" rows="2" placeholder="Giới thiệu ngắn về sản phẩm..."></textarea>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">
+                      <i class="fas fa-file-alt text-primary me-1"></i> Mô tả chi tiết
+                    </label>
+                    <textarea class="form-control" name="detail" rows="3" placeholder="Mô tả chi tiết về sản phẩm..."></textarea>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">
+                      <i class="fas fa-clipboard-list text-primary me-1"></i> Thông số kỹ thuật
+                    </label>
+                    <textarea class="form-control" name="specification" rows="2" placeholder="Hướng dẫn bảo quản, xuất xứ..."></textarea>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Tab 2: Phân loại hàng -->
+              <div class="tab-pane fade" id="variants" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6><i class="fas fa-th-large text-primary me-2"></i> Danh sách phân loại</h6>
+                  <button type="button" class="btn btn-success btn-sm" id="addVariantBtn">
+                    <i class="fas fa-plus me-1"></i> Thêm phân loại
+                  </button>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Size</th>
+                        <th>Giá (VNĐ)</th>
+                        <th>Số lượng</th>
+                        <th>SKU</th>
+                        <th style="width: 50px;"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="variantsContainer">
+                      <tr class="variant-row">
+                        <td><input type="text" class="form-control form-control-sm" name="variants[0].size" required placeholder="S, M, L..."></td>
+                        <td><input type="number" class="form-control form-control-sm" name="variants[0].price" required placeholder="250000"></td>
+                        <td><input type="number" class="form-control form-control-sm" name="variants[0].quantity" required placeholder="50"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="variants[0].sku" placeholder="PRO-001-S"></td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <button type="submit" form="productForm" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i> Lưu sản phẩm
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tạo Voucher (Bootstrap Style) -->
+  <div id="voucherModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title">
+            <i class="fas fa-tags me-2"></i>
+            Tạo voucher mới
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="voucherForm">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-barcode text-warning me-1"></i> Mã voucher <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control text-uppercase" name="code" required placeholder="SALE10">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-tag text-warning me-1"></i> Tên voucher <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" name="name" required placeholder="Giảm giá 10%">
+              </div>
+              <div class="col-12">
+                <label class="form-label">
+                  <i class="fas fa-align-left text-warning me-1"></i> Mô tả
+                </label>
+                <textarea class="form-control" name="description" rows="2" placeholder="Mô tả về voucher..."></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-percentage text-warning me-1"></i> Loại giảm giá <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" name="discountType" required id="discountType">
+                  <option value="PERCENTAGE">Phần trăm (%)</option>
+                  <option value="FIXED_AMOUNT">Số tiền cố định (VNĐ)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-dollar-sign text-warning me-1"></i> Giá trị giảm <span class="text-danger">*</span>
+                </label>
+                <input type="number" class="form-control" name="discountValue" required placeholder="10" step="0.01">
+              </div>
+              <div class="col-md-6" id="maxDiscountGroup">
+                <label class="form-label">
+                  <i class="fas fa-hand-holding-usd text-warning me-1"></i> Giảm tối đa (VNĐ)
+                </label>
+                <input type="number" class="form-control" name="maxDiscount" placeholder="50000">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-shopping-cart text-warning me-1"></i> Đơn hàng tối thiểu (VNĐ)
+                </label>
+                <input type="number" class="form-control" name="minOrderValue" placeholder="200000" value="0">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-boxes text-warning me-1"></i> Số lượng voucher <span class="text-danger">*</span>
+                </label>
+                <input type="number" class="form-control" name="totalQuantity" required placeholder="100" value="1">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-user-check text-warning me-1"></i> Giới hạn sử dụng/người
+                </label>
+                <input type="number" class="form-control" name="usageLimit" placeholder="1" value="1">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-calendar-alt text-warning me-1"></i> Ngày bắt đầu <span class="text-danger">*</span>
+                </label>
+                <input type="date" class="form-control" name="startDate" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-calendar-times text-warning me-1"></i> Ngày kết thúc <span class="text-danger">*</span>
+                </label>
+                <input type="date" class="form-control" name="endDate" required>
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="active" checked id="activeCheck">
+                  <label class="form-check-label" for="activeCheck">
+                    <i class="fas fa-check-circle text-success me-1"></i> Kích hoạt ngay
+                  </label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <button type="submit" form="voucherForm" class="btn btn-warning">
+            <i class="fas fa-save me-1"></i> Tạo voucher
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div> <!-- End of layout:fragment="content" -->
+
+<th:block layout:fragment="scripts">
+<script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Seller page loaded');
+  
+  // Bootstrap Modal instances
+  const productModalEl = document.getElementById('productModal');
+  const voucherModalEl = document.getElementById('voucherModal');
+  
+  const productModal = productModalEl ? new bootstrap.Modal(productModalEl) : null;
+  const voucherModal = voucherModalEl ? new bootstrap.Modal(voucherModalEl) : null;
+  
+  console.log('Product Modal Element:', productModalEl);
+  console.log('Voucher Modal Element:', voucherModalEl);
+  
+  // Button handlers - Mở modal khi click
+  const addProductBtn = document.getElementById('addProductBtn');
+  const addVoucherBtn = document.getElementById('addVoucherBtn');
+  
+  if (addProductBtn && productModal) {
+    addProductBtn.addEventListener('click', function() {
+      console.log('Opening product modal');
+      productModal.show();
+    });
+  }
+  
+  if (addVoucherBtn && voucherModal) {
+    addVoucherBtn.addEventListener('click', function() {
+      console.log('Opening voucher modal');
+      voucherModal.show();
+    });
+  }
+  
+  // Voucher discount type logic
+  const discountTypeSelect = document.getElementById('discountType');
+  const maxDiscountGroup = document.getElementById('maxDiscountGroup');
+  
+  if (discountTypeSelect && maxDiscountGroup) {
+    discountTypeSelect.addEventListener('change', function() {
+      if (this.value === 'PERCENTAGE') {
+        maxDiscountGroup.style.display = 'block';
+      } else {
+        maxDiscountGroup.style.display = 'none';
+      }
+    });
+  }
+  
+  // Add variant row handler
+  let variantIndex = 1;
+  const addVariantBtn = document.getElementById('addVariantBtn');
+  const variantsContainer = document.getElementById('variantsContainer');
+  
+  if (addVariantBtn && variantsContainer) {
+    addVariantBtn.addEventListener('click', function() {
+      const newRow = document.createElement('tr');
+      newRow.className = 'variant-row';
+      newRow.innerHTML = `
+        <td><input type="text" class="form-control form-control-sm" name="variants[${variantIndex}].size" required placeholder="S, M, L..."></td>
+        <td><input type="number" class="form-control form-control-sm" name="variants[${variantIndex}].price" required placeholder="250000"></td>
+        <td><input type="number" class="form-control form-control-sm" name="variants[${variantIndex}].quantity" required placeholder="50"></td>
+        <td><input type="text" class="form-control form-control-sm" name="variants[${variantIndex}].sku" placeholder="PRO-001-${variantIndex}"></td>
+        <td>
+          <button type="button" class="btn btn-danger btn-sm remove-variant">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      `;
+      variantsContainer.appendChild(newRow);
+      variantIndex++;
+      
+      // Add remove handler
+      newRow.querySelector('.remove-variant').addEventListener('click', function() {
+        newRow.remove();
+      });
+    });
+  }
+  
+  // Form submissions
+  const productForm = document.getElementById('productForm');
+  if (productForm) {
+    productForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      console.log('Product form submitted');
+      
+      const formData = new FormData(this);
+      const data = {};
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+      
+      console.log('Product data:', data);
+      alert('Chức năng đang phát triển. Dữ liệu: ' + JSON.stringify(data, null, 2));
+      
+      // Close modal
+      if (productModal) productModal.hide();
+    });
+  }
+  
+  const voucherForm = document.getElementById('voucherForm');
+  if (voucherForm) {
+    voucherForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      console.log('Voucher form submitted');
+      
+      const formData = new FormData(this);
+      const data = {};
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+      
+      console.log('Voucher data:', data);
+      alert('Chức năng đang phát triển. Dữ liệu: ' + JSON.stringify(data, null, 2));
+      
+      // Close modal
+      if (voucherModal) voucherModal.hide();
+    });
+  }
+  
+  // Load categories for product form
+  fetch('/api/categories')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to load categories');
+      }
+      return response.json();
+    })
+    .then(categories => {
+      const select = productForm?.querySelector('select[name="categoryId"]');
+      if (select && categories) {
+        categories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.id;
+          option.textContent = cat.name;
+          select.appendChild(option);
+        });
+      }
+    })
+    .catch(error => console.error('Error loading categories:', error));
+});
+</script>
+</th:block>
+</body>
+</html>
+    
+    <div class="modal-modern-header">
+      <i class="fas fa-box-open"></i>
+      <h2>Thêm sản phẩm mới</h2>
+    </div>
+    
+    <div class="modal-modern-body">
+      <form id="productForm">
+        <!-- Tabs -->
+        <div class="modal-tabs">
+          <button type="button" class="modal-tab active" data-tab="basic">
+            <i class="fas fa-info-circle"></i> Thông tin cơ bản
+          </button>
+          <button type="button" class="modal-tab" data-tab="variants">
+            <i class="fas fa-th"></i> Phân loại hàng
+          </button>
+        </div>
+        
+        <!-- Tab Content: Thông tin cơ bản -->
+        <div class="modal-tab-content active" id="basic">
+          <div class="info-grid">
+            <div class="info-item">
+              <label><i class="fas fa-tag"></i> Tên sản phẩm <span class="required">*</span></label>
+              <input type="text" name="name" required placeholder="Ví dụ: Áo phông basic">
+            </div>
+            
+            <div class="info-item">
+              <label><i class="fas fa-copyright"></i> Thương hiệu</label>
+              <input type="text" name="brand" placeholder="Ví dụ: Nike">
+            </div>
+            
+            <div class="info-item">
+              <label><i class="fas fa-list"></i> Danh mục <span class="required">*</span></label>
+              <select name="categoryId" required>
+                <option value="">-- Chọn danh mục --</option>
+              </select>
+            </div>
+            
+            <div class="info-item">
+              <label><i class="fas fa-venus-mars"></i> Giới tính</label>
+              <select name="gender">
+                <option value="">-- Chọn giới tính --</option>
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+                <option value="Unisex">Unisex</option>
+              </select>
+            </div>
+            
+            <div class="info-item full-width">
+              <label><i class="fas fa-tshirt"></i> Chất liệu</label>
+              <input type="text" name="material" placeholder="Ví dụ: Cotton 100%">
+            </div>
+            
+            <div class="info-item full-width">
+              <label><i class="fas fa-align-left"></i> Mô tả ngắn</label>
+              <textarea name="description" rows="2" placeholder="Giới thiệu ngắn về sản phẩm..."></textarea>
+            </div>
+            
+            <div class="info-item full-width">
+              <label><i class="fas fa-file-alt"></i> Mô tả chi tiết</label>
+              <textarea name="detail" rows="3" placeholder="Mô tả chi tiết về sản phẩm..."></textarea>
+            </div>
+            
+            <div class="info-item full-width">
+              <label><i class="fas fa-clipboard-list"></i> Thông số kỹ thuật</label>
+              <textarea name="specification" rows="2" placeholder="Hướng dẫn bảo quản, xuất xứ..."></textarea>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tab Content: Phân loại hàng -->
+        <div class="modal-tab-content" id="variants" style="display:none;">
+          <div class="variants-header">
+            <h4><i class="fas fa-th-large"></i> Danh sách phân loại</h4>
+            <button type="button" class="btn-add-variant" id="addVariantBtn">
+              <i class="fas fa-plus"></i> Thêm phân loại
+            </button>
+          </div>
+          
+          <div class="variants-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Size</th>
+                  <th>Giá (VNĐ)</th>
+                  <th>Số lượng</th>
+                  <th>SKU</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="variantsContainer">
+                <tr class="variant-row">
+                  <td><input type="text" name="variants[0].size" required placeholder="S, M, L..."></td>
+                  <td><input type="number" name="variants[0].price" required placeholder="250000"></td>
+                  <td><input type="number" name="variants[0].quantity" required placeholder="50"></td>
+                  <td><input type="text" name="variants[0].sku" placeholder="PRO-001-S"></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="modal-modern-footer">
+          <button type="button" class="btn-cancel modal-modern-close">Đóng</button>
+          <button type="submit" class="btn-submit">
+            <i class="fas fa-paper-plane"></i> Lưu sản phẩm
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Thêm Voucher -->
+<div class="modal-modern" id="voucherModal" style="display:none;">
+  <div class="modal-modern-overlay"></div>
+  <div class="modal-modern-content">
+    <button class="modal-modern-close">&times;</button>
+    
+    <div class="modal-modern-header">
+      <i class="fas fa-tags"></i>
+      <h2>Tạo voucher mới</h2>
+    </div>
+    
+    <div class="modal-modern-body">
+      <form id="voucherForm">
+        <div class="info-grid">
+          <div class="info-item">
+            <label><i class="fas fa-barcode"></i> Mã voucher <span class="required">*</span></label>
+            <input type="text" name="code" required placeholder="SALE10" style="text-transform: uppercase;">
+          </div>
+          
+          <div class="info-item">
+            <label><i class="fas fa-tag"></i> Tên voucher <span class="required">*</span></label>
+            <input type="text" name="name" required placeholder="Giảm giá 10%">
+          </div>
+          
+          <div class="info-item full-width">
+            <label><i class="fas fa-align-left"></i> Mô tả</label>
+            <textarea name="description" rows="2" placeholder="Mô tả về voucher..."></textarea>
+          </div>
+          
+          <div class="info-item">
+            <label><i class="fas fa-percentage"></i> Loại giảm giá <span class="required">*</span></label>
+            <select name="discountType" required id="discountType">
+              <option value="PERCENTAGE">Phần trăm (%)</option>
+              <option value="FIXED_AMOUNT">Số tiền cố định (VNĐ)</option>
+            </select>
+          </div>
+          
+          <div class="info-item">
+            <label><i class="fas fa-dollar-sign"></i> Giá trị giảm <span class="required">*</span></label>
+            <input type="number" name="discountValue" required placeholder="10" step="0.01">
+          </div>
+          
+          <div class="info-item" id="maxDiscountGroup">
+            <label><i class="fas fa-hand-holding-usd"></i> Giảm tối đa (VNĐ)</label>
+            <input type="number" name="maxDiscount" placeholder="50000">
+          </div>
+          
+          <div class="info-item">
+            <label><i class="fas fa-shopping-cart"></i> Đơn hàng tối thiểu (VNĐ)</label>
+            <input type="number" name="minOrderValue" placeholder="200000" value="0">
+          </div>
+          
+          <div class="info-item">
+            <label><i class="fas fa-boxes"></i> Số lượng voucher <span class="required">*</span></label>
+            <input type="number" name="totalQuantity" required placeholder="100" value="1">
+          </div>
+          
+          <div class="info-item">
+            <label><i class="fas fa-user-check"></i> Giới hạn sử dụng/người</label>
+            <input type="number" name="usageLimit" placeholder="1" value="1">
+          </div>
+          
+          <div class="info-item">
+            <label><i class="fas fa-calendar-alt"></i> Ngày bắt đầu <span class="required">*</span></label>
+            <input type="date" name="startDate" required>
+          </div>
+          
+          <div class="info-item">
+            <label><i class="fas fa-calendar-times"></i> Ngày kết thúc <span class="required">*</span></label>
+            <input type="date" name="endDate" required>
+          </div>
+          
+          <div class="info-item full-width">
+            <label class="checkbox-label">
+              <input type="checkbox" name="active" checked>
+              <span><i class="fas fa-check-circle"></i> Kích hoạt ngay</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="modal-modern-footer">
+          <button type="button" class="btn-cancel modal-modern-close">Đóng</button>
+          <button type="submit" class="btn-submit">
+            <i class="fas fa-paper-plane"></i> Tạo voucher
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> <!-- End of Voucher Modal -->
+
+</div> <!-- End of layout:fragment="content" -->
+
+<style>
+/* Modern Modal Styles */
+.modal-modern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-modern-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.modal-modern-content {
+  position: relative;
+  background: white;
+  border-radius: 24px;
+  max-width: 900px;
+  width: 95%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-modern-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-modern-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.modal-modern-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 35px 40px;
+  text-align: center;
+  color: white;
+}
+
+.modal-modern-header i {
+  font-size: 48px;
+  margin-bottom: 15px;
+  opacity: 0.9;
+}
+
+.modal-modern-header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.modal-modern-body {
+  padding: 35px 40px;
+  max-height: calc(90vh - 250px);
+  overflow-y: auto;
+}
+
+/* Tabs */
+.modal-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.modal-tab {
+  flex: 1;
+  padding: 15px 20px;
+  border: none;
+  background: transparent;
+  color: #6c757d;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 3px solid transparent;
+  font-family: inherit;
+}
+
+.modal-tab:hover {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.modal-tab.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+  background: rgba(102, 126, 234, 0.08);
+}
+
+.modal-tab i {
+  margin-right: 8px;
+}
+
+.modal-tab-content {
+  display: none;
+}
+
+.modal-tab-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.info-item label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-item label i {
+  color: #667eea;
+  font-size: 16px;
+}
+
+.info-item input,
+.info-item select,
+.info-item textarea {
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s;
+  background: #f8f9fa;
+}
+
+.info-item input:focus,
+.info-item select:focus,
+.info-item textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.info-item textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.required {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+.checkbox-label:hover {
+  background: #e9ecef;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkbox-label span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Variants Table */
+.variants-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.variants-header h4 {
+  margin: 0;
+  font-size: 18px;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-add-variant {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #51cf66, #37b24d);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-add-variant:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(55, 178, 77, 0.3);
+}
+
+.variants-table {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.variants-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.variants-table th {
+  text-align: left;
+  padding: 12px;
+  font-size: 13px;
+  color: #6c757d;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.variants-table td {
+  padding: 10px 12px;
+}
+
+.variant-row input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  transition: all 0.3s;
+}
+
+.variant-row input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-remove-variant {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.3s;
+}
+
+.btn-remove-variant:hover {
+  background: #c0392b;
+  transform: rotate(90deg);
+}
+
+/* Footer */
+.modal-modern-footer {
+  padding: 25px 40px;
+  border-top: 2px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  background: #f8f9fa;
+}
+
+.btn-cancel {
+  padding: 12px 30px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+.btn-cancel:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+.btn-submit {
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-modern-content {
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  
+  .modal-tabs {
+    flex-direction: column;
+  }
+  
+  .variants-table {
+    overflow-x: scroll;
+  }
+}
+</style>
+
+<th:block layout:fragment="scripts">
+<script>
+// Tab switching functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // ===== TAB SWITCHING =====
+  document.querySelectorAll('.seller-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.seller-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.seller-content').forEach(c => c.style.display = 'none');
+      document.getElementById(tab.dataset.tab).style.display = 'block';
+    });
+  });
+
+  // ===== MODAL FUNCTIONS =====
+  const productModal = document.getElementById('productModal');
+  const voucherModal = document.getElementById('voucherModal');
+  
+  console.log('Product Modal:', productModal);
+  console.log('Voucher Modal:', voucherModal);
+  
+  // Product Modal Tabs
+  document.querySelectorAll('.modal-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
+      
+      this.classList.add('active');
+      const targetTab = document.getElementById(this.dataset.tab);
+      if (targetTab) {
+        targetTab.classList.add('active');
+      }
+    });
+  });
+  
+  // Open modals
+  document.querySelectorAll('a[href="#"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const text = this.textContent.trim();
+      
+      console.log('Clicked link text:', text);
+      
+      if (text.includes('Thêm sản phẩm') && productModal) {
+        console.log('Opening product modal');
+        productModal.style.display = 'flex';
+      } else if (text.includes('Tạo voucher') && voucherModal) {
+        console.log('Opening voucher modal');
+        voucherModal.style.display = 'flex';
+      }
+    });
+  });
+  
+  // Close modals
+  document.querySelectorAll('.modal-modern-close, .modal-modern-overlay').forEach(el => {
+    el.addEventListener('click', function() {
+      if (productModal) productModal.style.display = 'none';
+      if (voucherModal) voucherModal.style.display = 'none';
+    });
+  });
+  
+  // ===== ADD VARIANT =====
+  let variantCount = 1;
+  document.getElementById('addVariantBtn')?.addEventListener('click', function() {
+    const tbody = document.getElementById('variantsContainer');
+    const newRow = `
+      <tr class="variant-row">
+        <td><input type="text" name="variants[${variantCount}].size" required placeholder="S, M, L..."></td>
+        <td><input type="number" name="variants[${variantCount}].price" required placeholder="250000"></td>
+        <td><input type="number" name="variants[${variantCount}].quantity" required placeholder="50"></td>
+        <td><input type="text" name="variants[${variantCount}].sku" placeholder="PRO-001-M"></td>
+        <td><button type="button" class="btn-remove-variant" onclick="this.parentElement.parentElement.remove()">&times;</button></td>
+      </tr>
+    `;
+    tbody.insertAdjacentHTML('beforeend', newRow);
+    variantCount++;
+  });
+  
+  // ===== VOUCHER DISCOUNT TYPE =====
+  const discountType = document.getElementById('discountType');
+  const maxDiscountGroup = document.getElementById('maxDiscountGroup');
+  
+  if (discountType && maxDiscountGroup) {
+    discountType.addEventListener('change', function() {
+      if (this.value === 'FIXED_AMOUNT') {
+        maxDiscountGroup.style.display = 'none';
+      } else {
+        maxDiscountGroup.style.display = 'block';
+      }
+    });
+  }
+  
+  // ===== PRODUCT FORM SUBMIT =====
+  document.getElementById('productForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const productData = {
+      name: formData.get('name'),
+      brand: formData.get('brand'),
+      categoryId: formData.get('categoryId'),
+      gender: formData.get('gender'),
+      material: formData.get('material'),
+      description: formData.get('description'),
+      detail: formData.get('detail'),
+      specification: formData.get('specification'),
+      variants: []
+    };
+    
+    // Collect variants
+    for (let i = 0; i <= variantCount; i++) {
+      const size = formData.get(`variants[${i}].size`);
+      if (size) {
+        productData.variants.push({
+          size: size,
+          price: formData.get(`variants[${i}].price`),
+          quantity: formData.get(`variants[${i}].quantity`),
+          sku: formData.get(`variants[${i}].sku`)
+        });
+      }
+    }
+    
+    console.log('Product Data:', productData);
+    
+    // TODO: Send to API
+    fetch('/api/seller/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content
+      },
+      body: JSON.stringify(productData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert('Thêm sản phẩm thành công!');
+      productModal.style.display = 'none';
+      location.reload();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Có lỗi xảy ra khi thêm sản phẩm!');
+    });
+  });
+  
+  // ===== VOUCHER FORM SUBMIT =====
+  document.getElementById('voucherForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const voucherData = {
+      code: formData.get('code').toUpperCase(),
+      name: formData.get('name'),
+      description: formData.get('description'),
+      discountType: formData.get('discountType'),
+      discountValue: formData.get('discountValue'),
+      maxDiscount: formData.get('maxDiscount'),
+      minOrderValue: formData.get('minOrderValue') || 0,
+      totalQuantity: formData.get('totalQuantity') || 1,
+      usageLimit: formData.get('usageLimit') || 1,
+      startDate: formData.get('startDate'),
+      endDate: formData.get('endDate'),
+      active: formData.get('active') === 'on'
+    };
+    
+    console.log('Voucher Data:', voucherData);
+    
+    // TODO: Send to API
+    fetch('/api/seller/vouchers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content
+      },
+      body: JSON.stringify(voucherData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert('Tạo voucher thành công!');
+      voucherModal.style.display = 'none';
+      location.reload();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Có lỗi xảy ra khi tạo voucher!');
+    });
+  });
+  
+  // ===== LOAD CATEGORIES =====
+  // Load categories for product form
+  fetch('/api/categories')
+    .then(response => response.json())
+    .then(categories => {
+      const select = document.querySelector('select[name="categoryId"]');
+      if (select) {
+        categories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.id;
+          option.textContent = cat.name;
+          select.appendChild(option);
+        });
+      }
+    })
+    .catch(error => console.error('Error loading categories:', error));
+});
+</script>
+</th:block>
+</body>
+</html>
