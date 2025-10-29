@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+
+<head>
+    <title>Quản lý người dùng</title>
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="page-title">Quản lý người dùng</div>
+
+    <div layout:fragment="content">
+        <!-- Alert Messages -->
+        <div th:if="${success}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span class="stat-trend up" th:text="${totalUsers != null and totalUsers>0 ? #numbers.formatDecimal((activeUsers * 100.0 / totalUsers), 0, 'COMMA', 0, 'POINT') + '%' : '0%'}">
+                        <i class="fas fa-arrow-up"></i>
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${totalUsers != null ? totalUsers : 0}">0</h3>
+                    <p class="stat-label">Tổng người dùng</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon green">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <span class="stat-trend up" th:text="${totalUsers != null and totalUsers>0 ? #numbers.formatDecimal((totalSellers * 100.0 / totalUsers), 0, 'COMMA', 0, 'POINT') + '%' : '0%'}">
+                        <i class="fas fa-arrow-up"></i>
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${totalSellers != null ? totalSellers : 0}">0</h3>
+                    <p class="stat-label">Người bán</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <span class="stat-trend up" th:text="${totalUsers != null and totalUsers>0 ? #numbers.formatDecimal((totalShippers * 100.0 / totalUsers), 0, 'COMMA', 0, 'POINT') + '%' : '0%'}">
+                        <i class="fas fa-arrow-up"></i>
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${totalShippers != null ? totalShippers : 0}">0</h3>
+                    <p class="stat-label">Shipper</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <span class="stat-trend down" th:text="${totalUsers != null and totalUsers>0 ? #numbers.formatDecimal((activeUsers * 100.0 / totalUsers), 0, 'COMMA', 0, 'POINT') + '%' : '0%'}">
+                        <i class="fas fa-arrow-down"></i>
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${activeUsers != null ? activeUsers : 0}">0</h3>
+                    <p class="stat-label">Đang hoạt động</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Management Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-users-cog"></i> Danh sách người dùng
+                </h2>
+                <div class="d-flex gap-2">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm người dùng...">
+                    </div>
+                    <select id="roleFilter" class="form-control" style="width: 200px;">
+                        <option value="">Tất cả vai trò</option>
+                        <option value="ROLE_USER">Người dùng</option>
+                        <option value="ROLE_SELLER">Người bán</option>
+                        <option value="ROLE_SHIPPER">Shipper</option>
+                        <option value="ROLE_ADMIN">Admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên người dùng</th>
+                                <th>Email</th>
+                                <th>Họ tên</th>
+                                <th>Vai trò</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${users}">
+                                <td th:text="${user.id}">1</td>
+                                <td>
+                                    <strong th:text="${user.username}">username</strong>
+                                </td>
+                                <td th:text="${user.email}">email@example.com</td>
+                                <td th:text="${user.firstName + ' ' + user.lastName}">Full Name</td>
+                                <td>
+                                    <th:block th:if="${user.roles != null and !user.roles.isEmpty()}">
+                                        <span th:if="${user.roles[0].name == 'ROLE_ADMIN'}" class="status-badge completed" th:text="${user.roles[0].name.replace('ROLE_', '')}">ADMIN</span>
+                                        <span th:if="${user.roles[0].name == 'ROLE_SELLER'}" class="status-badge active" th:text="${user.roles[0].name.replace('ROLE_', '')}">SELLER</span>
+                                        <span th:if="${user.roles[0].name == 'ROLE_SHIPPER'}" class="status-badge pending" th:text="${user.roles[0].name.replace('ROLE_', '')}">SHIPPER</span>
+                                        <span th:if="${user.roles[0].name == 'ROLE_USER'}" class="status-badge inactive" th:text="${user.roles[0].name.replace('ROLE_', '')}">USER</span>
+                                    </th:block>
+                                    <span th:if="${user.roles == null or user.roles.isEmpty()}" class="status-badge inactive">USER</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge" 
+                                          th:classappend="${user.enabled} ? 'active' : 'inactive'"
+                                          th:text="${user.enabled} ? 'Hoạt động' : 'Khóa'">
+                                        Status
+                                    </span>
+                                </td>
+                                <td th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <button class="btn btn-sm btn-info" 
+                                                th:attr="data-user-id=${user.id}"
+                                                onclick="viewUser(this.getAttribute('data-user-id'))"
+                                                title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" 
+                                                th:attr="data-user-id=${user.id},data-username=${user.username}"
+                                                onclick="openChangeRoleModal(this.getAttribute('data-user-id'), this.getAttribute('data-username'))"
+                                                title="Đổi vai trò">
+                                            <i class="fas fa-user-shield"></i>
+                                        </button>
+                                        <button class="btn btn-sm" 
+                                                th:classappend="${user.enabled} ? 'btn-danger' : 'btn-success'"
+                                                th:attr="data-user-id=${user.id},data-enabled=${user.enabled}"
+                                                onclick="toggleUserStatus(this.getAttribute('data-user-id'), this.getAttribute('data-enabled') === 'true')"
+                                                th:title="${user.enabled} ? 'Khóa tài khoản' : 'Mở khóa tài khoản'">
+                                            <i th:class="${user.enabled} ? 'fas fa-lock' : 'fas fa-unlock'"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${users == null or users.isEmpty()}">
+                                <td colspan="8" class="text-center">
+                                    <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-secondary); margin: 2rem 0;"></i>
+                                    <p>Không có người dùng nào</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Role Modal -->
+        <div id="changeRoleModal" class="modal-overlay" style="display: none;">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="fas fa-user-shield"></i> Thay đổi vai trò người dùng
+                    </h3>
+                    <button class="modal-close" onclick="closeChangeRoleModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="changeRoleForm" onsubmit="submitChangeRole(event)">
+                    <div class="modal-body">
+                        <input type="hidden" name="userId" id="modalUserId">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" id="csrfToken" />
+                        
+                        <p class="mb-3">
+                            Bạn đang thay đổi vai trò cho người dùng: <strong id="modalUsername"></strong>
+                        </p>
+
+                        <div class="form-group">
+                            <label class="form-label">Chọn vai trò mới:</label>
+                            <select name="roleName" id="modalRoleName" class="form-control" required>
+                                <option value="">-- Chọn vai trò --</option>
+                                <option value="ROLE_USER">Người dùng (USER)</option>
+                                <option value="ROLE_SELLER">Người bán (SELLER)</option>
+                                <option value="ROLE_SHIPPER">Shipper (SHIPPER)</option>
+                                <option value="ROLE_ADMIN">Quản trị viên (ADMIN)</option>
+                            </select>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Lưu ý:</strong> Thay đổi vai trò sẽ ảnh hưởng đến quyền truy cập của người dùng.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="closeChangeRoleModal()">
+                            Hủy bỏ
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitRoleBtn">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- View User Modal -->
+        <div id="viewUserModal" class="modal-overlay" style="display: none;">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="fas fa-user"></i> Chi tiết người dùng
+                    </h3>
+                    <button class="modal-close" onclick="closeViewUserModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="userDetailsContent">
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                            <p>Đang tải...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeViewUserModal()">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            console.log('Users page JavaScript loaded');
+            
+            // Wait for DOM to be fully loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM loaded, initializing search and filters');
+                
+                // Search functionality
+                const searchInput = document.getElementById('searchInput');
+                const roleFilter = document.getElementById('roleFilter');
+                
+                if (searchInput) {
+                    console.log('Search input found');
+                    searchInput.addEventListener('input', function(e) {
+                        console.log('Search input changed:', e.target.value);
+                        const searchTerm = e.target.value.toLowerCase();
+                        const roleFilterValue = roleFilter ? roleFilter.value : '';
+                        filterTable(searchTerm, roleFilterValue);
+                    });
+                } else {
+                    console.error('Search input not found!');
+                }
+
+                if (roleFilter) {
+                    console.log('Role filter found');
+                    roleFilter.addEventListener('change', function(e) {
+                        console.log('Role filter changed:', e.target.value);
+                        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                        filterTable(searchTerm, e.target.value);
+                    });
+                } else {
+                    console.error('Role filter not found!');
+                }
+            });
+
+            function filterTable(searchTerm, roleFilter) {
+                console.log('Filtering table - Search:', searchTerm, 'Role:', roleFilter);
+                const rows = document.querySelectorAll('tbody tr');
+                console.log('Found rows:', rows.length);
+                
+                let visibleCount = 0;
+                rows.forEach(row => {
+                    if (row.querySelector('td[colspan]')) {
+                        console.log('Skipping empty message row');
+                        return; // Skip empty message row
+                    }
+                    
+                    const text = row.textContent.toLowerCase();
+                    
+                    // Get role from the role column (5th column)
+                    const roleCell = row.querySelector('td:nth-child(5) .status-badge');
+                    const userRole = roleCell ? roleCell.textContent.trim().toUpperCase() : '';
+                    
+                    // Check if matches search term
+                    const matchesSearch = !searchTerm || text.includes(searchTerm);
+                    
+                    // Check if matches role filter
+                    let matchesRole = true;
+                    if (roleFilter) {
+                        // Extract role name from ROLE_XXX format
+                        const filterRoleName = roleFilter.replace('ROLE_', '');
+                        matchesRole = userRole === filterRoleName;
+                        console.log('Checking role:', userRole, '===', filterRoleName, '?', matchesRole);
+                    }
+                    
+                    if (matchesSearch && matchesRole) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                console.log('Visible rows:', visibleCount);
+            }
+
+            function openChangeRoleModal(userId, username) {
+                console.log('Opening change role modal for user:', userId, username);
+                document.getElementById('modalUserId').value = userId;
+                document.getElementById('modalUsername').textContent = username;
+                document.getElementById('changeRoleModal').style.display = 'flex';
+            }
+
+            function closeChangeRoleModal() {
+                document.getElementById('changeRoleModal').style.display = 'none';
+                document.getElementById('changeRoleForm').reset();
+            }
+
+            function submitChangeRole(event) {
+                event.preventDefault();
+                
+                const userId = document.getElementById('modalUserId').value;
+                const roleName = document.getElementById('modalRoleName').value;
+                const csrfToken = document.getElementById('csrfToken').value;
+                const submitBtn = document.getElementById('submitRoleBtn');
+                
+                if (!roleName) {
+                    alert('Vui lòng chọn vai trò!');
+                    return;
+                }
+                
+                // Disable button and show loading
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                
+                fetch('/admin/users/change-role', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        roleName: roleName
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        showNotification('success', data.message);
+                        
+                        // Update the role badge in the table without reloading
+                        updateUserRoleBadge(userId, data.newRole);
+                        
+                        // Close modal
+                        closeChangeRoleModal();
+                    } else {
+                        showNotification('error', data.message);
+                    }
+                })
+                .catch(error => {
+                    showNotification('error', 'Có lỗi xảy ra khi thay đổi vai trò');
+                })
+                .finally(() => {
+                    // Re-enable button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Lưu thay đổi';
+                });
+            }
+
+            function updateUserRoleBadge(userId, newRole) {
+                // Find the user row and update the role badge
+                const rows = document.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const buttons = row.querySelectorAll('button[data-user-id]');
+                    buttons.forEach(btn => {
+                        if (btn.getAttribute('data-user-id') == userId) {
+                            const roleCell = row.querySelector('td:nth-child(5)');
+                            if (roleCell) {
+                                const roleBadgeClass = {
+                                    'ADMIN': 'completed',
+                                    'SELLER': 'active',
+                                    'SHIPPER': 'pending',
+                                    'USER': 'inactive'
+                                }[newRole] || 'inactive';
+                                
+                                roleCell.innerHTML = `<span class="status-badge ${roleBadgeClass}">${newRole}</span>`;
+                            }
+                        }
+                    });
+                });
+            }
+
+            function showNotification(type, message) {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+                notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; animation: slideIn 0.3s ease-out;';
+                notification.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    <span>${message}</span>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+
+            function viewUser(userId) {
+                console.log('Viewing user details:', userId);
+                document.getElementById('viewUserModal').style.display = 'flex';
+                
+                // Fetch user details via AJAX
+                fetch('/admin/users/' + userId)
+                    .then(response => {
+                        console.log('API response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('User data received:', data);
+                        const content = `
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">ID:</label>
+                                    <p><strong>${data.id}</strong></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Tên người dùng:</label>
+                                    <p><strong>${data.username}</strong></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email:</label>
+                                    <p>${data.email}</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Họ tên:</label>
+                                    <p>${data.firstName} ${data.lastName}</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Số điện thoại:</label>
+                                    <p>${data.phone || 'Chưa cập nhật'}</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Vai trò:</label>
+                                    <p><span class="status-badge active">${data.roles && data.roles.length > 0 ? data.roles[0].name.replace('ROLE_', '') : 'USER'}</span></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Trạng thái:</label>
+                                    <p><span class="status-badge ${data.enabled ? 'active' : 'inactive'}">${data.enabled ? 'Hoạt động' : 'Khóa'}</span></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email xác thực:</label>
+                                    <p><span class="status-badge ${data.emailVerified ? 'active' : 'pending'}">${data.emailVerified ? 'Đã xác thực' : 'Chưa xác thực'}</span></p>
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="form-label">Ngày tạo:</label>
+                                    <p>${new Date(data.createdAt).toLocaleString('vi-VN')}</p>
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="form-label">Cập nhật lần cuối:</label>
+                                    <p>${new Date(data.updatedAt).toLocaleString('vi-VN')}</p>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById('userDetailsContent').innerHTML = content;
+                    })
+                    .catch(error => {
+                        document.getElementById('userDetailsContent').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Không thể tải thông tin người dùng
+                            </div>
+                        `;
+                    });
+            }
+
+            function closeViewUserModal() {
+                document.getElementById('viewUserModal').style.display = 'none';
+            }
+
+            function toggleUserStatus(userId, currentStatus) {
+                console.log('Toggling user status:', userId, 'Current:', currentStatus);
+                const action = currentStatus ? 'khóa' : 'mở khóa';
+                if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản này không?`)) {
+                    // Try to read CSRF token from modal hidden input first, fallback to generic input selector
+                    const csrfElem = document.getElementById('csrfToken') || document.querySelector('input[name="_csrf"]');
+                    const csrfValue = csrfElem ? csrfElem.value : '';
+
+                    fetch('/admin/users/' + userId + '/toggle-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfValue
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Có lỗi xảy ra: ' + (data.message || 'Không thể thực hiện thao tác'));
+                        }
+                    })
+                    .catch(error => {
+                        alert('Có lỗi xảy ra khi thực hiện thao tác');
+                    });
+                }
+            }
+
+            // Close modals when clicking outside
+            document.getElementById('changeRoleModal').addEventListener('click', function(e) {
+                if (e.target === this) closeChangeRoleModal();
+            });
+
+            document.getElementById('viewUserModal').addEventListener('click', function(e) {
+                if (e.target === this) closeViewUserModal();
+            });
+        </script>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+
+<head>
+    <title>Quản lý Voucher</title>
+</head>
+
+<body>
+    <div layout:fragment="page-title">Quản lý Voucher</div>
+
+    <div layout:fragment="content">
+        <!-- Alert Messages -->
+        <div th:if="${success}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <span class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> 10%
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${totalVouchers != null ? totalVouchers : 0}">0</h3>
+                    <p class="stat-label">Tổng Voucher</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <span class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> 5%
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${activeVouchers != null ? activeVouchers : 0}">0</h3>
+                    <p class="stat-label">Đang hoạt động</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> 18%
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${totalUsed != null ? totalUsed : 0}">0</h3>
+                    <p class="stat-label">Đã sử dụng</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <span class="stat-trend down">
+                        <i class="fas fa-arrow-down"></i> 2%
+                    </span>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${totalDiscount != null ? #numbers.formatDecimal(totalDiscount, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}">0 đ</h3>
+                    <p class="stat-label">Tổng giảm giá</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voucher Management Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-ticket-alt"></i> Danh sách Voucher
+                </h2>
+                <button class="btn btn-primary" onclick="openCreateVoucherModal()">
+                    <i class="fas fa-plus"></i> Tạo voucher mới
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2 mb-3">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm voucher...">
+                    </div>
+                    <select id="statusFilter" class="form-control" style="width: 200px;">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active">Đang hoạt động</option>
+                        <option value="expired">Hết hạn</option>
+                        <option value="used">Đã dùng hết</option>
+                    </select>
+                    <select id="typeFilter" class="form-control" style="width: 200px;">
+                        <option value="">Tất cả loại</option>
+                        <option th:each="type : ${discountTypes}" 
+                                th:value="${type}" 
+                                th:text="${type == T(com.example.clothesshop.model.DiscountType).PERCENTAGE ? 'Phần trăm' : 'Số tiền cố định'}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Tên voucher</th>
+                                <th>Loại</th>
+                                <th>Giá trị</th>
+                                <th>Điều kiện</th>
+                                <th>Số lượng</th>
+                                <th>Đã dùng</th>
+                                <th>Thời hạn</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="voucher : ${vouchers}">
+                                <td>
+                                    <strong style="color: var(--primary-color);" th:text="${voucher.code}">CODE</strong>
+                                </td>
+                                <td>
+                                    <strong th:text="${voucher.name}">Voucher Name</strong>
+                                    <br>
+                                    <small style="color: var(--text-secondary);" th:text="${voucher.description}">Description</small>
+                                </td>
+                                <td>
+                                    <span class="status-badge" 
+                                          th:classappend="${voucher.discountType == T(com.example.clothesshop.model.DiscountType).PERCENTAGE} ? 'pending' : 'info'"
+                                          th:text="${voucher.discountType == T(com.example.clothesshop.model.DiscountType).PERCENTAGE} ? 'Phần trăm' : 'Cố định'">
+                                        Type
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong th:if="${voucher.discountType == T(com.example.clothesshop.model.DiscountType).PERCENTAGE}" 
+                                            th:text="${voucher.discountValue} + '%'">0%</strong>
+                                    <strong th:unless="${voucher.discountType == T(com.example.clothesshop.model.DiscountType).PERCENTAGE}" 
+                                            th:text="${#numbers.formatDecimal(voucher.discountValue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</strong>
+                                    <br>
+                                    <small style="color: var(--text-secondary);" 
+                                           th:if="${voucher.maxDiscount != null && voucher.maxDiscount > 0}"
+                                           th:text="'Tối đa: ' + ${#numbers.formatDecimal(voucher.maxDiscount, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                    </small>
+                                </td>
+                                <td>
+                                    <div>
+                                        <small>Đơn tối thiểu:</small>
+                                        <br>
+                                        <strong th:text="${#numbers.formatDecimal(voucher.minOrderValue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong th:text="${voucher.totalQuantity}">0</strong>
+                                </td>
+                                <td>
+                                    <strong style="color: var(--info-color);" th:text="${voucher.usedQuantity}">0</strong>
+                                    <br>
+                                    <small style="color: var(--text-secondary);">
+                                        Còn: <span th:text="${voucher.totalQuantity - voucher.usedQuantity}">0</span>
+                                    </small>
+                                </td>
+                                <td>
+                                    <div>
+                                        <small>Từ:</small> <span th:text="${#temporals.format(voucher.startDate, 'dd/MM/yyyy')}">Date</span>
+                                        <br>
+                                        <small>Đến:</small> <span th:text="${#temporals.format(voucher.endDate, 'dd/MM/yyyy')}">Date</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge" 
+                                          th:classappend="${voucher.active && voucher.endDate.isAfter(#temporals.createToday()) && voucher.usedQuantity < voucher.totalQuantity} ? 'active' : 
+                                                         (${voucher.usedQuantity >= voucher.totalQuantity} ? 'inactive' : 
+                                                         (${voucher.endDate.isBefore(#temporals.createToday())} ? 'inactive' : 'pending'))"
+                                          th:text="${voucher.active && voucher.endDate.isAfter(#temporals.createToday()) && voucher.usedQuantity < voucher.totalQuantity} ? 'Hoạt động' : 
+                                                  (${voucher.usedQuantity >= voucher.totalQuantity} ? 'Hết lượt' : 
+                                                  (${voucher.endDate.isBefore(#temporals.createToday())} ? 'Hết hạn' : 'Chưa kích hoạt'))">
+                                        Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <button class="btn btn-sm btn-info" 
+                                                th:onclick="'viewVoucher(' + ${voucher.id} + ')'"
+                                                title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" 
+                                                th:onclick="'editVoucher(' + ${voucher.id} + ')'"
+                                                title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm" 
+                                                th:classappend="${voucher.active} ? 'btn-danger' : 'btn-success'"
+                                                th:onclick="'toggleVoucherStatus(' + ${voucher.id} + ', ' + ${voucher.active} + ')'"
+                                                th:title="${voucher.active} ? 'Vô hiệu hóa' : 'Kích hoạt'">
+                                            <i th:class="${voucher.active} ? 'fas fa-ban' : 'fas fa-check'"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${vouchers == null or vouchers.isEmpty()}">
+                                <td colspan="10" class="text-center">
+                                    <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-secondary); margin: 2rem 0;"></i>
+                                    <p>Chưa có voucher nào</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create/Edit Voucher Modal -->
+        <div id="voucherModal" class="modal-overlay" style="display: none;">
+            <div class="modal" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="voucherModalTitle">
+                        <i class="fas fa-ticket-alt"></i> Tạo voucher mới
+                    </h3>
+                    <button class="modal-close" onclick="closeVoucherModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="voucherForm" method="post" th:action="@{/admin/vouchers/create}">
+                    <div class="modal-body">
+                        <input type="hidden" name="voucherId" id="voucherId">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                        <div class="form-group">
+                            <label class="form-label">Mã voucher <span style="color: var(--danger-color);">*</span></label>
+                            <input type="text" name="code" id="code" class="form-control" 
+                                   placeholder="Ví dụ: SUMMER2025" required 
+                                   pattern="[A-Z0-9]{4,20}" 
+                                   title="Mã chỉ chứa chữ in hoa và số, độ dài 4-20 ký tự">
+                            <small style="color: var(--text-secondary);">Mã chỉ chứa chữ in hoa và số</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Tên voucher <span style="color: var(--danger-color);">*</span></label>
+                            <input type="text" name="name" id="name" class="form-control" 
+                                   placeholder="Ví dụ: Giảm giá mùa hè" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Mô tả</label>
+                            <textarea name="description" id="description" class="form-control" 
+                                      rows="3" placeholder="Mô tả chi tiết về voucher"></textarea>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Loại giảm giá <span style="color: var(--danger-color);">*</span></label>
+                                <select name="discountType" id="discountType" class="form-control" required onchange="toggleDiscountFields()">
+                                    <option th:each="type : ${discountTypes}" 
+                                            th:value="${type}" 
+                                            th:text="${type == T(com.example.clothesshop.model.DiscountType).PERCENTAGE ? 'Phần trăm (%)' : 'Số tiền cố định (đ)'}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Giá trị giảm <span style="color: var(--danger-color);">*</span></label>
+                                <input type="number" name="discountValue" id="discountValue" class="form-control" 
+                                       min="0" step="0.01" required>
+                                <small id="discountHint" style="color: var(--text-secondary);">Nhập giá trị từ 0-100%</small>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Giảm tối đa (đ)</label>
+                                <input type="number" name="maxDiscount" id="maxDiscount" class="form-control" 
+                                       min="0" placeholder="Không giới hạn">
+                                <small style="color: var(--text-secondary);">Áp dụng cho loại phần trăm</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Đơn hàng tối thiểu (đ) <span style="color: var(--danger-color);">*</span></label>
+                                <input type="number" name="minOrderValue" id="minOrderValue" class="form-control" 
+                                       min="0" value="0" required>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Số lượng <span style="color: var(--danger-color);">*</span></label>
+                                <input type="number" name="totalQuantity" id="totalQuantity" class="form-control" 
+                                       min="1" value="100" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Giới hạn/người</label>
+                                <input type="number" name="usageLimit" id="usageLimit" class="form-control" 
+                                       min="1" value="1">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Ngày bắt đầu <span style="color: var(--danger-color);">*</span></label>
+                                <input type="date" name="startDate" id="startDate" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Ngày kết thúc <span style="color: var(--danger-color);">*</span></label>
+                                <input type="date" name="endDate" id="endDate" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Áp dụng cho sản phẩm</label>
+                            <select name="productIds" id="productIds" class="form-control" multiple size="5">
+                                <option value="">-- Tất cả sản phẩm --</option>
+                                <!-- Sẽ được load bằng JS -->
+                            </select>
+                            <small style="color: var(--text-secondary);">Giữ Ctrl để chọn nhiều sản phẩm. Để trống = áp dụng tất cả</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="isActive" id="isActive" checked>
+                                <span>Kích hoạt voucher ngay</span>
+                            </label>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Lưu ý:</strong> Voucher sẽ được áp dụng tự động cho các đơn hàng thỏa mãn điều kiện.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="closeVoucherModal()">
+                            Hủy bỏ
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu voucher
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            // Search and filter
+            document.getElementById('searchInput').addEventListener('input', filterVouchers);
+            document.getElementById('statusFilter').addEventListener('change', filterVouchers);
+            document.getElementById('typeFilter').addEventListener('change', filterVouchers);
+
+            function filterVouchers() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const statusFilter = document.getElementById('statusFilter').value;
+                const typeFilter = document.getElementById('typeFilter').value;
+                
+                const rows = document.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    if (row.querySelector('td[colspan]')) return;
+                    
+                    const text = row.textContent.toLowerCase();
+                    const matchesSearch = text.includes(searchTerm);
+                    const matchesStatus = !statusFilter || 
+                        (statusFilter === 'active' && text.includes('hoạt động')) ||
+                        (statusFilter === 'expired' && text.includes('hết hạn')) ||
+                        (statusFilter === 'used' && text.includes('hết lượt'));
+                    const matchesType = !typeFilter || text.includes(typeFilter.toLowerCase());
+                    
+                    row.style.display = matchesSearch && matchesStatus && matchesType ? '' : 'none';
+                });
+            }
+
+            function openCreateVoucherModal() {
+                document.getElementById('voucherModalTitle').innerHTML = '<i class="fas fa-ticket-alt"></i> Tạo voucher mới';
+                document.getElementById('voucherForm').action = '/admin/vouchers/create';
+                document.getElementById('voucherForm').reset();
+                document.getElementById('voucherId').value = '';
+                document.getElementById('isActive').checked = true;
+                
+                // Enable all fields for creating new voucher
+                document.querySelectorAll('#voucherForm input, #voucherForm select, #voucherForm textarea').forEach(field => {
+                    field.removeAttribute('readonly');
+                    field.removeAttribute('disabled');
+                });
+                
+                // Show submit button
+                document.querySelector('#voucherForm button[type="submit"]').style.display = 'block';
+                
+                // Set default dates
+                const today = new Date().toISOString().split('T')[0];
+                const nextMonth = new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0];
+                document.getElementById('startDate').value = today;
+                document.getElementById('endDate').value = nextMonth;
+                
+                loadProducts();
+                document.getElementById('voucherModal').style.display = 'flex';
+            }
+
+            function closeVoucherModal() {
+                document.getElementById('voucherModal').style.display = 'none';
+            }
+
+            function toggleDiscountFields() {
+                const type = document.getElementById('discountType').value;
+                const discountValue = document.getElementById('discountValue');
+                const discountHint = document.getElementById('discountHint');
+                const maxDiscount = document.getElementById('maxDiscount');
+                
+                if (type === 'PERCENTAGE') {
+                    discountValue.max = 100;
+                    discountHint.textContent = 'Nhập giá trị từ 0-100%';
+                    maxDiscount.disabled = false;
+                } else {
+                    discountValue.max = '';
+                    discountHint.textContent = 'Nhập số tiền giảm giá';
+                    maxDiscount.disabled = true;
+                    maxDiscount.value = '';
+                }
+            }
+
+            function loadProducts() {
+                fetch('/admin/products/all')
+                    .then(response => response.json())
+                    .then(products => {
+                        const select = document.getElementById('productIds');
+                        select.innerHTML = '<option value="">-- Tất cả sản phẩm --</option>';
+                        products.forEach(product => {
+                            const option = document.createElement('option');
+                            option.value = product.id;
+                            option.textContent = product.name + ' - ' + product.price.toLocaleString('vi-VN') + ' đ';
+                            select.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error loading products:', error));
+            }
+
+            function viewVoucher(voucherId) {
+                // Load and display voucher details in read-only mode
+                fetch('/admin/vouchers/' + voucherId + '/edit')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('voucherModalTitle').innerHTML = '<i class="fas fa-eye"></i> Chi tiết voucher';
+                        document.getElementById('voucherForm').action = '#';
+                        document.getElementById('voucherId').value = data.id;
+                        document.getElementById('code').value = data.code;
+                        document.getElementById('name').value = data.name;
+                        document.getElementById('description').value = data.description || '';
+                        document.getElementById('discountType').value = data.discountType;
+                        document.getElementById('discountValue').value = data.discountValue;
+                        document.getElementById('maxDiscount').value = data.maxDiscount || '';
+                        document.getElementById('minOrderValue').value = data.minOrderValue;
+                        document.getElementById('totalQuantity').value = data.totalQuantity;
+                        document.getElementById('usageLimit').value = data.usageLimit;
+                        document.getElementById('startDate').value = data.startDate;
+                        document.getElementById('endDate').value = data.endDate;
+                        document.getElementById('isActive').checked = data.isActive;
+                        
+                        // Make all fields read-only
+                        document.querySelectorAll('#voucherForm input, #voucherForm select, #voucherForm textarea').forEach(field => {
+                            field.setAttribute('readonly', 'readonly');
+                            field.setAttribute('disabled', 'disabled');
+                        });
+                        
+                        // Hide submit button, show only close button
+                        document.querySelector('#voucherForm button[type="submit"]').style.display = 'none';
+                        
+                        toggleDiscountFields();
+                        loadProducts();
+                        document.getElementById('voucherModal').style.display = 'flex';
+                    })
+                    .catch(error => alert('Không thể tải thông tin voucher'));
+            }
+
+            function editVoucher(voucherId) {
+                fetch('/admin/vouchers/' + voucherId + '/edit')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('voucherModalTitle').innerHTML = '<i class="fas fa-edit"></i> Chỉnh sửa voucher';
+                        document.getElementById('voucherForm').action = '/admin/vouchers/update';
+                        document.getElementById('voucherId').value = data.id;
+                        document.getElementById('code').value = data.code;
+                        document.getElementById('name').value = data.name;
+                        document.getElementById('description').value = data.description || '';
+                        document.getElementById('discountType').value = data.discountType;
+                        document.getElementById('discountValue').value = data.discountValue;
+                        document.getElementById('maxDiscount').value = data.maxDiscount || '';
+                        document.getElementById('minOrderValue').value = data.minOrderValue;
+                        document.getElementById('totalQuantity').value = data.totalQuantity;
+                        document.getElementById('usageLimit').value = data.usageLimit;
+                        document.getElementById('startDate').value = data.startDate;
+                        document.getElementById('endDate').value = data.endDate;
+                        document.getElementById('isActive').checked = data.isActive;
+                        
+                        // Enable all fields for editing
+                        document.querySelectorAll('#voucherForm input, #voucherForm select, #voucherForm textarea').forEach(field => {
+                            field.removeAttribute('readonly');
+                            field.removeAttribute('disabled');
+                        });
+                        
+                        // Show submit button
+                        document.querySelector('#voucherForm button[type="submit"]').style.display = 'block';
+                        
+                        toggleDiscountFields();
+                        loadProducts();
+                        document.getElementById('voucherModal').style.display = 'flex';
+                    })
+                    .catch(error => alert('Không thể tải thông tin voucher'));
+            }
+
+            function toggleVoucherStatus(voucherId, currentStatus) {
+                const action = currentStatus ? 'vô hiệu hóa' : 'kích hoạt';
+                if (confirm(`Bạn có chắc chắn muốn ${action} voucher này không?`)) {
+                    fetch('/admin/vouchers/' + voucherId + '/toggle-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Có lỗi xảy ra: ' + (data.message || ''));
+                        }
+                    })
+                    .catch(error => alert('Có lỗi xảy ra khi thực hiện thao tác'));
+                }
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('voucherModal').addEventListener('click', function(e) {
+                if (e.target === this) closeVoucherModal();
+            });
+
+            // Initialize
+            toggleDiscountFields();
+        </script>
+    </th:block>
+</body>
+</html>
