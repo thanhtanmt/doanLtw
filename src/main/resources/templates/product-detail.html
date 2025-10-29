@@ -791,7 +791,7 @@
                                 <i class="fas fa-shopping-cart"></i>
                                 THÊM VÀO GIỎ HÀNG
                             </button>
-                            <button class="btn-wishlist">
+                            <button class="btn-wishlist" th:attr="data-product-id=${product.id}">
                                 <i class="far fa-heart"></i>
                             </button>
                         </div>
@@ -1093,6 +1093,8 @@
 
 <!-- Scripts Fragment -->
 <th:block layout:fragment="scripts">
+    <!-- Include cart.js for add to cart functionality -->
+    <script th:src="@{/js/cart.js}"></script>
     <script>
         // Get product ID from URL
         function getProductIdFromUrl() {
@@ -1154,6 +1156,9 @@
         // Render product detail
         function renderProductDetail(product) {
             const container = document.getElementById('productContainer');
+            
+            // Store product globally for cart functionality
+            window.currentProduct = product;
             
             // Get primary image
             let primaryImage = 'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=800';
@@ -1611,10 +1616,36 @@
             const addCartBtn = document.querySelector('.btn-add-cart');
             if (addCartBtn && !addCartBtn.disabled) {
                 addCartBtn.addEventListener('click', function() {
-                    this.innerHTML = '<i class="fas fa-check"></i> ĐÃ THÊM VÀO GIỎ';
-                    setTimeout(() => {
-                        this.innerHTML = '<i class="fas fa-shopping-cart"></i> THÊM VÀO GIỎ HÀNG';
-                    }, 2000);
+                    // Get selected size
+                    const selectedSize = document.querySelector('.size-option.active');
+                    if (!selectedSize) {
+                        alert('Vui lòng chọn kích thước!');
+                        return;
+                    }
+                    
+                    // Find the variant ID based on selected size
+                    const productId = getProductIdFromUrl();
+                    const sizeValue = selectedSize.getAttribute('data-size');
+                    
+                    // Get quantity
+                    const quantity = parseInt(document.getElementById('quantityInput').value) || 1;
+                    
+                    // Find variant by size (you'll need to store variants in a global variable)
+                    if (window.currentProduct && window.currentProduct.variants) {
+                        const variant = window.currentProduct.variants.find(v => v.size === sizeValue);
+                        if (variant) {
+                            // Use CartManager to add to cart
+                            if (typeof CartManager !== 'undefined') {
+                                CartManager.addToCart(variant.id, quantity);
+                            } else {
+                                // Fallback if cart.js is not loaded
+                                console.error('CartManager not found');
+                                alert('Có lỗi xảy ra. Vui lòng thử lại!');
+                            }
+                        } else {
+                            alert('Không tìm thấy sản phẩm với kích thước đã chọn!');
+                        }
+                    }
                 });
             }
 

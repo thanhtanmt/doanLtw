@@ -5,25 +5,77 @@
 <head>
     <title>Danh Sách Yêu Thích</title>
     <style>
-        .wishlist-page { background: #f8f9fa; padding: 40px 0; }
-        .page-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 0; color: white; text-align: center; margin-bottom: 40px; }
-        .page-header h1 { font-size: 42px; font-weight: 700; }
-        .wishlist-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
-        /* Using product card styles from other pages is recommended */
-        .product-card { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
-        .empty-wishlist { text-align: center; padding: 60px; background: white; border-radius: 15px; }
+        .wishlist-page { background: #f8f9fa; min-height: 80vh; padding: 40px 0; }
+        .page-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 50px 0; color: white; text-align: center; margin-bottom: 40px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .page-header h1 { font-size: 42px; font-weight: 700; margin: 0; }
+        .page-header .wishlist-stats { margin-top: 15px; font-size: 18px; opacity: 0.95; }
+        .wishlist-container { max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+        .product-card { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); overflow: hidden; transition: all 0.3s; position: relative; }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .product-image { width: 100%; height: 300px; object-fit: cover; display: block; }
+        .product-info { padding: 20px; }
+        .product-name { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 50px; }
+        .product-price { font-size: 24px; font-weight: 700; color: #667eea; margin-bottom: 10px; }
+        .stock-status { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
+        .stock-available { background: #d4edda; color: #155724; }
+        .stock-out { background: #f8d7da; color: #721c24; }
+        .product-actions { display: flex; gap: 10px; }
+        .btn-view-product { flex: 1; background: #667eea; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.3s; text-decoration: none; text-align: center; display: block; }
+        .btn-view-product:hover { background: #5568d3; color: white; text-decoration: none; }
+        .btn-remove-wishlist { background: #dc3545; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-weight: 500; }
+        .btn-remove-wishlist:hover { background: #c82333; }
+        .empty-wishlist { text-align: center; padding: 80px 40px; background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .empty-wishlist i { font-size: 80px; color: #ddd; margin-bottom: 20px; }
+        .empty-wishlist h3 { font-size: 28px; color: #333; margin-bottom: 15px; }
+        .empty-wishlist p { font-size: 18px; color: #6c757d; margin-bottom: 30px; }
+        .btn-browse { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-weight: 600; display: inline-block; transition: all 0.3s; }
+        .btn-browse:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(102, 126, 234, 0.4); color: white; text-decoration: none; }
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 32px; }
+            .product-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        }
     </style>
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="page-header"><h1>Danh Sách Yêu Thích</h1></div>
-    <div class="wishlist-container">
-        <div class="empty-wishlist">
-            <h3>Danh sách yêu thích của bạn đang trống</h3>
-            <p>Hãy "thả tim" cho những sản phẩm bạn thích nhé!</p>
+    <div class="wishlist-page">
+        <div class="page-header">
+            <h1><i class="fas fa-heart"></i> Danh Sách Yêu Thích</h1>
+            <div class="wishlist-stats" th:if="${wishlist != null and wishlist.totalItems > 0}">
+                <span th:text="${wishlist.totalItems}">0</span> sản phẩm
+            </div>
         </div>
-        <!-- Product grid will be shown here when not empty -->
+        <div class="wishlist-container">
+            <div class="product-grid" th:if="${wishlist != null and wishlist.totalItems > 0}">
+                <div class="product-card" th:each="item : ${wishlist.items}">
+                    <a th:href="@{/product/{id}(id=${item.productId})}" style="text-decoration: none; color: inherit;">
+                        <img th:src="${item.imageUrl}" th:alt="${item.productName}" class="product-image" onerror="this.src='/images/placeholder.jpg'">
+                    </a>
+                    <div class="product-info">
+                        <a th:href="@{/product/{id}(id=${item.productId})}" style="text-decoration: none; color: inherit;">
+                            <h3 class="product-name" th:text="${item.productName}">Product Name</h3>
+                        </a>
+                        <div class="product-price">
+                            <span th:if="${item.minPrice != null}" th:text="${#numbers.formatDecimal(item.minPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+                            <span th:unless="${item.minPrice != null}">Liên hệ</span>
+                        </div>
+                        <div th:if="${item.hasStock}" class="stock-status stock-available"><i class="fas fa-check-circle"></i> Còn hàng</div>
+                        <div th:unless="${item.hasStock}" class="stock-status stock-out"><i class="fas fa-times-circle"></i> Hết hàng</div>
+                        <div class="product-actions">
+                            <a th:href="@{/product/{id}(id=${item.productId})}" class="btn-view-product"><i class="fas fa-eye"></i> Xem Chi Tiết</a>
+                            <button class="btn-remove-wishlist btn-wishlist" th:attr="data-product-id=${item.productId}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="empty-wishlist" th:if="${wishlist == null or wishlist.totalItems == 0}">
+                <i class="far fa-heart"></i>
+                <h3>Danh Sách Yêu Thích Trống</h3>
+                <p>Bạn chưa có sản phẩm yêu thích nào.<br>Hãy khám phá và "thả tim" những sản phẩm bạn thích nhé!</p>
+                <a th:href="@{/products}" class="btn-browse"><i class="fas fa-shopping-bag"></i> Khám Phá Sản Phẩm</a>
+            </div>
+        </div>
     </div>
 </div>
 </body>

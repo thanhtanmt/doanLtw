@@ -12,8 +12,5 @@ public class UserController {
         return "account";
     }
 
-    @GetMapping("/wishlist")
-    public String wishlist(Model model) {
-        return "wishlist";
-    }
+    // Wishlist mapping đã được chuyển sang WishlistController
 }

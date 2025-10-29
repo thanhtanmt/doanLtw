@@ -10,6 +10,10 @@
 <title layout:title-pattern="$DECORATOR_TITLE - Fashion Store">Fashion
 	Store</title>
 
+<!-- CSRF Token for AJAX requests -->
+<meta name="_csrf" th:content="${_csrf?.token}"/>
+<meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+
 <!-- Font Awesome -->
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -601,6 +605,12 @@ footer {
 		</div>
 	</footer>
 
+	<!-- Include cart.js globally for cart functionality -->
+	<script th:src="@{/js/cart.js}"></script>
+	
+	<!-- Include wishlist.js globally for wishlist functionality -->
+	<script th:src="@{/js/wishlist.js}"></script>
+	
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
 			const userMenuToggle = document.querySelector('.user-menu-toggle');

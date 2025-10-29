@@ -53,6 +53,13 @@
             grid-template-columns: 1fr 400px;
             gap: 30px;
         }
+        
+        /* Khi giỏ hàng trống, hiển thị 1 cột và căn giữa */
+        .cart-content:has(.empty-cart) {
+            grid-template-columns: 1fr;
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
         /* Cart Items */
         .cart-items {
@@ -90,24 +97,31 @@
 
         .empty-cart {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .empty-cart-icon {
-            font-size: 80px;
+            font-size: 100px;
             color: #e0e0e0;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .empty-cart h3 {
-            font-size: 24px;
+            font-size: 28px;
             color: #2c3e50;
             margin-bottom: 15px;
+            font-weight: 600;
         }
 
         .empty-cart p {
             color: #7f8c8d;
             margin-bottom: 30px;
+            font-size: 16px;
         }
 
         .btn-shop {
@@ -482,132 +496,56 @@
             <div class="cart-content">
                 <!-- Cart Items -->
                 <div class="cart-items">
-                    <div class="cart-header">
-                        <h2>Sản phẩm trong giỏ (3)</h2>
-                        <a href="#" class="clear-cart">
+                    <div class="cart-header" th:if="${cart != null and cart.totalItems > 0}">
+                        <h2>Sản phẩm trong giỏ (<span th:text="${cart.totalItems}">0</span>)</h2>
+                        <a href="#" class="clear-cart btn-clear-cart">
                             <i class="fas fa-trash-alt"></i> Xóa tất cả
                         </a>
                     </div>
 
-                    <!-- Sample Cart Items (Replace with empty cart if no items) -->
-                    <!-- Item 1 -->
-                    <div class="cart-item">
-                        <div class="item-image">
-                            <img src="https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=200" alt="Product">
-                        </div>
-                        <div class="item-info">
-                            <h3 class="item-name">
-                                <a href="#">Áo Thun Cotton Cao Cấp</a>
-                            </h3>
-                            <div class="item-details">
-                                <div class="item-detail">
-                                    <i class="fas fa-palette"></i>
-                                    <span>Đen</span>
-                                </div>
-                                <div class="item-detail">
-                                    <i class="fas fa-ruler"></i>
-                                    <span>Size M</span>
-                                </div>
+                    <!-- Cart Items from Backend -->
+                    <div th:if="${cart != null and cart.totalItems > 0}">
+                        <div class="cart-item" th:each="item : ${cart.items}">
+                            <div class="item-image">
+                                <img th:src="${item.imageUrl}" th:alt="${item.productName}">
                             </div>
-                            <div class="item-actions">
-                                <div class="quantity-controls">
-                                    <button class="quantity-btn">−</button>
-                                    <input type="number" class="quantity-input" value="2" min="1">
-                                    <button class="quantity-btn">+</button>
+                            <div class="item-info">
+                                <h3 class="item-name">
+                                    <a th:href="@{/product/{id}(id=${item.productId})}" th:text="${item.productName}">Product Name</a>
+                                </h3>
+                                <div class="item-details">
+                                    <div class="item-detail">
+                                        <i class="fas fa-ruler"></i>
+                                        <span th:text="${item.variantInfo}">Size M</span>
+                                    </div>
                                 </div>
-                                <i class="fas fa-trash-alt item-remove" title="Xóa"></i>
-                            </div>
-                        </div>
-                        <div class="item-price-section">
-                            <div>
-                                <div class="item-price">350.000đ</div>
-                                <div class="item-old-price">500.000đ</div>
-                            </div>
-                            <div class="item-subtotal">
-                                Tổng: <strong>700.000đ</strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Item 2 -->
-                    <div class="cart-item">
-                        <div class="item-image">
-                            <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=200" alt="Product">
-                        </div>
-                        <div class="item-info">
-                            <h3 class="item-name">
-                                <a href="#">Váy Maxi Hoa Nhí Dáng Dài</a>
-                            </h3>
-                            <div class="item-details">
-                                <div class="item-detail">
-                                    <i class="fas fa-palette"></i>
-                                    <span>Trắng</span>
-                                </div>
-                                <div class="item-detail">
-                                    <i class="fas fa-ruler"></i>
-                                    <span>Free Size</span>
+                                <div class="item-actions">
+                                    <div class="quantity-controls">
+                                        <button class="quantity-btn btn-decrease" th:data-item-id="${item.itemId}">−</button>
+                                        <input type="number" class="quantity-input" 
+                                               th:value="${item.quantity}" 
+                                               th:data-item-id="${item.itemId}"
+                                               min="1" readonly>
+                                        <button class="quantity-btn btn-increase" th:data-item-id="${item.itemId}">+</button>
+                                    </div>
+                                    <i class="fas fa-trash-alt item-remove btn-remove-item" 
+                                       th:data-item-id="${item.itemId}" 
+                                       title="Xóa"></i>
                                 </div>
                             </div>
-                            <div class="item-actions">
-                                <div class="quantity-controls">
-                                    <button class="quantity-btn">−</button>
-                                    <input type="number" class="quantity-input" value="1" min="1">
-                                    <button class="quantity-btn">+</button>
+                            <div class="item-price-section">
+                                <div>
+                                    <div class="item-price" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">350.000đ</div>
                                 </div>
-                                <i class="fas fa-trash-alt item-remove" title="Xóa"></i>
-                            </div>
-                        </div>
-                        <div class="item-price-section">
-                            <div>
-                                <div class="item-price">450.000đ</div>
-                            </div>
-                            <div class="item-subtotal">
-                                Tổng: <strong>450.000đ</strong>
+                                <div class="item-subtotal">
+                                    Tổng: <strong th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + 'đ'">700.000đ</strong>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Item 3 -->
-                    <div class="cart-item">
-                        <div class="item-image">
-                            <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?w=200" alt="Product">
-                        </div>
-                        <div class="item-info">
-                            <h3 class="item-name">
-                                <a href="#">Áo Khoác Dù Chống Nước</a>
-                            </h3>
-                            <div class="item-details">
-                                <div class="item-detail">
-                                    <i class="fas fa-palette"></i>
-                                    <span>Xanh Navy</span>
-                                </div>
-                                <div class="item-detail">
-                                    <i class="fas fa-ruler"></i>
-                                    <span>Size L</span>
-                                </div>
-                            </div>
-                            <div class="item-actions">
-                                <div class="quantity-controls">
-                                    <button class="quantity-btn">−</button>
-                                    <input type="number" class="quantity-input" value="1" min="1">
-                                    <button class="quantity-btn">+</button>
-                                </div>
-                                <i class="fas fa-trash-alt item-remove" title="Xóa"></i>
-                            </div>
-                        </div>
-                        <div class="item-price-section">
-                            <div>
-                                <div class="item-price">750.000đ</div>
-                                <div class="item-old-price">1.000.000đ</div>
-                            </div>
-                            <div class="item-subtotal">
-                                Tổng: <strong>750.000đ</strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Empty Cart State (Hidden when items exist) -->
-                    <!-- <div class="empty-cart" style="display: none;">
+                    <!-- Empty Cart State -->
+                    <div class="empty-cart" th:if="${cart == null or cart.totalItems == 0}">
                         <div class="empty-cart-icon">
                             <i class="fas fa-shopping-cart"></i>
                         </div>
@@ -616,22 +554,22 @@
                         <a th:href="@{/products}" class="btn-shop">
                             <i class="fas fa-shopping-bag"></i> MUA SẮM NGAY
                         </a>
-                    </div> -->
+                    </div>
                 </div>
 
                 <!-- Cart Summary -->
-                <aside class="cart-summary">
+                <aside class="cart-summary" th:if="${cart != null and cart.totalItems > 0}">
                     <div class="summary-card">
                         <h3>Tổng Đơn Hàng</h3>
 
                         <div class="summary-row">
                             <span class="summary-label">Tạm tính:</span>
-                            <span class="summary-value">1.900.000đ</span>
+                            <span class="summary-value" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
                         </div>
 
                         <div class="summary-row">
                             <span class="summary-label">Giảm giá:</span>
-                            <span class="summary-value" style="color: #e74c3c;">-400.000đ</span>
+                            <span class="summary-value" style="color: #e74c3c;">-0đ</span>
                         </div>
 
                         <div class="coupon-section">
@@ -653,7 +591,7 @@
 
                         <div class="summary-total">
                             <span class="summary-label">Tổng cộng:</span>
-                            <span class="summary-value">1.500.000đ</span>
+                            <span class="summary-value" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
                         </div>
 
                         <a th:href="@{/checkout}" class="btn-checkout">
@@ -680,96 +618,31 @@
         </div>
     </div>
 
+    <!-- Include cart.js for cart functionality -->
+    <script th:src="@{/js/cart.js}"></script>
     <script>
-        // Quantity controls
-        document.querySelectorAll('.cart-item').forEach(item => {
-            const decreaseBtn = item.querySelector('.quantity-btn:first-child');
-            const increaseBtn = item.querySelector('.quantity-btn:last-child');
-            const input = item.querySelector('.quantity-input');
-
-            decreaseBtn.addEventListener('click', () => {
-                if (input.value > 1) {
-                    input.value--;
-                    updateSubtotal(item);
+        // Enhanced quantity controls with backend integration
+        document.addEventListener('click', function(e) {
+            // Handle decrease button
+            if (e.target.classList.contains('btn-decrease')) {
+                const itemId = e.target.getAttribute('data-item-id');
+                const input = document.querySelector(`input.quantity-input[data-item-id="${itemId}"]`);
+                const currentValue = parseInt(input.value);
+                
+                if (currentValue > 1) {
+                    CartManager.updateQuantity(itemId, currentValue - 1);
+                } else {
+                    CartManager.removeFromCart(itemId);
                 }
-            });
-
-            increaseBtn.addEventListener('click', () => {
-                input.value++;
-                updateSubtotal(item);
-            });
-
-            input.addEventListener('change', () => {
-                if (input.value < 1) input.value = 1;
-                updateSubtotal(item);
-            });
-        });
-
-        // Update subtotal
-        function updateSubtotal(item) {
-            const price = parseInt(item.querySelector('.item-price').textContent.replace(/\D/g, ''));
-            const quantity = parseInt(item.querySelector('.quantity-input').value);
-            const subtotal = price * quantity;
-            item.querySelector('.item-subtotal strong').textContent = 
-                subtotal.toLocaleString('vi-VN') + 'đ';
-            updateTotal();
-        }
-
-        // Update total
-        function updateTotal() {
-            let total = 0;
-            document.querySelectorAll('.cart-item').forEach(item => {
-                const subtotal = parseInt(item.querySelector('.item-subtotal strong')
-                    .textContent.replace(/\D/g, ''));
-                total += subtotal;
-            });
-            // Update summary (simplified)
-            console.log('Total:', total);
-        }
-
-        // Remove item
-        document.querySelectorAll('.item-remove').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
-                    this.closest('.cart-item').remove();
-                    updateTotal();
-                    
-                    // Check if cart is empty
-                    if (document.querySelectorAll('.cart-item').length === 0) {
-                        // Show empty cart state
-                        document.querySelector('.cart-items').innerHTML = `
-                            <div class="empty-cart">
-                                <div class="empty-cart-icon">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </div>
-                                <h3>Giỏ hàng trống</h3>
-                                <p>Bạn chưa có sản phẩm nào trong giỏ hàng</p>
-                                <a href="/products" class="btn-shop">
-                                    <i class="fas fa-shopping-bag"></i> MUA SẮM NGAY
-                                </a>
-                            </div>
-                        `;
-                    }
-                }
-            });
-        });
-
-        // Clear all
-        document.querySelector('.clear-cart').addEventListener('click', function(e) {
-            e.preventDefault();
-            if (confirm('Bạn có chắc muốn xóa tất cả sản phẩm?')) {
-                document.querySelector('.cart-items').innerHTML = `
-                    <div class="empty-cart">
-                        <div class="empty-cart-icon">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <h3>Giỏ hàng trống</h3>
-                        <p>Bạn chưa có sản phẩm nào trong giỏ hàng</p>
-                        <a href="/products" class="btn-shop">
-                            <i class="fas fa-shopping-bag"></i> MUA SẮM NGAY
-                        </a>
-                    </div>
-                `;
+            }
+            
+            // Handle increase button
+            if (e.target.classList.contains('btn-increase')) {
+                const itemId = e.target.getAttribute('data-item-id');
+                const input = document.querySelector(`input.quantity-input[data-item-id="${itemId}"]`);
+                const currentValue = parseInt(input.value);
+                
+                CartManager.updateQuantity(itemId, currentValue + 1);
             }
         });
     </script>

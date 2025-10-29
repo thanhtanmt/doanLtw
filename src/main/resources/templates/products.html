@@ -371,6 +371,16 @@
             transform: scale(1.1);
         }
 
+        /* Wishlist active state */
+        .product-action-btn.active {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .product-action-btn.active i {
+            font-weight: 900;
+        }
+
         .product-info {
             padding: 20px;
         }
@@ -872,7 +882,7 @@
                     ${badgeHTML}
                     <img src="${imageUrl}" alt="${product.name}" onerror="this.src='https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=400'">
                     <div class="product-actions">
-                        <button class="product-action-btn" title="Yêu thích">
+                        <button class="product-action-btn btn-wishlist" data-product-id="${product.id}" title="Yêu thích">
                             <i class="far fa-heart"></i>
                         </button>
                         <button class="product-action-btn" title="Xem nhanh" onclick="window.location.href='/product/${product.id}'">
