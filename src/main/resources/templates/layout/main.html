@@ -492,19 +492,22 @@ footer {
 					<div class="user-dropdown">
 						<!-- Menu khi đã đăng nhập -->
 						<th:block sec:authorize="isAuthenticated()">
-							<a th:href="@{/account}">
-								<i class="fas fa-user-circle"></i> Tài khoản
-							</a>
-							<a th:href="@{/orders}">
-								<i class="fas fa-box"></i> Đơn hàng
-							</a>
-							<a th:href="@{/wishlist}">
-								<i class="fas fa-heart"></i> Yêu thích
-							</a>
-							<a th:href="@{/cart}" class="cart-link">
-								<i class="fas fa-shopping-cart"></i> Giỏ hàng
-								<span class="cart-badge" th:if="${cartItemCount > 0}" th:text="${cartItemCount}">0</span>
-							</a>
+						<a th:href="@{/account}">
+							<i class="fas fa-user-circle"></i> Tài khoản
+						</a>
+						<a th:href="@{/orders}">
+							<i class="fas fa-box"></i> Đơn hàng
+						</a>
+						<a th:href="@{/wallet}">
+							<i class="fas fa-wallet"></i> Ví của tôi
+						</a>
+						<a th:href="@{/wishlist}">
+							<i class="fas fa-heart"></i> Yêu thích
+						</a>
+						<a th:href="@{/cart}" class="cart-link">
+							<i class="fas fa-shopping-cart"></i> Giỏ hàng
+							<span class="cart-badge" th:if="${cartItemCount > 0}" th:text="${cartItemCount}">0</span>
+						</a>
 							<div class="dropdown-divider"></div>
 							<form th:action="@{/logout}" method="post" th:if="${_csrf != null}">
 								<input type="hidden" th:name="${_csrf.parameterName}"

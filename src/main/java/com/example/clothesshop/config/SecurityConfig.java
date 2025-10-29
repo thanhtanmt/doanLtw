@@ -44,7 +44,7 @@ public class SecurityConfig {
 
             // ✅ Bật CSRF (để Spring sinh token) — bạn có thể thêm ignore nếu cần
             .csrf(csrf -> csrf
-            	    .ignoringRequestMatchers("/h2-console/**", "/verify-email", "/verify/**", "/resend-verification", "/api/**")
+            	    .ignoringRequestMatchers("/h2-console/**", "/verify-email", "/verify/**", "/resend-verification", "/api/**", "/place-order")
             	)
 
             // ✅ Configure OAuth2 login

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Checkout API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Checkout API</h1>
+    
+    <div class="form-group">
+        <label>Tên người nhận:</label>
+        <input type="text" id="shippingName" value="Nguyen Van A">
+    </div>
+    
+    <div class="form-group">
+        <label>Số điện thoại:</label>
+        <input type="text" id="shippingPhone" value="0901234567">
+    </div>
+    
+    <div class="form-group">
+        <label>Địa chỉ:</label>
+        <textarea id="shippingAddress" rows="3">123 Nguyen Hue, Quan 1, TP.HCM</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label>Phương thức thanh toán:</label>
+        <select id="paymentMethod">
+            <option value="COD">COD - Thanh toán khi nhận hàng</option>
+            <option value="WALLET">WALLET - Thanh toán bằng ví</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>Ghi chú:</label>
+        <textarea id="notes" rows="2">Giao hàng giờ hành chính</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label>Mã voucher (tùy chọn):</label>
+        <input type="text" id="voucherCode" placeholder="Nhập mã voucher">
+    </div>
+    
+    <button onclick="testCheckout()">Test Place Order</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        async function testCheckout() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Đang gửi request...';
+            resultDiv.className = '';
+            
+            const orderData = {
+                shippingName: document.getElementById('shippingName').value,
+                shippingPhone: document.getElementById('shippingPhone').value,
+                shippingAddress: document.getElementById('shippingAddress').value,
+                paymentMethod: document.getElementById('paymentMethod').value,
+                notes: document.getElementById('notes').value,
+                voucherCode: document.getElementById('voucherCode').value
+            };
+            
+            console.log('Sending order data:', orderData);
+            
+            try {
+                // For testing, we'll need to get CSRF token from a logged-in session
+                // This won't work without being in a Thymeleaf template
+                // Use the main checkout page for proper testing
+                
+                const response = await fetch('/place-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Note: CSRF token can't be accessed from static HTML
+                        // This page is only for testing the request structure
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Đặt hàng thành công!</strong><br>
+                        Order ID: ${data.orderId}<br>
+                        Order Code: ${data.orderCode}<br>
+                        Message: ${data.message}
+                    `;
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `
+                        <strong>❌ Lỗi:</strong><br>
+                        ${data.message}
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <strong>❌ Lỗi kết nối:</strong><br>
+                    ${error.message}
+                `;
+            }
+        }
+        
+        // Log to confirm script loaded
+        console.log('Test checkout page loaded successfully');
+    </script>
+</body>
+</html>

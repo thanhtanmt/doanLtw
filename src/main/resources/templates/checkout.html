@@ -5,6 +5,9 @@
 
 <head>
     <title>Thanh toán</title>
+    <!-- CSRF Token for AJAX requests -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <style>
         .checkout-page {
             padding: 40px 0;
@@ -473,164 +476,80 @@
             <div class="checkout-content">
                 <!-- Checkout Form -->
                 <div class="checkout-form">
-                    <!-- Shipping Information -->
-                    <div class="form-section">
-                        <div class="section-header">
-                            <div class="section-icon">
-                                <i class="fas fa-shipping-fast"></i>
-                            </div>
-                            <h2 class="section-title">Thông Tin Giao Hàng</h2>
-                        </div>
-
-                        <form th:action="@{/place-order}" method="post">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">
-                                        Họ <span class="required">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" placeholder="Nhập họ" required>
+                    <form th:action="@{/place-order}" method="post" id="checkout-form">
+                        <!-- Shipping Information -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-shipping-fast"></i>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">
-                                        Tên <span class="required">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" placeholder="Nhập tên" required>
-                                </div>
+                                <h2 class="section-title">Thông Tin Giao Hàng</h2>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label class="form-label">
-                                        Email <span class="required">*</span>
-                                    </label>
-                                    <input type="email" class="form-control" placeholder="example@email.com" required>
+                                    <label class="form-label">Người nhận <span class="required">*</span></label>
+                                    <input type="text" name="shippingName" class="form-control" placeholder="Họ và tên người nhận">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">
-                                        Số điện thoại <span class="required">*</span>
-                                    </label>
-                                    <input type="tel" class="form-control" placeholder="0xxx xxx xxx" required>
+                                    <label class="form-label">Số điện thoại <span class="required">*</span></label>
+                                    <input type="tel" name="shippingPhone" class="form-control" placeholder="0xxx xxx xxx">
                                 </div>
                             </div>
 
                             <div class="form-group full-width">
-                                <label class="form-label">
-                                    Địa chỉ <span class="required">*</span>
-                                </label>
-                                <input type="text" class="form-control" placeholder="Số nhà, tên đường" required>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">
-                                        Tỉnh/Thành phố <span class="required">*</span>
-                                    </label>
-                                    <select class="form-control" required>
-                                        <option value="">Chọn Tỉnh/Thành phố</option>
-                                        <option>Hồ Chí Minh</option>
-                                        <option>Hà Nội</option>
-                                        <option>Đà Nẵng</option>
-                                        <option>Cần Thơ</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">
-                                        Quận/Huyện <span class="required">*</span>
-                                    </label>
-                                    <select class="form-control" required>
-                                        <option value="">Chọn Quận/Huyện</option>
-                                        <option>Quận 1</option>
-                                        <option>Quận 2</option>
-                                        <option>Quận 3</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">
-                                        Phường/Xã <span class="required">*</span>
-                                    </label>
-                                    <select class="form-control" required>
-                                        <option value="">Chọn Phường/Xã</option>
-                                        <option>Phường 1</option>
-                                        <option>Phường 2</option>
-                                        <option>Phường 3</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">
-                                        Mã bưu chính
-                                    </label>
-                                    <input type="text" class="form-control" placeholder="Mã bưu chính (nếu có)">
-                                </div>
+                                <label class="form-label">Địa chỉ giao hàng <span class="required">*</span></label>
+                                <input type="text" name="shippingAddress" class="form-control" placeholder="Số nhà, tên đường, phường, quận, thành phố">
                             </div>
 
                             <div class="form-group full-width">
-                                <label class="form-label">
-                                    Ghi chú đơn hàng
+                                <label class="form-label">Ghi chú nhận hàng (tùy chọn)</label>
+                                <textarea class="form-control" name="notes" placeholder="Ghi chú cho người giao hàng"></textarea>
+                            </div>
+
+                            <!-- Optional voucher code (if applied elsewhere) -->
+                            <input type="hidden" name="voucherCode" value="" />
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <h2 class="section-title">Phương Thức Thanh Toán</h2>
+                            </div>
+
+                            <div class="payment-methods">
+                                <label class="payment-method active">
+                                    <input type="radio" name="payment" value="COD" checked>
+                                    <div class="payment-icon" style="color: #2ecc71;">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <div class="payment-info">
+                                        <div class="payment-name">Thanh toán khi nhận hàng (COD)</div>
+                                        <div class="payment-desc">Thanh toán bằng tiền mặt khi nhận hàng</div>
+                                    </div>
                                 </label>
-                                <textarea class="form-control" name="notes" placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay chỉ dẫn địa điểm giao hàng chi tiết hơn"></textarea>
+
+                                <label class="payment-method">
+                                    <input type="radio" name="payment" value="WALLET">
+                                    <div class="payment-icon" style="color: #667eea;">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                    <div class="payment-info">
+                                        <div class="payment-name">Ví Shop</div>
+                                        <div class="payment-desc">
+                                            Số dư: <strong th:text="${#numbers.formatDecimal(walletBalance, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</strong>
+                                            <a th:href="@{/wallet}" style="color: #667eea; text-decoration: none; margin-left: 10px;">
+                                                <i class="fas fa-plus-circle"></i> Nạp tiền
+                                            </a>
+                                        </div>
+                                    </div>
+                                </label>
                             </div>
-                            <button type="submit" class="btn-place-order" style="display: none;" id="submit-order-btn"></button>
-                        </form>
-                    </div>
-
-                    <!-- Payment Method -->
-                    <div class="form-section">
-                        <div class="section-header">
-                            <div class="section-icon">
-                                <i class="fas fa-wallet"></i>
-                            </div>
-                            <h2 class="section-title">Phương Thức Thanh Toán</h2>
                         </div>
-
-                        <div class="payment-methods">
-                            <label class="payment-method active">
-                                <input type="radio" name="payment" value="cod" checked>
-                                <div class="payment-icon" style="color: #2ecc71;">
-                                    <i class="fas fa-money-bill-wave"></i>
-                                </div>
-                                <div class="payment-info">
-                                    <div class="payment-name">Thanh toán khi nhận hàng (COD)</div>
-                                    <div class="payment-desc">Thanh toán bằng tiền mặt khi nhận hàng</div>
-                                </div>
-                            </label>
-
-                            <label class="payment-method">
-                                <input type="radio" name="payment" value="bank">
-                                <div class="payment-icon" style="color: #3498db;">
-                                    <i class="fas fa-university"></i>
-                                </div>
-                                <div class="payment-info">
-                                    <div class="payment-name">Chuyển khoản ngân hàng</div>
-                                    <div class="payment-desc">Chuyển khoản qua tài khoản ngân hàng</div>
-                                </div>
-                            </label>
-
-                            <label class="payment-method">
-                                <input type="radio" name="payment" value="momo">
-                                <div class="payment-icon" style="color: #a50064;">
-                                    <i class="fas fa-mobile-alt"></i>
-                                </div>
-                                <div class="payment-info">
-                                    <div class="payment-name">Ví MoMo</div>
-                                    <div class="payment-desc">Thanh toán qua ví điện tử MoMo</div>
-                                </div>
-                            </label>
-
-                            <label class="payment-method">
-                                <input type="radio" name="payment" value="card">
-                                <div class="payment-icon" style="color: #e67e22;">
-                                    <i class="fas fa-credit-card"></i>
-                                </div>
-                                <div class="payment-info">
-                                    <div class="payment-name">Thẻ tín dụng/Ghi nợ</div>
-                                    <div class="payment-desc">Visa, Mastercard, JCB</div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
+                    </form>
                 </div>
 
                 <!-- Order Summary -->
@@ -639,44 +558,19 @@
                         <h3>Đơn Hàng Của Bạn</h3>
 
                         <div class="order-items">
-                            <div class="order-item">
+                            <!-- Hiển thị các sản phẩm từ giỏ hàng thực tế -->
+                            <div class="order-item" th:each="item : ${cart.items}">
                                 <div class="order-item-image">
-                                    <img src="https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=100" alt="Product">
+                                    <img th:src="${item.imageUrl}" 
+                                         th:alt="${item.productName}"
+                                         onerror="this.src='https://via.placeholder.com/100?text=No+Image'">
                                 </div>
                                 <div class="order-item-info">
-                                    <div class="order-item-name">Áo Thun Cotton Cao Cấp</div>
-                                    <div class="order-item-details">Đen, Size M</div>
+                                    <div class="order-item-name" th:text="${item.productName}">Tên sản phẩm</div>
+                                    <div class="order-item-details" th:text="${item.variantInfo}">Thông tin biến thể</div>
                                     <div class="order-item-price">
-                                        <span class="item-quantity">x2</span>
-                                        <span class="item-total">700.000đ</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="order-item">
-                                <div class="order-item-image">
-                                    <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=100" alt="Product">
-                                </div>
-                                <div class="order-item-info">
-                                    <div class="order-item-name">Váy Maxi Hoa Nhí Dáng Dài</div>
-                                    <div class="order-item-details">Trắng, Free Size</div>
-                                    <div class="order-item-price">
-                                        <span class="item-quantity">x1</span>
-                                        <span class="item-total">450.000đ</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="order-item">
-                                <div class="order-item-image">
-                                    <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?w=100" alt="Product">
-                                </div>
-                                <div class="order-item-info">
-                                    <div class="order-item-name">Áo Khoác Dù Chống Nước</div>
-                                    <div class="order-item-details">Xanh Navy, Size L</div>
-                                    <div class="order-item-price">
-                                        <span class="item-quantity">x1</span>
-                                        <span class="item-total">750.000đ</span>
+                                        <span class="item-quantity" th:text="'x' + ${item.quantity}">x1</span>
+                                        <span class="item-total" th:text="${#numbers.formatDecimal(item.subtotal, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span>
                                     </div>
                                 </div>
                             </div>
@@ -684,12 +578,12 @@
 
                         <div class="summary-row">
                             <span class="summary-label">Tạm tính:</span>
-                            <span class="summary-value">1.900.000đ</span>
+                            <span class="summary-value" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span>
                         </div>
 
-                        <div class="summary-row">
+                        <div class="summary-row" id="discount-row" style="display: none;">
                             <span class="summary-label">Giảm giá:</span>
-                            <span class="summary-value" style="color: #e74c3c;">-400.000đ</span>
+                            <span class="summary-value" style="color: #e74c3c;" id="discount-amount">-0đ</span>
                         </div>
 
                         <div class="summary-row">
@@ -701,7 +595,7 @@
 
                         <div class="summary-total">
                             <span class="summary-label">Tổng cộng:</span>
-                            <span class="summary-value">1.500.000đ</span>
+                            <span class="summary-value" id="final-total" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span>
                         </div>
 
                         <div class="terms-checkbox">
@@ -724,33 +618,486 @@
                 </aside>
             </div>
         </div>
+        
     </div>
 
-    <script>
-        // Payment method selection
-        document.querySelectorAll('.payment-method').forEach(method => {
-            method.addEventListener('click', function() {
-                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
-                this.classList.add('active');
-            });
+</html>
+
+<!-- Checkout Page Scripts -->
+<th:block layout:fragment="scripts">
+<script>
+    // Payment method selection
+    document.querySelectorAll('.payment-method').forEach(method => {
+        method.addEventListener('click', function() {
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
+            this.classList.add('active');
+            this.querySelector('input[type="radio"]').checked = true;
         });
+    });
 
-        // Form validation and submission
-        document.querySelector('#real-place-order-btn').addEventListener('click', function(e) {
+    // Confirm modal functions - Same style as cart
+    function showConfirmModal(title, message) {
+        return new Promise((resolve) => {
+            // Xóa modal cũ nếu có
+            const oldModal = document.getElementById('confirmModal');
+            if (oldModal) {
+                oldModal.remove();
+            }
+
+            // Tạo modal mới với style giống cart
+            const modal = document.createElement('div');
+            modal.id = 'confirmModal';
+            modal.className = 'confirm-modal-overlay';
+            modal.innerHTML = `
+                <div class="confirm-modal">
+                    <div class="confirm-modal-header">
+                        <i class="fas fa-lock"></i>
+                        <h3>${title}</h3>
+                    </div>
+                    <div class="confirm-modal-body">
+                        <p>${message}</p>
+                    </div>
+                    <div class="confirm-modal-footer">
+                        <button class="modal-btn-cancel" id="cancelOrder">
+                            <i class="fas fa-times"></i> Hủy
+                        </button>
+                        <button class="modal-btn-confirm" id="confirmOrder">
+                            <i class="fas fa-check"></i> Xác nhận
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Add event listeners
+            const btnCancel = modal.querySelector('.modal-btn-cancel');
+            const btnConfirm = modal.querySelector('.modal-btn-confirm');
+
+            btnCancel.onclick = () => {
+                closeConfirmModal();
+                resolve(false);
+            };
+
+            btnConfirm.onclick = () => {
+                closeConfirmModal();
+                resolve(true);
+            };
+
+            // Close on backdrop click
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    closeConfirmModal();
+                    resolve(false);
+                }
+            };
+
+            // Show modal with animation
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+        });
+    }
+
+    function closeConfirmModal() {
+        const modal = document.getElementById('confirmModal');
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.remove();
+            }, 300);
+        }
+    }
+
+    // Toast notification function
+    function showToast(message, type = 'error') {
+        // Remove existing toast if any
+        const existingToast = document.querySelector('.checkout-toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `checkout-toast ${type}`;
+        toast.innerHTML = `
+            <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(toast);
+
+        // Show toast
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Hide and remove toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Form validation and submission
+    const placeOrderBtn = document.querySelector('#real-place-order-btn');
+    
+    if (placeOrderBtn) {
+        placeOrderBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+                
+            // Kiểm tra checkbox điều khoản
             const termsCheckbox = document.getElementById('terms');
-
-            if (!termsCheckbox.checked) {
-                e.preventDefault();
-                alert('Vui lòng đồng ý với điều khoản và điều kiện!');
+            if (!termsCheckbox || !termsCheckbox.checked) {
+                showToast('Vui lòng đồng ý với điều khoản và điều kiện!', 'error');
+                termsCheckbox?.focus();
                 return;
             }
 
-            // Here you would normally submit the form
-            if (confirm('Xác nhận đặt hàng?')) {
-                // Kích hoạt nút submit ẩn của form
-                document.getElementById('submit-order-btn').click();
+            // Get form data
+            const form = document.getElementById('checkout-form');
+            if (!form) {
+                showToast('Không tìm thấy form!', 'error');
+                return;
+            }
+            
+            const formData = new FormData(form);
+            
+            // Get selected payment method
+            const paymentMethodRadio = document.querySelector('input[name="payment"]:checked');
+            if (!paymentMethodRadio) {
+                showToast('Vui lòng chọn phương thức thanh toán!', 'error');
+                return;
+            }
+            
+            // Prepare request data
+            const orderData = {
+                shippingName: formData.get('shippingName')?.trim(),
+                shippingPhone: formData.get('shippingPhone')?.trim(),
+                shippingAddress: formData.get('shippingAddress')?.trim(),
+                paymentMethod: paymentMethodRadio.value,
+                notes: formData.get('notes')?.trim() || '',
+                voucherCode: formData.get('voucherCode')?.trim() || ''
+            };
+
+            // Validate required fields
+            if (!orderData.shippingName) {
+                showToast('Vui lòng nhập tên người nhận!', 'error');
+                form.querySelector('[name="shippingName"]').focus();
+                return;
+            }
+            
+            if (!orderData.shippingPhone) {
+                showToast('Vui lòng nhập số điện thoại!', 'error');
+                form.querySelector('[name="shippingPhone"]').focus();
+                return;
+            }
+            
+            // Validate phone number format
+            const phoneRegex = /^[0-9]{10,11}$/;
+            if (!phoneRegex.test(orderData.shippingPhone)) {
+                showToast('Số điện thoại không hợp lệ! (10-11 số)', 'error');
+                form.querySelector('[name="shippingPhone"]').focus();
+                return;
+            }
+            
+            if (!orderData.shippingAddress) {
+                showToast('Vui lòng nhập địa chỉ giao hàng!', 'error');
+                form.querySelector('[name="shippingAddress"]').focus();
+                return;
+            }
+
+            // Confirm order with custom modal
+            const confirmed = await showConfirmModal('Xác nhận đặt hàng', 'Bạn có chắc chắn muốn đặt hàng với thông tin đã nhập?');
+            if (!confirmed) {
+                return;
+            }
+
+            // Show loading
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+            
+            // Get CSRF token from meta tags
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+            try {
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                // Add CSRF token to headers
+                if (csrfToken && csrfHeader) {
+                    headers[csrfHeader] = csrfToken;
+                }
+                
+                const response = await fetch('/place-order', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(orderData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Redirect to success page
+                    window.location.href = '/order-success?orderCode=' + data.orderCode;
+                    return;
+                } else {
+                    showToast(data.message || 'Có lỗi xảy ra khi đặt hàng', 'error');
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-check-circle"></i> ĐẶT HÀNG';
+                }
+            } catch (error) {
+                showToast('Không thể kết nối đến server. Vui lòng thử lại!', 'error');
+                console.error('Error:', error);
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-check-circle"></i> ĐẶT HÀNG';
             }
         });
-    </script>
-</body>
-</html>
+    }
+</script>
+
+<style>
+    /* Confirmation Modal - Same style as cart.js */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-20px) scale(0.95);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+    }
+
+    .confirm-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10001;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .confirm-modal-overlay.show {
+        opacity: 1;
+    }
+
+    .confirm-modal {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        max-width: 450px;
+        width: 90%;
+        overflow: hidden;
+        transform: translateY(-20px) scale(0.95);
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .confirm-modal-overlay.show .confirm-modal {
+        transform: translateY(0) scale(1);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    .confirm-modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .confirm-modal-header i {
+        font-size: 32px;
+        animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+    }
+
+    .confirm-modal-header h3 {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .confirm-modal-body {
+        padding: 30px 25px;
+    }
+
+    .confirm-modal-body p {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #555;
+        margin: 0;
+    }
+
+    .confirm-modal-footer {
+        padding: 20px 25px;
+        background: #f8f9fa;
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+    }
+
+    .confirm-modal-footer button {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-btn-cancel {
+        background: #e0e0e0;
+        color: #555;
+    }
+
+    .modal-btn-cancel:hover {
+        background: #d0d0d0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-btn-confirm {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .modal-btn-confirm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .modal-btn-confirm:active,
+    .modal-btn-cancel:active {
+        transform: translateY(0);
+    }
+
+    /* Responsive cho mobile */
+    @media (max-width: 576px) {
+        .confirm-modal {
+            max-width: 90%;
+        }
+
+        .confirm-modal-header {
+            padding: 20px;
+        }
+
+        .confirm-modal-header i {
+            font-size: 28px;
+        }
+
+        .confirm-modal-header h3 {
+            font-size: 18px;
+        }
+
+        .confirm-modal-body {
+            padding: 25px 20px;
+        }
+
+        .confirm-modal-body p {
+            font-size: 15px;
+        }
+
+        .confirm-modal-footer {
+            padding: 15px 20px;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .confirm-modal-footer button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Toast notification styles */
+    .checkout-toast {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: white;
+        padding: 16px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 10000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        min-width: 300px;
+        max-width: 400px;
+    }
+    
+    .checkout-toast.show {
+        transform: translateX(0);
+    }
+    
+    .checkout-toast.error {
+        border-left: 4px solid #e74c3c;
+    }
+    
+    .checkout-toast.error i {
+        color: #e74c3c;
+        font-size: 20px;
+    }
+    
+    .checkout-toast.info {
+        border-left: 4px solid #3498db;
+    }
+    
+    .checkout-toast.info i {
+        color: #3498db;
+        font-size: 20px;
+    }
+    
+    .checkout-toast span {
+        color: #2c3e50;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    
+    /* Input focus styles */
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+    
+    /* Remove default HTML5 validation styling */
+    .form-control:invalid {
+        box-shadow: none;
+    }
+    
+    .form-control {
+        transition: all 0.3s ease;
+    }
+</style>
+</th:block>

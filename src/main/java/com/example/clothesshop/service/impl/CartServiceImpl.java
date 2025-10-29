@@ -163,6 +163,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public void clearCart(User user) {
         if (user == null) {
             throw new IllegalArgumentException("Vui lòng đăng nhập");
@@ -170,7 +171,14 @@ public class CartServiceImpl implements CartService {
 
         Cart cart = cartRepository.findByUser(user).orElse(null);
         if (cart != null) {
+            // Xóa tất cả cart items
             cartItemRepository.deleteAll(cart.getItems());
+            
+            // Clear danh sách items trong cart entity để tránh cache
+            cart.getItems().clear();
+            
+            // Lưu lại cart
+            cartRepository.save(cart);
         }
     }
 

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz.thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+
+<head>
+    <title>Quản lý ví</title>
+    <style>
+        .wallet-page {
+            padding: 40px 0;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 0;
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .wallet-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .wallet-balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .balance-label {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .balance-amount {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .balance-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-deposit {
+            background: white;
+            color: #667eea;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-deposit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+        }
+
+        .wallet-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .wallet-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+
+        .deposit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .quick-amount-btn {
+            padding: 10px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .quick-amount-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .btn-submit {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .transaction-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s;
+        }
+
+        .transaction-item:hover {
+            background: #f8f9fa;
+        }
+
+        .transaction-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-right: 15px;
+        }
+
+        .transaction-icon.deposit {
+            background: #d4edda;
+            color: #28a745;
+        }
+
+        .transaction-icon.payment {
+            background: #fff3cd;
+            color: #ffc107;
+        }
+
+        .transaction-icon.refund {
+            background: #d1ecf1;
+            color: #17a2b8;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-desc {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .transaction-date {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .transaction-amount.positive {
+            color: #28a745;
+        }
+
+        .transaction-amount.negative {
+            color: #dc3545;
+        }
+
+        .empty-transactions {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-transactions i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.success {
+            background: #28a745;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .wallet-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-amounts {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1><i class="fas fa-wallet"></i> Ví Của Tôi</h1>
+            <p>Quản lý số dư và lịch sử giao dịch</p>
+        </div>
+
+        <div class="wallet-container">
+            <!-- Balance Card -->
+            <div class="wallet-balance-card">
+                <div class="balance-label">Số dư khả dụng</div>
+                <div class="balance-amount" id="balance-display" th:text="${#numbers.formatDecimal(wallet.balance, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                    0đ
+                </div>
+                <div class="balance-actions">
+                    <button class="btn-deposit" onclick="scrollToDeposit()">
+                        <i class="fas fa-plus-circle"></i> Nạp tiền
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="wallet-content">
+                <!-- Deposit Section -->
+                <div class="wallet-section" id="deposit-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-money-bill-wave"></i> Nạp tiền vào ví
+                    </h2>
+                    
+                    <form class="deposit-form" id="deposit-form">
+                        <div class="form-group">
+                            <label>Số tiền nạp (đ)</label>
+                            <input type="number" class="form-control" id="deposit-amount" 
+                                   placeholder="Nhập số tiền muốn nạp" min="10000" step="1000" required>
+                            
+                            <div class="quick-amounts">
+                                <button type="button" class="quick-amount-btn" onclick="setAmount(50000)">50.000đ</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount(100000)">100.000đ</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount(200000)">200.000đ</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount(500000)">500.000đ</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount(1000000)">1.000.000đ</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount(2000000)">2.000.000đ</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ghi chú (tùy chọn)</label>
+                            <input type="text" class="form-control" id="deposit-description" 
+                                   placeholder="Ví dụ: Nạp tiền mua sắm">
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-check-circle"></i> Nạp tiền ngay
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="wallet-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-history"></i> Lịch sử giao dịch
+                    </h2>
+
+                    <div class="transaction-list" th:if="${transactions != null and !transactions.isEmpty()}">
+                        <div class="transaction-item" th:each="txn : ${transactions}">
+                            <div class="transaction-icon" 
+                                 th:classappend="${txn.type.name() == 'DEPOSIT' ? 'deposit' : (txn.type.name() == 'PAYMENT' ? 'payment' : 'refund')}">
+                                <i class="fas" 
+                                   th:classappend="${txn.type.name() == 'DEPOSIT' ? 'fa-arrow-down' : (txn.type.name() == 'PAYMENT' ? 'fa-shopping-cart' : 'fa-undo')}"></i>
+                            </div>
+                            <div class="transaction-info">
+                                <div class="transaction-desc" th:text="${txn.description}">Nạp tiền vào ví</div>
+                                <div class="transaction-date" th:text="${#temporals.format(txn.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</div>
+                            </div>
+                            <div class="transaction-amount" 
+                                 th:classappend="${txn.type.name() == 'DEPOSIT' or txn.type.name() == 'REFUND' ? 'positive' : 'negative'}">
+                                <span th:if="${txn.type.name() == 'DEPOSIT' or txn.type.name() == 'REFUND'}">+</span>
+                                <span th:if="${txn.type.name() == 'PAYMENT'}">-</span>
+                                <span th:text="${#numbers.formatDecimal(txn.amount, 0, 'COMMA', 0, 'POINT')} + 'đ'">100.000đ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="empty-transactions" th:if="${transactions == null or transactions.isEmpty()}">
+                        <i class="fas fa-receipt"></i>
+                        <h3>Chưa có giao dịch nào</h3>
+                        <p>Lịch sử giao dịch của bạn sẽ hiển thị tại đây</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        function setAmount(amount) {
+            document.getElementById('deposit-amount').value = amount;
+        }
+
+        function scrollToDeposit() {
+            document.getElementById('deposit-section').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('deposit-amount').focus();
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
+        }
+
+        document.getElementById('deposit-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const amount = document.getElementById('deposit-amount').value;
+            const description = document.getElementById('deposit-description').value;
+
+            if (!amount || amount < 10000) {
+                showNotification('Số tiền nạp tối thiểu là 10.000đ', 'error');
+                return;
+            }
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('amount', amount);
+                if (description) {
+                    formData.append('description', description);
+                }
+
+                const response = await fetch('/wallet/deposit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('Nạp tiền thành công!', 'success');
+                    
+                    // Update balance display
+                    document.getElementById('balance-display').textContent = formatCurrency(data.newBalance);
+                    
+                    // Reset form
+                    document.getElementById('deposit-form').reset();
+                    
+                    // Reload page after 1 second to update transaction history
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra', 'error');
+                }
+            } catch (error) {
+                showNotification('Không thể kết nối đến server', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
