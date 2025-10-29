@@ -28,4 +28,19 @@ public class ShipperController {
     public String shipperInfor(Model model) {
         return "shipper/profile";
     }
+ // Partial views for profile sections
+    @GetMapping("/partial/profile-info")
+    public String profileInfo() {
+        return "shipper/partials/profile-info-partial";
+    }
+    
+    @GetMapping("/partial/security")
+    public String security() {
+        return "shipper/partials/security-partial";
+    }
+    
+    @GetMapping("/partial/policy")
+    public String policy() {
+        return "shipper/partials/policy-partial";
+    }
 }
