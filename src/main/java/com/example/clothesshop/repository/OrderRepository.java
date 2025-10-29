@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -39,5 +40,45 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         @Param("orderCode") String orderCode,
         @Param("shippingName") String shippingName, 
         @Param("shippingPhone") String shippingPhone
+    );
+    
+    // Find orders containing products from a specific seller
+    @Query("SELECT DISTINCT o FROM Order o " +
+           "JOIN o.items oi " +
+           "JOIN oi.product p " +
+           "WHERE p.seller = :seller " +
+           "AND o.createdAt BETWEEN :startDate AND :endDate")
+    List<Order> findOrdersBySellerAndDateRange(
+        @Param("seller") User seller,
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
+    );
+    
+    // Count orders with delivered status for a seller
+    @Query("SELECT COUNT(DISTINCT o) FROM Order o " +
+           "JOIN o.items oi " +
+           "JOIN oi.product p " +
+           "WHERE p.seller = :seller " +
+           "AND o.status = :status " +
+           "AND o.createdAt BETWEEN :startDate AND :endDate")
+    Long countOrdersBySellerAndStatusAndDateRange(
+        @Param("seller") User seller,
+        @Param("status") OrderStatus status,
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
+    );
+    
+    // Calculate total revenue for a seller
+    @Query("SELECT COALESCE(SUM(oi.quantity * oi.unitPrice), 0) FROM Order o " +
+           "JOIN o.items oi " +
+           "JOIN oi.product p " +
+           "WHERE p.seller = :seller " +
+           "AND o.status = :status " +
+           "AND o.createdAt BETWEEN :startDate AND :endDate")
+    BigDecimal calculateRevenueBySellerAndStatusAndDateRange(
+        @Param("seller") User seller,
+        @Param("status") OrderStatus status,
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
     );
 }

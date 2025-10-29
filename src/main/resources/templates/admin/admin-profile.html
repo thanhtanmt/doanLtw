@@ -9,33 +9,61 @@
 
 <body>
     <div layout:fragment="content">
+        
+        <!-- Alert Messages -->
+        <div th:if="${success}" class="alert alert-success" style="margin-bottom: 1rem;">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger" style="margin-bottom: 1rem;">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+        
         <div class="profile-container fade-in">
 
             <div class="profile-main-content">
                 
                 <div class="content-box scale-in" style="animation-delay: 0.1s;">
                     <div class="profile-section-header">
-                        <h2>Thông tin tài khoản</h2>
-                        <button class="btn btn-secondary btn-edit-profile">
+                        <h2>
+                            <i class="fas fa-user-circle"></i>
+                            Thông tin tài khoản
+                        </h2>
+                        <a th:href="@{/admin/profile/edit}" class="btn btn-primary btn-sm">
                             <i class="fas fa-edit"></i> Chỉnh sửa
-                        </button>
+                        </a>
                     </div>
 
                     <div class="profile-info-grid">
-                        <div class="info-row">
-                            <span class="info-label">Họ và tên</span>
-                            <span class="info-value" th:text="${currentUser != null ? currentUser.firstName + ' ' + currentUser.lastName : 'Admin'}">Admin User</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Email</span>
-                            <span class="info-value" th:text="${currentUser != null ? currentUser.email : 'admin@fashionstore.com'}">admin@fashionstore.com</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Số điện thoại</span>
-                            <span class="info-value" th:text="${currentUser != null and not #strings.isEmpty(currentUser.phone) ? currentUser.phone : 'Chưa cập nhật'}">Chưa cập nhật</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Vai trò</span>
+                            <div class="info-row">
+                                <span class="info-label">
+                                    <i class="fas fa-user"></i> Họ
+                                </span>
+                                <span class="info-value" th:text="${currentUser?.firstName ?: 'Chưa cập nhật'}">Admin</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">
+                                    <i class="fas fa-user"></i> Tên
+                                </span>
+                                <span class="info-value" th:text="${currentUser?.lastName ?: 'Chưa cập nhật'}">User</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">
+                                    <i class="fas fa-envelope"></i> Email
+                                </span>
+                                <span class="info-value" th:text="${currentUser?.email}">admin@fashionstore.com</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">
+                                    <i class="fas fa-phone"></i> Số điện thoại
+                                </span>
+                                <span class="info-value" th:text="${currentUser?.phone ?: 'Chưa cập nhật'}">0123456789</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">
+                                    <i class="fas fa-user-tag"></i> Vai trò
+                                </span>
                             <span class="info-value">
                                 <span th:if="${currentUser == null}"><span class="role-badge admin">Quản trị viên</span></span>
                                 <span th:if="${currentUser != null}" th:each="role : ${currentUser.roles}">
@@ -44,11 +72,25 @@
                             </span>
                         </div>
                     </div>
-                </div>
+                    
+                    <div id="editButtons" style="display: none; margin-top: 1.5rem; text-align: right;">
+                        <button type="button" class="btn btn-outline" onclick="cancelEdit()">
+                            <i class="fas fa-times"></i> Hủy
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
 
                 <div class="content-box scale-in" style="animation-delay: 0.2s;">
-                    <h2>Thay đổi mật khẩu</h2>
+                    <h2>
+                        <i class="fas fa-key"></i>
+                        Thay đổi mật khẩu
+                    </h2>
                     <form th:action="@{/admin/profile/change-password}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <div class="form-group">
                             <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
                             <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
@@ -75,39 +117,64 @@
 
             <div class="profile-sidebar scale-in" style="animation-delay: 0.3s;">
                 <div class="content-box text-center">
-                    <img th:src="${currentUser != null and not #strings.isEmpty(currentUser.avatarUrl) ? currentUser.avatarUrl : '/images/default-avatar.png'}" alt="Avatar" class="profile-avatar">
+                    <img th:src="${currentUser?.avatarUrl != null and currentUser?.avatarUrl != '' ? currentUser.avatarUrl : 'https://via.placeholder.com/120'}" 
+                         alt="Avatar" 
+                         class="profile-avatar"
+                         onerror="this.src='https://via.placeholder.com/120'">
                     <h3 class="profile-name" th:text="${currentUser != null ? currentUser.firstName + ' ' + currentUser.lastName : 'Admin User'}">Admin User</h3>
                     <p class="profile-role">
+                        <i class="fas fa-shield-alt"></i>
                         <span th:if="${currentUser == null}">Quản trị viên</span>
                         <span th:if="${currentUser != null}" th:each="role,iter : ${currentUser.roles}">
-                            <span th:text="${role.name}">ROLE_ADMIN</span><span th:if="${!iter.last}">, </span>
+                            <span th:text="${role.name == 'ROLE_ADMIN' ? 'Quản trị viên' : (role.name == 'ROLE_SELLER' ? 'Người bán' : 'Shipper')}">ROLE_ADMIN</span><span th:if="${!iter.last}">, </span>
                         </span>
                     </p>
-                    <form th:action="@{/admin/profile/avatar}" method="post" enctype="multipart/form-data">
+                    <form th:action="@{/admin/profile/avatar}" method="post" enctype="multipart/form-data" style="margin-top: 1rem;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <div class="form-group">
-                            <input type="file" name="file" accept="image/*" class="form-control" required>
+                            <label for="avatarFile" class="btn btn-outline btn-sm" style="cursor: pointer; margin-bottom: 0;">
+                                <i class="fas fa-upload"></i> Chọn ảnh mới
+                            </label>
+                            <input type="file" name="file" id="avatarFile" accept="image/*" style="display: none;" onchange="this.form.submit()" required>
                         </div>
-                        <button class="btn btn-secondary btn-sm" type="submit">
-                            <i class="fas fa-camera"></i> Đổi ảnh
-                        </button>
                     </form>
-                </div>
-
-                <div class="content-box">
-                    <h2>Hoạt động gần đây</h2>
-                    <ul class="activity-list">
-                        <li><i class="fas fa-plus-circle text-success"></i> Thêm sản phẩm mới #SP1004</li>
-                        <li><i class="fas fa-edit text-warning"></i> Cập nhật đơn hàng #DH2002</li>
-                        <li><i class="fas fa-lock text-danger"></i> Khóa tài khoản #KH003</li>
-                    </ul>
                 </div>
             </div>
 
-        </div> </div>
+        </div>
+        
+    </div>
 
     <script th:inline="javascript">
     /*<![CDATA[*/
+    function enableEdit() {
+        // Enable input fields
+        document.getElementById('firstName').disabled = false;
+        document.getElementById('lastName').disabled = false;
+        document.getElementById('phone').disabled = false;
+        
+        // Show save/cancel buttons
+        document.getElementById('editButtons').style.display = 'block';
+        
+        // Focus on first field
+        document.getElementById('firstName').focus();
+    }
+    
+    function cancelEdit() {
+        // Disable input fields
+        document.getElementById('firstName').disabled = true;
+        document.getElementById('lastName').disabled = true;
+        document.getElementById('phone').disabled = true;
+        
+        // Hide save/cancel buttons
+        document.getElementById('editButtons').style.display = 'none';
+        
+        // Reload page to reset values
+        location.reload();
+    }
+    
     document.addEventListener('DOMContentLoaded', function() {
+        // Avatar upload old code (keep for compatibility)
         const changeAvatarBtn = document.querySelector('.btn-change-avatar');
         const avatarUploadInput = document.getElementById('avatarUpload');
         if (changeAvatarBtn && avatarUploadInput) {
@@ -120,6 +187,16 @@
                 }
             });
         }
+        
+        // Auto hide alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
     });
     /*]]>*/
     </script>

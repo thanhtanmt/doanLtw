@@ -50,7 +50,7 @@ public class SecurityConfig {
             // ✅ Configure OAuth2 login
             .oauth2Login(oauth2 -> oauth2
                 .loginPage("/login")
-                .defaultSuccessUrl("/admin/dashboard") // Change default success URL for admin
+                .successHandler(successHandler) // Use the same success handler for OAuth2
                 .failureUrl("/login?error=oauth2")
                 .userInfoEndpoint(userInfo -> userInfo
                     .userService(oAuth2UserService)

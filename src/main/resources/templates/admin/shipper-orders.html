@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+
+<head>
+    <title>Đơn hàng của Shipper</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="page-header">
+            <h1 class="page-title">
+                <a th:href="@{/admin/shippers}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+                Đơn hàng của <span th:text="${shipperName}">Shipper</span>
+            </h1>
+        </div>
+
+        <!-- Shipper Info Card -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                    <div>
+                        <label class="form-label">Tên:</label>
+                        <p><strong th:text="${shipperName}">Shipper Name</strong></p>
+                    </div>
+                    <div>
+                        <label class="form-label">Email:</label>
+                        <p th:text="${shipper.email}">email@example.com</p>
+                    </div>
+                    <div>
+                        <label class="form-label">Số điện thoại:</label>
+                        <p th:text="${shipper.phone != null ? shipper.phone : 'Chưa cập nhật'}">0123456789</p>
+                    </div>
+                    <div>
+                        <label class="form-label">Tổng đơn hàng:</label>
+                        <p><strong style="color: var(--primary-color); font-size: 1.5rem;" th:text="${orders.size()}">0</strong> đơn</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="content-box">
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Địa chỉ</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th>Cập nhật</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${orders.empty}">
+                            <td colspan="8" style="text-align: center; padding: 2rem;">
+                                <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-secondary);"></i>
+                                <p>Shipper này chưa có đơn hàng nào</p>
+                            </td>
+                        </tr>
+                        <tr th:each="order : ${orders}">
+                            <td>
+                                <strong th:text="|#${order.id}|">#123</strong>
+                                <br>
+                                <small th:text="${order.orderCode}" style="color: var(--text-secondary);">ORD-001</small>
+                            </td>
+                            <td>
+                                <div>
+                                    <strong th:text="${order.shippingName}">Customer Name</strong>
+                                    <br>
+                                    <small th:text="${order.shippingPhone}">0123456789</small>
+                                </div>
+                            </td>
+                            <td>
+                                <small th:text="${order.shippingAddress}">Address</small>
+                            </td>
+                            <td>
+                                <strong th:text="|${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')}đ|">0đ</strong>
+                            </td>
+                            <td>
+                                <span class="status" 
+                                      th:classappend="${order.status == T(com.example.clothesshop.model.OrderStatus).DELIVERED} ? 'active' : 
+                                                     (${order.status == T(com.example.clothesshop.model.OrderStatus).CANCELED} ? 'inactive' : 
+                                                     (${order.status == T(com.example.clothesshop.model.OrderStatus).DELIVERING} ? 'pending' : 'completed'))"
+                                      th:text="${order.status == T(com.example.clothesshop.model.OrderStatus).PENDING} ? 'Chờ xác nhận' :
+                                              (${order.status == T(com.example.clothesshop.model.OrderStatus).CONFIRMED} ? 'Đã xác nhận' :
+                                              (${order.status == T(com.example.clothesshop.model.OrderStatus).ASSIGNED} ? 'Đã giao cho shipper' :
+                                              (${order.status == T(com.example.clothesshop.model.OrderStatus).DELIVERING} ? 'Đang giao' :
+                                              (${order.status == T(com.example.clothesshop.model.OrderStatus).DELIVERED} ? 'Đã giao' : 
+                                              (${order.status == T(com.example.clothesshop.model.OrderStatus).FAILED} ? 'Giao thất bại' : 'Đã hủy')))))">
+                                    Status
+                                </span>
+                            </td>
+                            <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">Date</td>
+                            <td th:text="${#temporals.format(order.updatedAt, 'dd/MM/yyyy HH:mm')}">Date</td>
+                            <td>
+                                <button class="btn-action btn-view" 
+                                        th:onclick="|viewOrderDetails(${order.id})|"
+                                        title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Order Details Modal -->
+        <div id="orderDetailsModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 900px;">
+                <span class="close" onclick="closeOrderModal()">&times;</span>
+                <h2>Chi tiết đơn hàng</h2>
+                <div id="orderDetailsContent">
+                    <div style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                        <p>Đang tải...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div layout:fragment="scripts">
+        <script th:inline="javascript">
+            function viewOrderDetails(orderId) {
+                document.getElementById('orderDetailsModal').style.display = 'block';
+                
+                fetch('/admin/transactions/' + orderId + '/details')
+                    .then(response => response.json())
+                    .then(data => {
+                        const statusText = getStatusText(data.status);
+                        const statusClass = getStatusClass(data.status);
+                        
+                        let itemsHtml = '';
+                        if (data.items && data.items.length > 0) {
+                            itemsHtml = data.items.map(item => `
+                                <tr>
+                                    <td>${item.productName}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${formatCurrency(item.unitPrice)}</td>
+                                    <td><strong>${formatCurrency(item.subtotal)}</strong></td>
+                                </tr>
+                            `).join('');
+                        } else {
+                            itemsHtml = '<tr><td colspan="4" style="text-align: center;">Không có sản phẩm</td></tr>';
+                        }
+                        
+                        const content = `
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Mã đơn hàng:</label>
+                                    <p><strong>${data.orderCode}</strong></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Trạng thái:</label>
+                                    <p><span class="status ${statusClass}">${statusText}</span></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Khách hàng:</label>
+                                    <p>${data.shippingName}</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Số điện thoại:</label>
+                                    <p>${data.shippingPhone}</p>
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="form-label">Địa chỉ giao hàng:</label>
+                                    <p>${data.shippingAddress}</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Phương thức thanh toán:</label>
+                                    <p>${data.paymentMethod}</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Ngày đặt:</label>
+                                    <p>${new Date(data.createdAt).toLocaleString('vi-VN')}</p>
+                                </div>
+                            </div>
+                            
+                            <h4 style="margin: 1.5rem 0 1rem;">Sản phẩm</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>Số lượng</th>
+                                        <th>Đơn giá</th>
+                                        <th>Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${itemsHtml}
+                                </tbody>
+                            </table>
+                            
+                            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Phí vận chuyển:</span>
+                                    <strong>20,000đ</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 1.25rem; color: var(--primary-color);">
+                                    <strong>Tổng cộng:</strong>
+                                    <strong>${formatCurrency(data.totalPrice)}</strong>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById('orderDetailsContent').innerHTML = content;
+                    })
+                    .catch(error => {
+                        document.getElementById('orderDetailsContent').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Không thể tải chi tiết đơn hàng
+                            </div>
+                        `;
+                    });
+            }
+            
+            function closeOrderModal() {
+                document.getElementById('orderDetailsModal').style.display = 'none';
+            }
+            
+            function getStatusText(status) {
+                const statusMap = {
+                    'PENDING': 'Chờ xác nhận',
+                    'CONFIRMED': 'Đã xác nhận',
+                    'SHIPPING': 'Đang giao',
+                    'DELIVERED': 'Đã giao',
+                    'CANCELLED': 'Đã hủy'
+                };
+                return statusMap[status] || status;
+            }
+            
+            function getStatusClass(status) {
+                if (status === 'DELIVERED') return 'active';
+                if (status === 'CANCELLED') return 'inactive';
+                if (status === 'SHIPPING') return 'pending';
+                return 'completed';
+            }
+            
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN', { 
+                    style: 'currency', 
+                    currency: 'VND' 
+                }).format(amount);
+            }
+            
+            // Close modal when clicking outside
+            window.onclick = function(event) {
+                const modal = document.getElementById('orderDetailsModal');
+                if (event.target == modal) {
+                    closeOrderModal();
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>

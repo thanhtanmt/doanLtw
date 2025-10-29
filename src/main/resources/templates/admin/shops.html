@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+
+<head>
+    <title>Quản lý Shop & Doanh thu</title>
+</head>
+
+<body>
+    <div layout:fragment="page-title">Quản lý Shop & Doanh thu</div>
+
+    <div layout:fragment="content">
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-store"></i>
+                    </div>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${totalShops != null ? totalShops : 0}">0</h3>
+                    <p class="stat-label">Tổng số shop</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon green">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${totalRevenue != null ? #numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}">0 đ</h3>
+                    <p class="stat-label">Tổng doanh thu</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${totalOrders != null ? totalOrders : 0}">0</h3>
+                    <p class="stat-label">Tổng đơn hàng</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-body">
+                    <h3 th:text="${avgRevenuePerShop != null ? #numbers.formatDecimal(avgRevenuePerShop, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}">0 đ</h3>
+                    <p class="stat-label">Doanh thu TB/Shop</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Management Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-store"></i> Danh sách Shop & Doanh thu
+                </h2>
+                <div class="d-flex gap-2">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm shop...">
+                    </div>
+                    <select id="timeFilter" class="form-control" style="width: 200px;">
+                        <option value="all">Tất cả thời gian</option>
+                        <option value="today">Hôm nay</option>
+                        <option value="week">Tuần này</option>
+                        <option value="month" selected>Tháng này</option>
+                        <option value="year">Năm nay</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Xếp hạng</th>
+                                <th>Tên Shop</th>
+                                <th>Người bán</th>
+                                <th>Sản phẩm</th>
+                                <th>Đơn hàng</th>
+                                <th>Doanh thu</th>
+                                <th>Hoa hồng</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="shop, iterStat : ${shops}">
+                                <td>
+                                    <strong>#<span th:text="${iterStat.index + 1}">1</span></strong>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-store" style="color: var(--primary-color);"></i>
+                                        <div>
+                                            <strong th:text="${shop.shopName}">Shop Name</strong>
+                                            <br>
+                                            <small style="color: var(--text-secondary);" th:text="${shop.description}">Description</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong th:text="${shop.sellerName}">Seller Name</strong>
+                                    <br>
+                                    <small style="color: var(--text-secondary);" th:text="${shop.sellerEmail}">email@example.com</small>
+                                </td>
+                                <td>
+                                    <strong th:text="${shop.productCount}">0</strong> sản phẩm
+                                </td>
+                                <td>
+                                    <strong th:text="${shop.orderCount}">0</strong> đơn
+                                    <br>
+                                    <small style="color: var(--success-color);">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span th:text="${shop.completedOrders}">0</span> hoàn thành
+                                    </small>
+                                </td>
+                                <td>
+                                    <strong style="color: var(--success-color);" 
+                                            th:text="${#numbers.formatDecimal(shop.totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</strong>
+                                </td>
+                                <td>
+                                    <span style="color: var(--info-color);" 
+                                          th:text="${#numbers.formatDecimal(shop.commission, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
+                                    <br>
+                                    <small style="color: var(--text-secondary);" 
+                                           th:text="'(' + ${shop.commissionRate} + '%)'">(%)</small>
+                                </td>
+                                <td>
+                                    <span class="status-badge" 
+                                          th:classappend="${shop.isActive} ? 'active' : 'inactive'"
+                                          th:text="${shop.isActive} ? 'Hoạt động' : 'Ngưng'">
+                                        Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <button class="btn btn-sm btn-info" 
+                                                th:onclick="'viewShopDetails(' + ${shop.sellerId} + ')'"
+                                                title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-primary" 
+                                                th:onclick="'viewShopProducts(' + ${shop.sellerId} + ')'"
+                                                title="Sản phẩm">
+                                            <i class="fas fa-box"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" 
+                                                th:onclick="'viewShopOrders(' + ${shop.sellerId} + ')'"
+                                                title="Đơn hàng">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${shops == null or shops.isEmpty()}">
+                                <td colspan="9" class="text-center">
+                                    <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-secondary); margin: 2rem 0;"></i>
+                                    <p>Không có shop nào</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Products by Revenue -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-trophy"></i> Top sản phẩm bán chạy
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Xếp hạng</th>
+                                <th>Sản phẩm</th>
+                                <th>Shop</th>
+                                <th>Giá</th>
+                                <th>Đã bán</th>
+                                <th>Doanh thu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="product, iterStat : ${topProducts}">
+                                <td>
+                                    <strong style="color: var(--warning-color);" th:if="${iterStat.index == 0}">
+                                        <i class="fas fa-crown"></i> #1
+                                    </strong>
+                                    <strong th:unless="${iterStat.index == 0}">
+                                        #<span th:text="${iterStat.index + 1}">2</span>
+                                    </strong>
+                                </td>
+                                <td>
+                                    <strong th:text="${product.productName}">Product Name</strong>
+                                </td>
+                                <td th:text="${product.shopName}">Shop Name</td>
+                                <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
+                                <td>
+                                    <strong th:text="${product.soldCount}">0</strong> sản phẩm
+                                </td>
+                                <td>
+                                    <strong style="color: var(--success-color);" 
+                                            th:text="${#numbers.formatDecimal(product.revenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</strong>
+                                </td>
+                            </tr>
+                            <tr th:if="${topProducts == null or topProducts.isEmpty()}">
+                                <td colspan="6" class="text-center">Chưa có dữ liệu</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Details Modal -->
+        <div id="shopDetailsModal" class="modal-overlay" style="display: none;">
+            <div class="modal" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="fas fa-store"></i> Chi tiết Shop
+                    </h3>
+                    <button class="modal-close" onclick="closeShopDetailsModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="shopDetailsContent">
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                            <p>Đang tải...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeShopDetailsModal()">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            console.log('Shops page JavaScript loaded');
+            
+            // Get current period from URL or model
+            const currentPeriod = /*[[${period}]]*/ 'month';
+            console.log('Current period:', currentPeriod);
+            
+            // Set the combobox to current period on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                const timeFilter = document.getElementById('timeFilter');
+                if (timeFilter && currentPeriod) {
+                    timeFilter.value = currentPeriod;
+                    console.log('Set timeFilter to:', currentPeriod);
+                }
+            });
+            
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                filterTable(searchTerm);
+            });
+
+            function filterTable(searchTerm) {
+                const rows = document.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    if (row.querySelector('td[colspan]')) return;
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            }
+
+            // Time filter
+            document.getElementById('timeFilter').addEventListener('change', function(e) {
+                const period = e.target.value;
+                console.log('Period changed to:', period);
+                window.location.href = '/admin/shops?period=' + period;
+            });
+
+            function viewShopDetails(sellerId) {
+                document.getElementById('shopDetailsModal').style.display = 'flex';
+                
+                fetch('/admin/shops/' + sellerId + '/details')
+                    .then(response => response.json())
+                    .then(data => {
+                        const content = `
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="form-label">Tên Shop:</label>
+                                    <h3 style="margin: 0;">${data.shopName}</h3>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Người bán:</label>
+                                    <p><strong>${data.sellerName}</strong></p>
+                                    <p style="color: var(--text-secondary); font-size: 0.9rem;">${data.sellerEmail}</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Số điện thoại:</label>
+                                    <p>${data.phone || 'Chưa cập nhật'}</p>
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="form-label">Mô tả:</label>
+                                    <p>${data.description || 'Chưa có mô tả'}</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Tổng sản phẩm:</label>
+                                    <p><strong style="color: var(--info-color); font-size: 1.5rem;">${data.productCount}</strong> sản phẩm</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Tổng đơn hàng:</label>
+                                    <p><strong style="color: var(--warning-color); font-size: 1.5rem;">${data.orderCount}</strong> đơn</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Doanh thu:</label>
+                                    <p><strong style="color: var(--success-color); font-size: 1.5rem;">${data.totalRevenue.toLocaleString('vi-VN')} đ</strong></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Hoa hồng (${data.commissionRate}%):</label>
+                                    <p><strong style="color: var(--primary-color); font-size: 1.5rem;">${data.commission.toLocaleString('vi-VN')} đ</strong></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Ngày tạo:</label>
+                                    <p>${new Date(data.createdAt).toLocaleString('vi-VN')}</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Trạng thái:</label>
+                                    <p><span class="status-badge ${data.isActive ? 'active' : 'inactive'}">${data.isActive ? 'Hoạt động' : 'Ngưng hoạt động'}</span></p>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById('shopDetailsContent').innerHTML = content;
+                    })
+                    .catch(error => {
+                        document.getElementById('shopDetailsContent').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Không thể tải thông tin shop
+                            </div>
+                        `;
+                    });
+            }
+
+            function closeShopDetailsModal() {
+                document.getElementById('shopDetailsModal').style.display = 'none';
+            }
+
+            function viewShopProducts(sellerId) {
+                window.location.href = '/admin/products?sellerId=' + sellerId;
+            }
+
+            function viewShopOrders(sellerId) {
+                window.location.href = '/admin/transactions?sellerId=' + sellerId;
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('shopDetailsModal').addEventListener('click', function(e) {
+                if (e.target === this) closeShopDetailsModal();
+            });
+        </script>
+    </th:block>
+</body>
+</html>
