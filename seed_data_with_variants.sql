@@ -124,40 +124,86 @@ CLOSE customer_cursor;
 DEALLOCATE customer_cursor;
 
 -- =============================================
--- 4. CATEGORIES
+-- =============================================
+-- 4. CATEGORIES (PHÂN CẤP)
 -- =============================================
 PRINT 'Inserting Categories...';
 
-IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Áo thun')
-    INSERT INTO category (name, description, created_at, updated_at)
-    VALUES (N'Áo thun', N'Áo thun nam nữ basic, form rộng, oversize', GETDATE(), GETDATE());
+-- Parent: Thời trang Nam
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Thời trang Nam')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Thời trang Nam', N'Tất cả sản phẩm dành cho nam giới', NULL, GETDATE(), GETDATE());
 
-IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Quần jean')
-    INSERT INTO category (name, description, created_at, updated_at)
-    VALUES (N'Quần jean', N'Quần jean nam nữ baggy, slim fit, skinny', GETDATE(), GETDATE());
+DECLARE @parentNam BIGINT = (SELECT id FROM category WHERE name = N'Thời trang Nam');
 
-IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Áo sơ mi')
-    INSERT INTO category (name, description, created_at, updated_at)
-    VALUES (N'Áo sơ mi', N'Áo sơ mi công sở, casual', GETDATE(), GETDATE());
+-- Parent: Thời trang Nữ
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Thời trang Nữ')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Thời trang Nữ', N'Tất cả sản phẩm dành cho nữ giới', NULL, GETDATE(), GETDATE());
+
+DECLARE @parentNu BIGINT = (SELECT id FROM category WHERE name = N'Thời trang Nữ');
+
+-- Children - Nam
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Áo thun nam')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Áo thun nam', N'Áo thun nam basic, oversize, form rộng', @parentNam, GETDATE(), GETDATE());
+
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Quần jean nam')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Quần jean nam', N'Quần jean nam slim fit, baggy, straight', @parentNam, GETDATE(), GETDATE());
+
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Áo sơ mi nam')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Áo sơ mi nam', N'Áo sơ mi nam công sở, casual', @parentNam, GETDATE(), GETDATE());
+
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Áo khoác nam')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Áo khoác nam', N'Áo khoác jacket, hoodie, blazer nam', @parentNam, GETDATE(), GETDATE());
+
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Quần tây nam')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Quần tây nam', N'Quần tây công sở, quần kaki nam', @parentNam, GETDATE(), GETDATE());
+
+-- Children - Nữ
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Áo thun nữ')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Áo thun nữ', N'Áo thun nữ basic, croptop, form rộng', @parentNu, GETDATE(), GETDATE());
+
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Quần jean nữ')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Quần jean nữ', N'Quần jean nữ skinny, bootcut, baggy', @parentNu, GETDATE(), GETDATE());
 
 IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Váy đầm')
-    INSERT INTO category (name, description, created_at, updated_at)
-    VALUES (N'Váy đầm', N'Váy đầm dự tiệc, công sở, dạo phố', GETDATE(), GETDATE());
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Váy đầm', N'Váy đầm dự tiệc, công sở, dạo phố', @parentNu, GETDATE(), GETDATE());
 
-IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Áo khoác')
-    INSERT INTO category (name, description, created_at, updated_at)
-    VALUES (N'Áo khoác', N'Áo khoác jacket, hoodie, blazer', GETDATE(), GETDATE());
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Áo sơ mi nữ')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Áo sơ mi nữ', N'Áo sơ mi nữ công sở, kiểu vintage', @parentNu, GETDATE(), GETDATE());
+
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Áo khoác nữ')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Áo khoác nữ', N'Áo khoác blazer, cardigan, jacket nữ', @parentNu, GETDATE(), GETDATE());
+
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Đầm dạ hội')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Đầm dạ hội', N'Đầm dạ hội sang trọng, đầm dự tiệc', @parentNu, GETDATE(), GETDATE());
+
+IF NOT EXISTS (SELECT 1 FROM category WHERE name = N'Chân váy')
+    INSERT INTO category (name, description, parent_id, created_at, updated_at)
+    VALUES (N'Chân váy', N'Chân váy ngắn, dài, xòe, bút chì', @parentNu, GETDATE(), GETDATE());
 
 -- =============================================
 -- 5. PRODUCTS (Không có price và quantity)
 -- =============================================
 PRINT 'Inserting Products...';
 
-DECLARE @catAoThun BIGINT = (SELECT id FROM category WHERE name = N'Áo thun');
-DECLARE @catQuanJean BIGINT = (SELECT id FROM category WHERE name = N'Quần jean');
-DECLARE @catAoSoMi BIGINT = (SELECT id FROM category WHERE name = N'Áo sơ mi');
+DECLARE @catAoThunNam BIGINT = (SELECT id FROM category WHERE name = N'Áo thun nam');
+DECLARE @catQuanJeanNam BIGINT = (SELECT id FROM category WHERE name = N'Quần jean nam');
+DECLARE @catAoSoMiNam BIGINT = (SELECT id FROM category WHERE name = N'Áo sơ mi nam');
+DECLARE @catAoThunNu BIGINT = (SELECT id FROM category WHERE name = N'Áo thun nữ');
+DECLARE @catQuanJeanNu BIGINT = (SELECT id FROM category WHERE name = N'Quần jean nữ');
 DECLARE @catVayDam BIGINT = (SELECT id FROM category WHERE name = N'Váy đầm');
-DECLARE @catAoKhoac BIGINT = (SELECT id FROM category WHERE name = N'Áo khoác');
 
 -- Product 1: Áo Thun Nam Basic
 IF NOT EXISTS (SELECT 1 FROM product WHERE name = N'Áo Thun Nam Basic Cotton')
@@ -171,7 +217,7 @@ IF NOT EXISTS (SELECT 1 FROM product WHERE name = N'Áo Thun Nam Basic Cotton')
         N'<table><tr><td>Chất liệu</td><td>Cotton 100%</td></tr><tr><td>Form dáng</td><td>Regular Fit</td></tr><tr><td>Xuất xứ</td><td>Việt Nam</td></tr></table>',
         N'Cotton 100%',
         1,
-        @catAoThun,
+        @catAoThunNam,
         @sellerId1,
         GETDATE(),
         GETDATE()
@@ -189,7 +235,7 @@ IF NOT EXISTS (SELECT 1 FROM product WHERE name = N'Áo Thun Unisex Oversize')
         N'<table><tr><td>Chất liệu</td><td>Cotton 2 chiều</td></tr><tr><td>Form</td><td>Oversize</td></tr></table>',
         N'Cotton 2 chiều',
         1,
-        @catAoThun,
+        @catAoThunNam,
         @sellerId2,
         GETDATE(),
         GETDATE()
@@ -207,7 +253,7 @@ IF NOT EXISTS (SELECT 1 FROM product WHERE name = N'Quần Jean Nam Slim Fit')
         N'<table><tr><td>Chất liệu</td><td>Denim cotton</td></tr><tr><td>Form</td><td>Slim Fit</td></tr></table>',
         N'Denim',
         1,
-        @catQuanJean,
+        @catQuanJeanNam,
         @sellerId1,
         GETDATE(),
         GETDATE()
@@ -225,13 +271,13 @@ IF NOT EXISTS (SELECT 1 FROM product WHERE name = N'Quần Jean Nữ Skinny')
         N'<table><tr><td>Chất liệu</td><td>Denim 4 chiều</td></tr><tr><td>Form</td><td>Skinny</td></tr></table>',
         N'Denim co giãn',
         1,
-        @catQuanJean,
+        @catQuanJeanNu,
         @sellerId2,
         GETDATE(),
         GETDATE()
     );
 
--- Product 5: Áo Sơ Mi
+-- Product 5: Áo Sơ Mi Nam
 IF NOT EXISTS (SELECT 1 FROM product WHERE name = N'Áo Sơ Mi Nam Trắng')
     INSERT INTO product (name, brand, gender, description, detail, specification, material, active, category_id, seller_id, created_at, updated_at)
     VALUES (
@@ -243,7 +289,7 @@ IF NOT EXISTS (SELECT 1 FROM product WHERE name = N'Áo Sơ Mi Nam Trắng')
         N'<table><tr><td>Chất liệu</td><td>Kate</td></tr><tr><td>Kiểu dáng</td><td>Công sở</td></tr></table>',
         N'Kate',
         1,
-        @catAoSoMi,
+        @catAoSoMiNam,
         @sellerId1,
         GETDATE(),
         GETDATE()

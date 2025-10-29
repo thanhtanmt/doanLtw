@@ -150,6 +150,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
+     * Tìm kiếm sản phẩm với nhiều categories
+     */
+    @Override
+    public Page<ProductDto> searchProductsByCategories(String name, List<Long> categoryIds, String brand, 
+                                                      String gender, int page, int size, 
+                                                      String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") 
+            ? Sort.by(sortBy).ascending() 
+            : Sort.by(sortBy).descending();
+        
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Product> products = productRepository.searchProductsByCategories(name, categoryIds, brand, gender, pageable);
+        
+        return products.map(this::convertToDto);
+    }
+
+    /**
      * Lấy sản phẩm có tồn kho
      */
     @Override

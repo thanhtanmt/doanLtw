@@ -69,7 +69,7 @@ public class SecurityConfig {
                     "/", "/home", "/products", "/products/**", "/product/**",
                     "/about-us", "/contact", "/policy", "/search",
                     // API endpoints - public access
-                    "/api/products/**"
+                    "/api/products/**", "/api/categories/**"
                 ).permitAll()
                 // Admin paths
                 .requestMatchers("/admin/**").hasRole("ADMIN")

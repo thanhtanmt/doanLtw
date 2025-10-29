@@ -50,6 +50,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                   @Param("gender") String gender,
                                   Pageable pageable);
     
+    // Tìm kiếm sản phẩm với nhiều categories
+    @Query("SELECT p FROM Product p WHERE " +
+           "(:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
+           "(:categoryIds IS NULL OR p.category.id IN :categoryIds) AND " +
+           "(:brand IS NULL OR p.brand = :brand) AND " +
+           "(:gender IS NULL OR p.gender = :gender) AND " +
+           "p.active = true")
+    Page<Product> searchProductsByCategories(@Param("name") String name,
+                                             @Param("categoryIds") List<Long> categoryIds,
+                                             @Param("brand") String brand,
+                                             @Param("gender") String gender,
+                                             Pageable pageable);
+    
     // Tìm sản phẩm có tồn kho
     @Query("SELECT p FROM Product p WHERE p.active = true AND " +
            "EXISTS (SELECT v FROM ProductVariant v WHERE v.product = p AND v.quantity > 0)")

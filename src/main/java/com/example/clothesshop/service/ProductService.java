@@ -65,6 +65,13 @@ public interface ProductService {
                                    String sortBy, String sortDir);
     
     /**
+     * Tìm kiếm sản phẩm với nhiều categories
+     */
+    Page<ProductDto> searchProductsByCategories(String name, List<Long> categoryIds, String brand, 
+                                               String gender, int page, int size, 
+                                               String sortBy, String sortDir);
+    
+    /**
      * Lấy sản phẩm có tồn kho
      */
     List<ProductDto> getProductsInStock();

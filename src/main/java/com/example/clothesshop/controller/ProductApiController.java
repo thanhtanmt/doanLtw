@@ -131,12 +131,12 @@ public class ProductApiController {
 
     /**
      * API tìm kiếm sản phẩm nâng cao với nhiều tiêu chí
-     * GET /api/products/advanced-search?name=áo&categoryId=1&brand=Nike&gender=Nam&page=0&size=10
+     * GET /api/products/advanced-search?name=áo&categoryIds=1,2,3&brand=Nike&gender=Nam&page=0&size=10
      */
     @GetMapping("/advanced-search")
     public ResponseEntity<Map<String, Object>> advancedSearch(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) List<Long> categoryIds,
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String gender,
             @RequestParam(defaultValue = "0") int page,
@@ -144,8 +144,8 @@ public class ProductApiController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
         try {
-            Page<ProductDto> productsPage = productService.searchProducts(
-                name, categoryId, brand, gender, page, size, sortBy, sortDir);
+            Page<ProductDto> productsPage = productService.searchProductsByCategories(
+                name, categoryIds, brand, gender, page, size, sortBy, sortDir);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -159,7 +159,7 @@ public class ProductApiController {
             // Thêm thông tin filter
             Map<String, Object> filters = new HashMap<>();
             if (name != null) filters.put("name", name);
-            if (categoryId != null) filters.put("categoryId", categoryId);
+            if (categoryIds != null && !categoryIds.isEmpty()) filters.put("categoryIds", categoryIds);
             if (brand != null) filters.put("brand", brand);
             if (gender != null) filters.put("gender", gender);
             response.put("filters", filters);

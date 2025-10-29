@@ -5,22 +5,499 @@
 <head>
     <title>Kết Quả Tìm Kiếm</title>
     <style>
-        .search-page { background: #f8f9fa; padding: 40px 0; }
-        .page-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 0; color: white; text-align: center; margin-bottom: 40px; }
-        .page-header h1 { font-size: 42px; font-weight: 700; }
-        .search-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .search-page {
+            background: #f8f9fa;
+            padding: 40px 0;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 0;
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .search-query {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .search-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .search-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .results-count {
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        .results-count strong {
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .product-badge.new {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        }
+
+        .product-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s;
+        }
+
+        .product-card:hover .product-actions {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .product-action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            transition: all 0.3s;
+        }
+
+        .product-action-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-category {
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            min-height: 48px;
+        }
+
+        .product-name a {
+            color: #2c3e50;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .product-name a:hover {
+            color: #667eea;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 14px;
+        }
+
+        .rating-count {
+            color: #95a5a6;
+            font-size: 13px;
+        }
+
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .price-current {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .price-old {
+            font-size: 16px;
+            color: #95a5a6;
+            text-decoration: line-through;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Loading & Empty States */
+        .loading-state, .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .loading-state i {
+            font-size: 48px;
+            color: #667eea;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #e0e0e0;
+        }
+
+        .empty-state p {
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 18px;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 40px;
+        }
+
+        .pagination button,
+        .pagination span {
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .pagination span:hover,
+        .pagination button:hover:not(:disabled) {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .pagination span.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
 <div layout:fragment="content">
     <div class="page-header">
         <h1>Kết Quả Tìm Kiếm</h1>
-        <p>Hiển thị kết quả cho: <strong th:text="${query}">"áo thun"</strong></p>
+        <p class="search-query">Hiển thị kết quả cho: <strong th:text="${query}">"áo thun"</strong></p>
     </div>
+
     <div class="search-container">
-        <!-- Product grid will go here -->
-        <p>Không tìm thấy sản phẩm nào phù hợp.</p>
+        <!-- Search Info Bar -->
+        <div class="search-info" id="searchInfo" style="display: none;">
+            <div class="results-count" id="resultsCount">Đang tải...</div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p style="margin-top: 20px; color: #7f8c8d;">Đang tìm kiếm sản phẩm...</p>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="products-grid" id="productsGrid" style="display: none;">
+            <!-- Products will be loaded here -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <i class="fas fa-search"></i>
+            <p>Không tìm thấy sản phẩm nào phù hợp với từ khóa "<span th:text="${query}"></span>"</p>
+            <p style="font-size: 14px; color: #95a5a6; margin-top: 10px;">Vui lòng thử lại với từ khóa khác</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination" style="display: none;">
+            <!-- Pagination will be rendered here -->
+        </div>
     </div>
 </div>
 </body>
 </html>
+
+<!-- Scripts Fragment -->
+<th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const searchQuery = /*[[${query}]]*/ '';
+        /*]]>*/
+
+        let currentPage = 0;
+        let totalPages = 0;
+
+        // Format price
+        function formatPrice(price) {
+            if (!price) return '0đ';
+            return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
+        }
+
+        // Generate stars HTML
+        function generateStars(rating) {
+            let html = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            for (let i = 0; i < fullStars; i++) {
+                html += '<i class="fas fa-star"></i>';
+            }
+            if (hasHalfStar) {
+                html += '<i class="fas fa-star-half-alt"></i>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                html += '<i class="far fa-star"></i>';
+            }
+            
+            return html;
+        }
+
+        // Search products
+        async function searchProducts() {
+            try {
+                document.getElementById('loadingState').style.display = 'block';
+                document.getElementById('productsGrid').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('searchInfo').style.display = 'none';
+                document.getElementById('pagination').style.display = 'none';
+
+                const response = await fetch(`http://localhost:8080/api/products/search?name=${encodeURIComponent(searchQuery)}`);
+                const result = await response.json();
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    renderProducts(result.data);
+                    updateResultsCount(result.data.length);
+                    document.getElementById('searchInfo').style.display = 'flex';
+                } else {
+                    showEmptyState();
+                }
+            } catch (error) {
+                console.error('Error searching products:', error);
+                showEmptyState();
+            }
+        }
+
+        // Render products
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            
+            products.forEach(product => {
+                const card = createProductCard(product);
+                grid.appendChild(card);
+            });
+            
+            document.getElementById('loadingState').style.display = 'none';
+            grid.style.display = 'grid';
+        }
+
+        // Create product card
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            
+            // Get primary image
+            let imageUrl = 'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=400';
+            if (product.images && product.images.length > 0) {
+                const primaryImage = product.images.find(img => img.isPrimary) || product.images[0];
+                imageUrl = primaryImage.url;
+            }
+            
+            // Badge
+            let badgeHTML = '';
+            if (product.minPrice && product.maxPrice && product.minPrice < product.maxPrice) {
+                const discount = Math.round(((product.maxPrice - product.minPrice) / product.maxPrice) * 100);
+                badgeHTML = `<span class="product-badge">-${discount}%</span>`;
+            } else if (product.hasStock) {
+                badgeHTML = '<span class="product-badge new">NEW</span>';
+            }
+            
+            // Price HTML
+            const priceHTML = product.minPrice === product.maxPrice
+                ? `<span class="price-current">${formatPrice(product.minPrice)}</span>`
+                : `
+                    <span class="price-current">${formatPrice(product.minPrice)}</span>
+                    <span class="price-old">${formatPrice(product.maxPrice)}</span>
+                `;
+            
+            card.innerHTML = `
+                <div class="product-image">
+                    ${badgeHTML}
+                    <img src="${imageUrl}" alt="${product.name}" onerror="this.src='https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=400'">
+                    <div class="product-actions">
+                        <button class="product-action-btn" title="Yêu thích">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <button class="product-action-btn" title="Xem nhanh" onclick="window.location.href='/product/${product.id}'">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">${product.categoryName || 'Sản phẩm'}</div>
+                    <h3 class="product-name">
+                        <a href="/product/${product.id}">${product.name}</a>
+                    </h3>
+                    <div class="product-rating">
+                        <span class="stars">${generateStars(product.averageRating || 0)}</span>
+                        <span class="rating-count">(${product.totalReviews || 0})</span>
+                    </div>
+                    <div class="product-price">
+                        ${priceHTML}
+                    </div>
+                    <button class="add-to-cart-btn" ${!product.hasStock ? 'disabled style="background: #95a5a6; cursor: not-allowed;"' : ''}>
+                        <i class="fas fa-shopping-cart"></i> ${product.hasStock ? 'THÊM VÀO GIỎ' : 'HẾT HÀNG'}
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Update results count
+        function updateResultsCount(count) {
+            document.getElementById('resultsCount').innerHTML = 
+                `Tìm thấy <strong>${count}</strong> sản phẩm`;
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('productsGrid').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('searchInfo').style.display = 'none';
+        }
+
+        // Load when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (searchQuery) {
+                searchProducts();
+            } else {
+                showEmptyState();
+            }
+        });
+    </script>
+</th:block>
