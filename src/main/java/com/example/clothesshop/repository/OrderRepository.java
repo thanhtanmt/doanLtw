@@ -44,8 +44,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     
     // Find orders containing products from a specific seller
     @Query("SELECT DISTINCT o FROM Order o " +
-           "JOIN o.items oi " +
-           "JOIN oi.product p " +
+           "JOIN o.orderDetails od " +
+           "JOIN od.variant v " +
+           "JOIN v.product p " +
            "WHERE p.seller = :seller " +
            "AND o.createdAt BETWEEN :startDate AND :endDate")
     List<Order> findOrdersBySellerAndDateRange(
@@ -56,8 +57,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     
     // Count orders with delivered status for a seller
     @Query("SELECT COUNT(DISTINCT o) FROM Order o " +
-           "JOIN o.items oi " +
-           "JOIN oi.product p " +
+           "JOIN o.orderDetails od " +
+           "JOIN od.variant v " +
+           "JOIN v.product p " +
            "WHERE p.seller = :seller " +
            "AND o.status = :status " +
            "AND o.createdAt BETWEEN :startDate AND :endDate")
@@ -69,9 +71,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     );
     
     // Calculate total revenue for a seller
-    @Query("SELECT COALESCE(SUM(oi.quantity * oi.unitPrice), 0) FROM Order o " +
-           "JOIN o.items oi " +
-           "JOIN oi.product p " +
+    @Query("SELECT COALESCE(SUM(od.quantity * od.unitPrice), 0) FROM Order o " +
+           "JOIN o.orderDetails od " +
+           "JOIN od.variant v " +
+           "JOIN v.product p " +
            "WHERE p.seller = :seller " +
            "AND o.status = :status " +
            "AND o.createdAt BETWEEN :startDate AND :endDate")

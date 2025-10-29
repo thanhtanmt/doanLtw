@@ -476,12 +476,67 @@ DEALLOCATE review_cursor;
 PRINT 'Inserting Vouchers...';
 
 IF NOT EXISTS (SELECT 1 FROM voucher WHERE code = 'WELCOME10')
-    INSERT INTO voucher (code, discount_percent, max_discount, expiry_date, active, type, created_by, created_at, updated_at)
-    VALUES ('WELCOME10', 10, 50000, DATEADD(month, 3, GETDATE()), 1, 'ADMIN', @adminId, GETDATE(), GETDATE());
+    INSERT INTO voucher (code, name, description, discount_type, discount_value, max_discount, min_order_value, 
+                        total_quantity, used_quantity, usage_limit, start_date, end_date, active, type, created_by, created_at, updated_at)
+    VALUES ('WELCOME10', 
+            N'Mã chào mừng thành viên mới', 
+            N'Giảm 10% cho đơn hàng đầu tiên, tối đa 50.000đ',
+            'PERCENTAGE', 
+            10, 
+            50000, 
+            0, 
+            100, 
+            0, 
+            1, 
+            CAST(GETDATE() AS DATE), 
+            DATEADD(month, 3, CAST(GETDATE() AS DATE)), 
+            1, 
+            'ADMIN', 
+            @adminId, 
+            GETDATE(), 
+            GETDATE());
 
 IF NOT EXISTS (SELECT 1 FROM voucher WHERE code = 'SUMMER20')
-    INSERT INTO voucher (code, discount_percent, max_discount, expiry_date, active, type, created_by, created_at, updated_at)
-    VALUES ('SUMMER20', 20, 100000, DATEADD(month, 2, GETDATE()), 1, 'ADMIN', @adminId, GETDATE(), GETDATE());
+    INSERT INTO voucher (code, name, description, discount_type, discount_value, max_discount, min_order_value, 
+                        total_quantity, used_quantity, usage_limit, start_date, end_date, active, type, created_by, created_at, updated_at)
+    VALUES ('SUMMER20', 
+            N'Khuyến mãi mùa hè', 
+            N'Giảm 20% cho tất cả đơn hàng, tối đa 100.000đ',
+            'PERCENTAGE', 
+            20, 
+            100000, 
+            200000, 
+            50, 
+            0, 
+            3, 
+            CAST(GETDATE() AS DATE), 
+            DATEADD(month, 2, CAST(GETDATE() AS DATE)), 
+            1, 
+            'ADMIN', 
+            @adminId, 
+            GETDATE(), 
+            GETDATE());
+
+IF NOT EXISTS (SELECT 1 FROM voucher WHERE code = 'FREESHIP50')
+    INSERT INTO voucher (code, name, description, discount_type, discount_value, max_discount, min_order_value, 
+                        total_quantity, used_quantity, usage_limit, start_date, end_date, active, type, created_by, created_at, updated_at)
+    VALUES ('FREESHIP50', 
+            N'Miễn phí vận chuyển', 
+            N'Giảm cố định 50.000đ phí ship cho đơn từ 500.000đ',
+            'FIXED_AMOUNT', 
+            50000, 
+            50000, 
+            500000, 
+            200, 
+            0, 
+            5, 
+            CAST(GETDATE() AS DATE), 
+            DATEADD(month, 6, CAST(GETDATE() AS DATE)), 
+            1, 
+            'ADMIN', 
+            @adminId, 
+            GETDATE(), 
+            GETDATE());
 
 -- =============================================
 -- 10. FAVORITES
@@ -548,26 +603,36 @@ PRINT '========================================';
 PRINT 'SEED DATA COMPLETED SUCCESSFULLY!';
 PRINT '========================================';
 PRINT 'Summary:';
-PRINT '- Users: ~22';
-PRINT '- Roles assigned';
-PRINT '- Categories: 5';
-PRINT '- Products: 5 (với nhiều variants)';
-PRINT '- Product Variants: ~30 (chỉ có Size)';
-PRINT '- Product Images: ~25';
-PRINT '- Reviews: 10';
-PRINT '- Vouchers: 2';
-PRINT '- Favorites: 20';
-PRINT '- Carts with Variants: 5';
+PRINT '- Users: ~22 (1 admin, 2 sellers, 2 shippers, 20 customers)';
+PRINT '- Roles: 4 (USER, ADMIN, SELLER, SHIPPER)';
+PRINT '- Categories: 14 hierarchical (2 parent + 12 children)';
+PRINT '  * Thời trang Nam → 5 children categories';
+PRINT '  * Thời trang Nữ → 7 children categories';
+PRINT '- Products: 5 (without price/quantity in product table)';
+PRINT '- Product Variants: ~30 (SIZE only, no color)';
+PRINT '- Product Images: ~25 (5 images per product)';
+PRINT '- Reviews: 10 (for first product)';
+PRINT '- Vouchers: 3 (WELCOME10, SUMMER20, FREESHIP50)';
+PRINT '- Favorites: 20 random';
+PRINT '- Carts: 5 with cart items (using variants)';
 PRINT '========================================';
 PRINT 'Login credentials (password: 123456):';
 PRINT '- Admin: admin / 123456';
-PRINT '- Seller: fashionstore / 123456';
+PRINT '- Seller 1: fashionstore / 123456';
+PRINT '- Seller 2: trendyshop / 123456';
+PRINT '- Shipper 1: shipper_anhtuan / 123456';
+PRINT '- Shipper 2: shipper_thuylinh / 123456';
 PRINT '- Customer: nguyenvana / 123456';
+PRINT '- Customer: tranthib / 123456';
+PRINT '- Customers: customer3 to customer20 / 123456';
 PRINT '========================================';
-PRINT 'NOTES:';
-PRINT '- Products NO price/quantity (in variants)';
-PRINT '- Variants have ONLY SIZE (no color)';
+PRINT 'IMPORTANT NOTES:';
+PRINT '- Products have NO price/quantity (stored in variants)';
+PRINT '- Variants have ONLY SIZE field (no color)';
 PRINT '- SKU format: [ProductCode]-[Size]';
-PRINT '- CartItem & OrderItem reference variant_id';
+PRINT '- CartItem references variant_id';
+PRINT '- OrderDetail references variant_id';
+PRINT '- OrderItem entity REMOVED (use OrderDetail only)';
+PRINT '- Categories are hierarchical (parent-child structure)';
 PRINT '========================================';
 GO
