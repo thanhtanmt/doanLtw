@@ -41,9 +41,6 @@ public class ProductVariant extends BaseEntity {
     @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
 
-    @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems = new ArrayList<>();
-
     // Helper methods
     public boolean isInStock() {
         return available && quantity > 0;

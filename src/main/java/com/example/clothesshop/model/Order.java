@@ -72,9 +72,6 @@ public class Order extends BaseEntity {
     
     @Column(name = "delivery_notes", columnDefinition = "NVARCHAR(MAX)")
     private String deliveryNotes;
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> items = new ArrayList<>();
     
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
