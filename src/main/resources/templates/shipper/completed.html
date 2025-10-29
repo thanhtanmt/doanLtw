@@ -89,7 +89,9 @@
                     const color = isDelivered ? '#22c55e' : '#ef4444';
                     const statusText = isDelivered ? 'Giao thành công' : 'Giao thất bại';
                     const reason = !isDelivered && o.failureReason ? ` (Lý do: ${o.failureReason})` : '';
-                    const timeLabel = o.deliveredAt ? new Date(o.deliveredAt).toLocaleString('vi-VN') : '';
+                    const timeLabel = (o.deliveredAt || o.createdAt)
+                    ? new Date(o.deliveredAt || o.createdAt).toLocaleString('vi-VN')
+                    : '';
                     const earning = calcEarning(o.totalAmount);
                     return `
                     <div class="shipment-item scale-in" style="animation-delay: ${(idx+1)*0.1}s;">

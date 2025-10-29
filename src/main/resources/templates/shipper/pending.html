@@ -18,13 +18,35 @@
 				<div class="filter-controls">
 					<input type="text" id="searchInput"
 						placeholder="Tìm theo Mã ĐH, Địa chỉ, SĐT..."
-						onkeyup="searchOrders()"> <select name="area"
-						id="areaFilter" onchange="filterOrders()">
+						onkeyup="searchOrders()"> <select id="areaFilter"
+						onchange="filterOrders()">
 						<option value="">Tất cả khu vực</option>
-						<option value="quận 1">Quận 1</option>
-						<option value="quận 7">Quận 7</option>
-						<option value="tân bình">Quận Tân Bình</option>
+						<optgroup label="TP. Hồ Chí Minh">
+							<option value="quan 1">Quận 1</option>
+							<option value="quan 3">Quận 3</option>
+							<option value="quan 4">Quận 4</option>
+							<option value="quan 5">Quận 5</option>
+							<option value="quan 6">Quận 6</option>
+							<option value="quan 7">Quận 7</option>
+							<option value="quan 8">Quận 8</option>
+							<option value="quan 10">Quận 10</option>
+							<option value="quan 11">Quận 11</option>
+							<option value="quan 12">Quận 12</option>
+							<option value="binh thanh">Quận Bình Thạnh</option>
+							<option value="go vap">Quận Gò Vấp</option>
+							<option value="phu nhuan">Quận Phú Nhuận</option>
+							<option value="tan binh">Quận Tân Bình</option>
+							<option value="tan phu">Quận Tân Phú</option>
+							<option value="binh tan">Quận Bình Tân</option>
+							<option value="thu duc">Thành phố Thủ Đức</option>
+							<option value="binh chanh">Huyện Bình Chánh</option>
+							<option value="hoc mon">Huyện Hóc Môn</option>
+							<option value="cu chi">Huyện Củ Chi</option>
+							<option value="nha be">Huyện Nhà Bè</option>
+							<option value="can gio">Huyện Cần Giờ</option>
+						</optgroup>
 					</select>
+
 				</div>
 			</div>
 
@@ -452,17 +474,34 @@
         function filterOrders() {
             const areaFilter = normalizeText(document.getElementById('areaFilter').value);
             let filtered = [...allOrders];
-            
+
             if (areaFilter) {
-                filtered = filtered.filter(order => 
-                    normalizeText(order.shippingAddress).includes(areaFilter)
-                );
+                filtered = filtered.filter(order => {
+                    const addr = normalizeText(order.shippingAddress);
+
+                    // Xử lý trường hợp lọc theo số quận
+                    const matchNum = areaFilter.match(/\d+/);
+                    if (matchNum) {
+                        const num = matchNum[0];
+                        // Tạo regex kiểm tra đúng “quận 1”, “q.1”, “q1”, không dính “17”, “21”, ...
+                        const regex = new RegExp(`\\b(q\\.?\\s*${num}|quan\\s*${num})\\b`, 'i');
+                        return regex.test(addr);
+                    } 
+                    else {
+                        // Xử lý quận tên (vd: “tân bình”, “phú nhuận”)
+                        const text = areaFilter.replace(/quan\s*/g, '').trim();
+                        // regex khớp “quận tân bình” hoặc “q.tân bình”
+                        const regex = new RegExp(`\\b(q\\.?\\s*${text}|quan\\s*${text}|${text})\\b`, 'i');
+                        return regex.test(addr);
+                    }
+                });
             }
-            
+
             filteredOrders = filtered;
             currentPage = 1;
             displayOrders(filteredOrders);
         }
+
 
         function formatCurrency(amount) {
             if (!amount) return '0đ';
