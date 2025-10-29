@@ -67,7 +67,9 @@ public class SecurityConfig {
                     "/seller/register",
                     // Public pages - không cần đăng nhập
                     "/", "/home", "/products", "/products/**", "/product/**",
-                    "/about-us", "/contact", "/policy", "/search"
+                    "/about-us", "/contact", "/policy", "/search",
+                    // API endpoints - public access
+                    "/api/products/**"
                 ).permitAll()
                 // Admin paths
                 .requestMatchers("/admin/**").hasRole("ADMIN")

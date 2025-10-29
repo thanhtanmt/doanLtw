@@ -671,16 +671,25 @@
 <body>
     <div layout:fragment="content">
         <div class="product-detail-page">
-            <!-- Breadcrumb -->
-            <div class="breadcrumb">
-                <a th:href="@{/}"><i class="fas fa-home"></i> Trang chủ</a>
-                <span>/</span>
-                <a th:href="@{/products}">Sản phẩm</a>
-                <span>/</span>
-                <span>Áo Thun Cotton Cao Cấp</span>
+            <!-- Loading State -->
+            <div id="loadingState" style="text-align: center; padding: 100px 0;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #667eea;"></i>
+                <p style="margin-top: 20px; color: #7f8c8d;">Đang tải thông tin sản phẩm...</p>
             </div>
 
-            <div class="product-detail-container">
+            <!-- Product Container (will be populated by JavaScript) -->
+            <div id="productContainer" style="display: none;"></div>
+            
+            <!-- Error State -->
+            <div id="errorState" style="display: none; text-align: center; padding: 100px 0;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #e74c3c;"></i>
+                <p style="margin-top: 20px; color: #7f8c8d;">Không tìm thấy sản phẩm!</p>
+                <a href="/" class="btn" style="margin-top: 20px; display: inline-block; background: #667eea; color: white; padding: 12px 30px; border-radius: 25px; text-decoration: none;">
+                    <i class="fas fa-home"></i> Về trang chủ
+                </a>
+            </div>
+        </div>
+    </div>
                 <!-- Product Main -->
                 <div class="product-main">
                     <!-- Gallery -->
@@ -1035,28 +1044,36 @@
 
         // Quantity controls
         const quantityInput = document.getElementById('quantityInput');
-        document.getElementById('decreaseBtn').addEventListener('click', () => {
-            if (quantityInput.value > 1) quantityInput.value--;
-        });
-        document.getElementById('increaseBtn').addEventListener('click', () => {
-            quantityInput.value++;
-        });
+        if (quantityInput) {
+            document.getElementById('decreaseBtn')?.addEventListener('click', () => {
+                if (quantityInput.value > 1) quantityInput.value--;
+            });
+            document.getElementById('increaseBtn')?.addEventListener('click', () => {
+                quantityInput.value++;
+            });
+        }
 
         // Wishlist toggle
-        document.querySelector('.btn-wishlist').addEventListener('click', function() {
-            this.classList.toggle('active');
-            const icon = this.querySelector('i');
-            icon.classList.toggle('far');
-            icon.classList.toggle('fas');
-        });
+        const wishlistBtn = document.querySelector('.btn-wishlist');
+        if (wishlistBtn) {
+            wishlistBtn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const icon = this.querySelector('i');
+                icon.classList.toggle('far');
+                icon.classList.toggle('fas');
+            });
+        }
 
         // Add to cart
-        document.querySelector('.btn-add-cart').addEventListener('click', function() {
-            this.innerHTML = '<i class="fas fa-check"></i> ĐÃ THÊM VÀO GIỎ';
-            setTimeout(() => {
-                this.innerHTML = '<i class="fas fa-shopping-cart"></i> THÊM VÀO GIỎ HÀNG';
-            }, 2000);
-        });
+        const addCartBtn = document.querySelector('.btn-add-cart');
+        if (addCartBtn) {
+            addCartBtn.addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-check"></i> ĐÃ THÊM VÀO GIỎ';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-shopping-cart"></i> THÊM VÀO GIỎ HÀNG';
+                }, 2000);
+            });
+        }
 
         // Tabs
         document.querySelectorAll('.tab-button').forEach(button => {
@@ -1073,3 +1090,557 @@
     </script>
 </body>
 </html>
+
+<!-- Scripts Fragment -->
+<th:block layout:fragment="scripts">
+    <script>
+        // Get product ID from URL
+        function getProductIdFromUrl() {
+            const path = window.location.pathname;
+            const matches = path.match(/\/product\/(\d+)/);
+            return matches ? matches[1] : null;
+        }
+
+        // Format price
+        function formatPrice(price) {
+            if (!price) return '0đ';
+            return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
+        }
+
+        // Generate stars HTML
+        function generateStars(rating) {
+            let html = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            for (let i = 0; i < fullStars; i++) {
+                html += '<i class="fas fa-star"></i>';
+            }
+            if (hasHalfStar) {
+                html += '<i class="fas fa-star-half-alt"></i>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                html += '<i class="far fa-star"></i>';
+            }
+            
+            return html;
+        }
+
+        // Load product data from API
+        async function loadProductDetail() {
+            const productId = getProductIdFromUrl();
+            
+            if (!productId) {
+                showError();
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/products/${productId}`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    renderProductDetail(data.data);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Error loading product:', error);
+                showError();
+            }
+        }
+
+        // Render product detail
+        function renderProductDetail(product) {
+            const container = document.getElementById('productContainer');
+            
+            // Get primary image
+            let primaryImage = 'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=800';
+            if (product.images && product.images.length > 0) {
+                const primary = product.images.find(img => img.isPrimary) || product.images[0];
+                primaryImage = primary.url;
+            }
+
+            // Calculate discount percentage
+            let discountBadge = '';
+            let discountPercent = '';
+            if (product.minPrice && product.maxPrice && product.minPrice < product.maxPrice) {
+                const discount = Math.round(((product.maxPrice - product.minPrice) / product.maxPrice) * 100);
+                discountBadge = `<span class="image-badge">-${discount}%</span>`;
+                discountPercent = `<span class="discount-badge">-${discount}%</span>`;
+            } else if (product.hasStock) {
+                discountBadge = '<span class="image-badge new">NEW</span>';
+            }
+
+            // Generate thumbnails
+            let thumbnailsHTML = '';
+            if (product.images && product.images.length > 0) {
+                thumbnailsHTML = product.images.map((img, index) => `
+                    <div class="thumbnail ${index === 0 ? 'active' : ''}">
+                        <img src="${img.url}" alt="Thumb ${index + 1}">
+                    </div>
+                `).join('');
+            }
+
+            // Generate variants (colors and sizes)
+            let colorsHTML = '';
+            let sizesHTML = '';
+            if (product.variants && product.variants.length > 0) {
+                const uniqueColors = [...new Set(product.variants.map(v => v.color))];
+                const uniqueSizes = [...new Set(product.variants.map(v => v.size))];
+
+                colorsHTML = uniqueColors.map((color, index) => {
+                    const colorHex = getColorHex(color);
+                    return `<div class="color-option ${index === 0 ? 'active' : ''}" style="background: ${colorHex};" data-color="${color}"></div>`;
+                }).join('');
+
+                sizesHTML = uniqueSizes.map((size, index) => {
+                    const variant = product.variants.find(v => v.size === size);
+                    const outOfStock = !variant || variant.quantity <= 0;
+                    return `<div class="size-option ${index === 0 && !outOfStock ? 'active' : ''} ${outOfStock ? 'out-of-stock' : ''}" data-size="${size}">${size}</div>`;
+                }).join('');
+            }
+
+            // Price HTML
+            const priceHTML = product.minPrice === product.maxPrice
+                ? `<span class="current-price">${formatPrice(product.minPrice)}</span>`
+                : `
+                    <span class="current-price">${formatPrice(product.minPrice)}</span>
+                    <span class="old-price">${formatPrice(product.maxPrice)}</span>
+                    ${discountPercent}
+                `;
+
+            // Generate HTML
+            const html = `
+                <!-- Breadcrumb -->
+                <div class="breadcrumb">
+                    <a href="/"><i class="fas fa-home"></i> Trang chủ</a>
+                    <span>/</span>
+                    <a href="/products">Sản phẩm</a>
+                    <span>/</span>
+                    <span>${product.name}</span>
+                </div>
+
+                <div class="product-detail-container">
+                    <!-- Product Main -->
+                    <div class="product-main">
+                        <!-- Gallery -->
+                        <div class="product-gallery">
+                            <div class="main-image">
+                                ${discountBadge}
+                                <img src="${primaryImage}" alt="${product.name}" id="mainImage">
+                            </div>
+                            <div class="thumbnail-images">
+                                ${thumbnailsHTML}
+                            </div>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="product-info">
+                            <div class="product-category">${product.categoryName || 'SẢN PHẨM'}</div>
+                            <h1 class="product-title">${product.name}</h1>
+
+                            <div class="product-rating">
+                                <div class="rating-stars">
+                                    <span class="stars">${generateStars(product.averageRating || 0)}</span>
+                                    <span class="rating-number">${(product.averageRating || 0).toFixed(1)}</span>
+                                </div>
+                                <span class="rating-count">(${product.totalReviews || 0} đánh giá)</span>
+                                <span style="color: ${product.hasStock ? '#2ecc71' : '#e74c3c'}; font-weight: 600;">
+                                    <i class="fas ${product.hasStock ? 'fa-check-circle' : 'fa-times-circle'}"></i> 
+                                    ${product.hasStock ? 'Còn hàng' : 'Hết hàng'}
+                                </span>
+                            </div>
+
+                            <div class="product-price">
+                                ${priceHTML}
+                            </div>
+
+                            <p class="product-description">
+                                ${product.description || 'Sản phẩm chất lượng cao, thiết kế hiện đại, phù hợp cho mọi lứa tuổi.'}
+                            </p>
+
+                            <!-- Options -->
+                            <div class="product-options">
+                                ${colorsHTML ? `
+                                <div class="option-group">
+                                    <label class="option-label">Màu sắc: <span style="color: #667eea;" id="selectedColor">Chọn màu</span></label>
+                                    <div class="color-options">
+                                        ${colorsHTML}
+                                    </div>
+                                </div>
+                                ` : ''}
+
+                                ${sizesHTML ? `
+                                <div class="option-group">
+                                    <label class="option-label">Kích thước: <span style="color: #667eea;" id="selectedSize">Chọn size</span></label>
+                                    <div class="size-options">
+                                        ${sizesHTML}
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
+
+                            <!-- Quantity -->
+                            <div class="quantity-selector">
+                                <span class="quantity-label">Số lượng:</span>
+                                <div class="quantity-controls">
+                                    <button class="quantity-btn" id="decreaseBtn">−</button>
+                                    <input type="number" class="quantity-input" value="1" min="1" id="quantityInput">
+                                    <button class="quantity-btn" id="increaseBtn">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="product-actions">
+                                <button class="btn-add-cart" ${!product.hasStock ? 'disabled style="background: #95a5a6; cursor: not-allowed;"' : ''}>
+                                    <i class="fas fa-shopping-cart"></i>
+                                    ${product.hasStock ? 'THÊM VÀO GIỎ HÀNG' : 'HẾT HÀNG'}
+                                </button>
+                                <button class="btn-wishlist">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+
+                            <!-- Meta -->
+                            <div class="product-meta">
+                                <div class="meta-item">
+                                    <span class="meta-label">SKU:</span>
+                                    <span class="meta-value">${product.sku || 'N/A'}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">Danh mục:</span>
+                                    <span class="meta-value">${product.categoryName || 'N/A'}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">Thương hiệu:</span>
+                                    <span class="meta-value">${product.brand || 'Fashion Store'}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">Tình trạng:</span>
+                                    <span class="meta-value">${product.hasStock ? 'Còn hàng' : 'Hết hàng'}</span>
+                                </div>
+                            </div>
+
+                            <!-- Features -->
+                            <div class="product-features">
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-shipping-fast"></i>
+                                    </div>
+                                    <span class="feature-text">Giao hàng miễn phí</span>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-undo-alt"></i>
+                                    </div>
+                                    <span class="feature-text">Đổi trả trong 7 ngày</span>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-certificate"></i>
+                                    </div>
+                                    <span class="feature-text">Hàng chính hãng 100%</span>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-headset"></i>
+                                    </div>
+                                    <span class="feature-text">Hỗ trợ 24/7</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="product-tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="description">Mô tả</button>
+                            <button class="tab-button" data-tab="specifications">Thông số</button>
+                            <button class="tab-button" data-tab="reviews">Đánh giá (${product.totalReviews || 0})</button>
+                        </div>
+
+                        <div class="tab-content active" id="description">
+                            <h3 style="margin-bottom: 20px; color: #2c3e50;">Mô tả sản phẩm</h3>
+                            <div style="line-height: 1.8; color: #555;">
+                                ${product.description || 'Sản phẩm chất lượng cao từ Fashion Store với chất liệu tốt nhất, thiết kế hiện đại và phong cách thời trang.'}
+                            </div>
+                        </div>
+
+                        <div class="tab-content" id="specifications">
+                            <h3 style="margin-bottom: 20px; color: #2c3e50;">Thông số kỹ thuật</h3>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid #e0e0e0;">
+                                        <td style="padding: 15px; font-weight: 600; color: #2c3e50; width: 200px;">Mã sản phẩm</td>
+                                        <td style="padding: 15px; color: #555;">${product.sku || 'N/A'}</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #e0e0e0; background: #f8f9fa;">
+                                        <td style="padding: 15px; font-weight: 600; color: #2c3e50;">Danh mục</td>
+                                        <td style="padding: 15px; color: #555;">${product.categoryName || 'N/A'}</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #e0e0e0;">
+                                        <td style="padding: 15px; font-weight: 600; color: #2c3e50;">Thương hiệu</td>
+                                        <td style="padding: 15px; color: #555;">${product.brand || 'Fashion Store'}</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #e0e0e0; background: #f8f9fa;">
+                                        <td style="padding: 15px; font-weight: 600; color: #2c3e50;">Xuất xứ</td>
+                                        <td style="padding: 15px; color: #555;">Việt Nam</td>
+                                    </tr>
+                                    ${product.variants && product.variants.length > 0 ? `
+                                    <tr style="border-bottom: 1px solid #e0e0e0;">
+                                        <td style="padding: 15px; font-weight: 600; color: #2c3e50;">Màu sắc</td>
+                                        <td style="padding: 15px; color: #555;">${[...new Set(product.variants.map(v => v.color))].join(', ')}</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #e0e0e0; background: #f8f9fa;">
+                                        <td style="padding: 15px; font-weight: 600; color: #2c3e50;">Kích thước</td>
+                                        <td style="padding: 15px; color: #555;">${[...new Set(product.variants.map(v => v.size))].join(', ')}</td>
+                                    </tr>
+                                    ` : ''}
+                                    <tr style="border-bottom: 1px solid #e0e0e0;">
+                                        <td style="padding: 15px; font-weight: 600; color: #2c3e50;">Tình trạng</td>
+                                        <td style="padding: 15px; color: ${product.hasStock ? '#2ecc71' : '#e74c3c'}; font-weight: 600;">
+                                            ${product.hasStock ? '✓ Còn hàng' : '✗ Hết hàng'}
+                                        </td>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <td style="padding: 15px; font-weight: 600; color: #2c3e50;">Chất liệu</td>
+                                        <td style="padding: 15px; color: #555;">Cotton cao cấp, thoáng mát</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="tab-content" id="reviews">
+                            <h3 style="margin-bottom: 30px; color: #2c3e50;">Đánh giá từ khách hàng</h3>
+                            
+                            ${product.totalReviews > 0 ? `
+                            <!-- Reviews Summary -->
+                            <div style="display: grid; grid-template-columns: 250px 1fr; gap: 40px; margin-bottom: 40px; padding-bottom: 40px; border-bottom: 2px solid #f0f0f0;">
+                                <div style="text-align: center; background: #f8f9fa; padding: 30px; border-radius: 15px;">
+                                    <div style="font-size: 64px; font-weight: 700; color: #667eea; line-height: 1;">
+                                        ${(product.averageRating || 0).toFixed(1)}
+                                    </div>
+                                    <div style="color: #f39c12; font-size: 24px; margin: 15px 0;">
+                                        ${generateStars(product.averageRating || 0)}
+                                    </div>
+                                    <div style="color: #7f8c8d; font-size: 14px;">
+                                        ${product.totalReviews} đánh giá
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center;">
+                                    ${generateRatingBars(product.totalReviews)}
+                                </div>
+                            </div>
+                            
+                            <!-- Sample Reviews -->
+                            <div style="display: flex; flex-direction: column; gap: 20px;">
+                                ${generateSampleReviews(product.averageRating)}
+                            </div>
+                            ` : `
+                            <div style="text-align: center; padding: 60px 0;">
+                                <i class="fas fa-comment-slash" style="font-size: 64px; color: #e0e0e0; margin-bottom: 20px;"></i>
+                                <p style="color: #7f8c8d; font-size: 16px;">Chưa có đánh giá nào cho sản phẩm này.</p>
+                                <p style="color: #95a5a6; font-size: 14px; margin-top: 10px;">Hãy là người đầu tiên đánh giá sản phẩm!</p>
+                            </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+            document.getElementById('loadingState').style.display = 'none';
+            container.style.display = 'block';
+
+            // Re-attach event listeners
+            attachEventListeners();
+        }
+
+        // Get color hex from color name
+        function getColorHex(colorName) {
+            const colors = {
+                'Đen': '#000000',
+                'Trắng': '#FFFFFF',
+                'Xanh': '#1e3a8a',
+                'Đỏ': '#dc2626',
+                'Xanh lá': '#16a34a',
+                'Vàng': '#facc15',
+                'Hồng': '#ec4899',
+                'Xám': '#6b7280',
+                'Nâu': '#92400e'
+            };
+            return colors[colorName] || '#667eea';
+        }
+
+        // Generate rating bars
+        function generateRatingBars(totalReviews) {
+            // Simulate rating distribution
+            const distribution = [
+                { stars: 5, percent: 70 },
+                { stars: 4, percent: 20 },
+                { stars: 3, percent: 6 },
+                { stars: 2, percent: 3 },
+                { stars: 1, percent: 1 }
+            ];
+
+            return distribution.map(item => {
+                const count = Math.round((totalReviews * item.percent) / 100);
+                return `
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span style="min-width: 80px; font-size: 14px; color: #7f8c8d;">
+                            ${item.stars} <i class="fas fa-star" style="color: #f39c12;"></i>
+                        </span>
+                        <div style="flex: 1; height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden;">
+                            <div style="height: 100%; width: ${item.percent}%; background: linear-gradient(90deg, #f39c12, #f1c40f); transition: width 0.5s;"></div>
+                        </div>
+                        <span style="min-width: 50px; text-align: right; font-size: 14px; color: #7f8c8d; font-weight: 600;">
+                            ${count}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Generate sample reviews
+        function generateSampleReviews(averageRating) {
+            const reviews = [
+                {
+                    name: 'Nguyễn Văn A',
+                    avatar: 'N',
+                    rating: 5,
+                    date: '15/10/2025',
+                    content: 'Sản phẩm rất đẹp, chất liệu tốt, mặc rất thoải mái. Giao hàng nhanh, đóng gói cẩn thận. Mình rất hài lòng và sẽ ủng hộ shop tiếp!'
+                },
+                {
+                    name: 'Trần Thị B',
+                    avatar: 'T',
+                    rating: 4,
+                    date: '12/10/2025',
+                    content: 'Chất lượng tốt, giá cả hợp lý. Mình mua size M vừa vặn. Màu sắc giống như hình. Recommend!'
+                },
+                {
+                    name: 'Lê Văn C',
+                    avatar: 'L',
+                    rating: 5,
+                    date: '08/10/2025',
+                    content: 'Shop giao hàng nhanh, sản phẩm đẹp như mô tả. Đã mua nhiều lần ở shop, chất lượng luôn ổn định. 5 sao!'
+                }
+            ];
+
+            return reviews.map(review => `
+                <div style="padding: 30px; border: 2px solid #f0f0f0; border-radius: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 20px;">
+                                ${review.avatar}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #2c3e50; margin-bottom: 3px;">${review.name}</div>
+                                <div style="color: #95a5a6; font-size: 13px;">${review.date}</div>
+                            </div>
+                        </div>
+                        <div style="color: #f39c12; font-size: 16px;">
+                            ${generateStars(review.rating)}
+                        </div>
+                    </div>
+                    <div style="color: #555; line-height: 1.8;">
+                        ${review.content}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Attach event listeners
+        function attachEventListeners() {
+            // Image gallery
+            document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+                thumb.addEventListener('click', function() {
+                    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    const img = this.querySelector('img').src;
+                    document.getElementById('mainImage').src = img;
+                });
+            });
+
+            // Color selection
+            document.querySelectorAll('.color-option').forEach(color => {
+                color.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    const colorName = this.getAttribute('data-color');
+                    document.getElementById('selectedColor').textContent = colorName;
+                });
+            });
+
+            // Size selection
+            document.querySelectorAll('.size-option:not(.out-of-stock)').forEach(size => {
+                size.addEventListener('click', function() {
+                    document.querySelectorAll('.size-option').forEach(s => s.classList.remove('active'));
+                    this.classList.add('active');
+                    const sizeName = this.getAttribute('data-size');
+                    document.getElementById('selectedSize').textContent = sizeName;
+                });
+            });
+
+            // Quantity controls
+            const quantityInput = document.getElementById('quantityInput');
+            if (quantityInput) {
+                document.getElementById('decreaseBtn')?.addEventListener('click', () => {
+                    if (quantityInput.value > 1) quantityInput.value--;
+                });
+                document.getElementById('increaseBtn')?.addEventListener('click', () => {
+                    quantityInput.value++;
+                });
+            }
+
+            // Wishlist toggle
+            const wishlistBtn = document.querySelector('.btn-wishlist');
+            if (wishlistBtn) {
+                wishlistBtn.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const icon = this.querySelector('i');
+                    icon.classList.toggle('far');
+                    icon.classList.toggle('fas');
+                });
+            }
+
+            // Add to cart
+            const addCartBtn = document.querySelector('.btn-add-cart');
+            if (addCartBtn && !addCartBtn.disabled) {
+                addCartBtn.addEventListener('click', function() {
+                    this.innerHTML = '<i class="fas fa-check"></i> ĐÃ THÊM VÀO GIỎ';
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-shopping-cart"></i> THÊM VÀO GIỎ HÀNG';
+                    }, 2000);
+                });
+            }
+
+            // Tabs
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    
+                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(tabName).classList.add('active');
+                });
+            });
+        }
+
+        // Show error
+        function showError() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+        }
+
+        // Load product when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProductDetail();
+        });
+    </script>
+</th:block>
