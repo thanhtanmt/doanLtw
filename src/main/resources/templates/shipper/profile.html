@@ -1,40 +1,185 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/shipper}">
 <head>
     <title>Hồ sơ Shipper</title>
+    <style>
+        /* Purple theme for left menu */
+        .profile-left .list-group-item { 
+            border: 0; 
+            border-radius: 12px; 
+            margin-bottom: 8px; 
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .profile-left .list-group-item i { 
+            width: 18px; 
+            text-align: center; 
+            margin-right: 8px; 
+            color: #6366f1; 
+        }
+        .profile-left .list-group-item.active,
+        .profile-left .list-group-item:hover { 
+            background: linear-gradient(135deg, #4f46e5 0%, #5b21b6 100%); 
+            color: #fff; 
+        }
+        .profile-left .list-group-item.active i, 
+        .profile-left .list-group-item:hover i { 
+            color: #fff; 
+        }
+        .profile-left .logout-link { 
+            background: #f1f5f9; 
+            color: #5b21b6; 
+            font-weight: 600; 
+        }
+        .profile-left .logout-link:hover { 
+            background: #e9d5ff; 
+            color: #4f46e5; 
+        }
+        /* Profile sections */
+        .profile-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+        .profile-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
 <div layout:fragment="content">
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar (Profile Menu, always fixed layout) -->
+            <!-- Sidebar (Profile Menu, purple themed) -->
             <div class="col-12 col-md-4 col-lg-3 mb-3">
-                <div class="content-box">
+                <div class="content-box" style="padding:20px">
                     <div class="d-flex align-items-center mb-3">
-                        <img id="avatarImg" th:src="@{/images/default-avatar.png}" alt="Avatar" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;">
+                        <img id="avatarImg" src="https://via.placeholder.com/64" alt="Avatar" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;" onerror="this.src='https://via.placeholder.com/64'">
                         <div class="ms-3">
-                            <div class="fw-semibold" id="displayName">Shipper</div>
-                            <div class="text-muted small" id="displayEmail">email@example.com</div>
+                            <div class="fw-semibold" id="displayName" sec:authentication="name">Shipper</div>
+                            <div class="text-muted small" id="displayEmail">Tài khoản của bạn</div>
                         </div>
                     </div>
-                     <div class="list-group" id="profileMenu">
-                         <a class="list-group-item list-group-item-action active" href="#" data-src="/shipper/partial/profile-info">Thông tin tài khoản</a>
-                         <a class="list-group-item list-group-item-action" href="#" data-src="/shipper/partial/security">Bảo mật & Đăng nhập</a>
-                         <a class="list-group-item list-group-item-action" href="#" data-src="/shipper/partial/orders">Lịch sử đơn hàng</a>
-                         <a class="list-group-item list-group-item-action" href="#" data-src="/shipper/partial/feedback">Đánh giá và phản hồi</a>
-                         <a class="list-group-item list-group-item-action" href="#" data-src="/shipper/partial/policy">Chính sách & FAQ</a>
-                         <a class="list-group-item list-group-item-action" th:href="@{/logout}">Đăng xuất</a>
-                     </div>
+                    <div class="list-group profile-left" id="profileMenu">
+                        <a class="list-group-item list-group-item-action active" href="#" data-section="profile-info">
+                            <i class="fas fa-id-card"></i> Thông tin tài khoản
+                        </a>
+                        <a class="list-group-item list-group-item-action" href="#" data-section="security">
+                            <i class="fas fa-shield-alt"></i> Bảo mật & Đăng nhập
+                        </a>
+                        <a class="list-group-item list-group-item-action" href="#" data-section="policy">
+                            <i class="fas fa-file-alt"></i> Chính sách & FAQ
+                        </a>
+                    </div>
                 </div>
             </div>
-             <!-- Main content area: iframe to load section pages -->
-             <div class="col-12 col-md-8 col-lg-9">
-                 <div class="content-box p-0" style="overflow:hidden;">
-                     <iframe id="profileContentFrame" src="/shipper/partial/profile-info" width="100%" height="700" frameborder="0" style="border-radius: 12px; background:#fff;"></iframe>
-                 </div>
-             </div>
+            
+            <!-- Main content area -->
+            <div class="col-12 col-md-8 col-lg-9">
+                <div class="content-box" style="min-height: 600px;">
+                    <!-- Profile Info Section -->
+                    <div id="profile-info" class="profile-section active">
+                        <h2 class="h5 mb-3">Thông tin tài khoản</h2>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Họ</label>
+                                <input id="firstName" class="form-control" placeholder="Chưa cập nhật">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tên</label>
+                                <input id="lastName" class="form-control" placeholder="Chưa cập nhật">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số điện thoại</label>
+                                <input id="phone" class="form-control" placeholder="Chưa cập nhật">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input id="email" class="form-control" disabled>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button id="saveProfileBtn" class="btn btn-primary">Cập nhật</button>
+                            <label class="btn btn-outline-secondary ms-2 mb-0">
+                                <i class="fas fa-camera me-1"></i> Đổi ảnh
+                                <input id="avatarUpload" type="file" accept="image/*" hidden>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Section -->
+                    <div id="security" class="profile-section">
+                        <h2 class="h5 mb-3">Bảo mật & Đăng nhập</h2>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Mật khẩu hiện tại</label>
+                                <input id="currentPassword" type="password" class="form-control" placeholder="••••••">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Mật khẩu mới</label>
+                                <input id="newPassword" type="password" class="form-control" placeholder="Nhập mật khẩu mới">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Xác nhận mật khẩu mới</label>
+                                <input id="confirmNewPassword" type="password" class="form-control" placeholder="Nhập lại mật khẩu mới">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button id="changePasswordBtn" class="btn btn-warning">
+                                <i class="fas fa-key me-1"></i>Đổi mật khẩu
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Policy Section -->
+                    <div id="policy" class="profile-section">
+                        <h2 class="h5">Chính sách Shipper – Fashion Store</h2>
+                        <p>Chào mừng bạn đến với đội ngũ giao nhận của Fashion Store. Mục tiêu của chúng tôi là giao hàng nhanh, an toàn, minh bạch về thu nhập và trải nghiệm khách hàng tuyệt vời.</p>
+
+                        <h3 class="h6 mt-4">1. Mức thu nhập theo đơn</h3>
+                        <ul>
+                            <li>Đơn ≤ 300.000đ: 10.000đ/đơn</li>
+                            <li>300.001–700.000đ: 15.000đ/đơn</li>
+                            <li>> 700.000đ: 20.000đ/đơn</li>
+                        </ul>
+                        <p>Thu nhập được tổng hợp theo tháng, hiển thị tại Trang chủ Shipper.</p>
+
+                        <h3 class="h6 mt-4">2. Quy tắc giao hàng</h3>
+                        <ul>
+                            <li>Kiểm tra kỹ thông tin người nhận (họ tên, số điện thoại, địa chỉ).</li>
+                            <li>Liên hệ khách tối thiểu 2 cuộc trước khi đánh dấu thất bại.</li>
+                            <li>Giữ gìn hàng hóa, hạn chế va đập và thấm nước.</li>
+                        </ul>
+
+                        <h3 class="h6 mt-4">3. Xử lý đơn thất bại</h3>
+                        <ul>
+                            <li>Ghi rõ lý do thất bại trong hệ thống (không nghe máy, sai địa chỉ…)</li>
+                            <li>Hoàn trả hàng về kho theo hướng dẫn của điều phối.</li>
+                        </ul>
+
+                        <h3 class="h6 mt-4">4. Ứng xử & Hình ảnh</h3>
+                        <ul>
+                            <li>Trang phục gọn gàng, lịch sự; giao tiếp thân thiện, tôn trọng khách hàng.</li>
+                            <li>Tuyệt đối không nhận tiền tip để đổi lấy ưu tiên đặc biệt.</li>
+                        </ul>
+
+                        <h3 class="h6 mt-4">5. Hỗ trợ</h3>
+                        <p>Liên hệ điều phối qua kênh nội bộ hoặc email support@fashionstore.vn khi cần hỗ trợ gấp.</p>
+
+                        <h3 class="h6 mt-4">FAQ</h3>
+                        <p><strong>Hỏi:</strong> Khi nào thu nhập được cập nhật? <br>
+                           <strong>Đáp:</strong> Thu nhập ước tính cập nhật theo thời gian thực; đối soát chính thức vào cuối tháng.</p>
+                        <p class="text-muted">Chính sách có thể được điều chỉnh để phù hợp thực tế vận hành. Fashion Store cam kết minh bạch và đồng hành cùng Shipper.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -42,22 +187,106 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar section switching -> load page via iframe
-            const frame = document.getElementById('profileContentFrame');
-            document.querySelectorAll('#profileMenu a[data-src]').forEach(link => {
+            // Sidebar section switching
+            const menuLinks = document.querySelectorAll('#profileMenu a[data-section]');
+            const sections = document.querySelectorAll('.profile-section');
+            
+            menuLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    // remove all active
-                    document.querySelectorAll('#profileMenu a[data-src]').forEach(a => a.classList.remove('active'));
+                    
+                    // Remove active from all menu items
+                    document.querySelectorAll('#profileMenu a').forEach(a => a.classList.remove('active'));
                     this.classList.add('active');
-                    const src = this.getAttribute('data-src');
-                    if (src && frame) frame.src = src;
+                    
+                    // Get section ID
+                    const sectionId = this.getAttribute('data-section');
+                    
+                    // Hide all sections
+                    sections.forEach(section => section.classList.remove('active'));
+                    
+                    // Show selected section
+                    const selectedSection = document.getElementById(sectionId);
+                    if (selectedSection) {
+                        selectedSection.classList.add('active');
+                    }
                 });
             });
-
-            // Set default
-            const firstLink = document.querySelector('#profileMenu a[data-src]');
-            if (firstLink) firstLink.click();
+            
+            // Load profile data
+            async function loadProfile(){
+                try{
+                    const res = await fetch('/api/shipper/profile');
+                    const j = await res.json();
+                    if(!j.success) return;
+                    const p = j.data||{};
+                    document.getElementById('firstName').value = p.firstName||'';
+                    document.getElementById('lastName').value = p.lastName||'';
+                    document.getElementById('phone').value = p.phone||'';
+                    document.getElementById('email').value = p.email||'';
+                    
+                    // Load avatar from database
+                    if(p.avatarUrl) {
+                        document.getElementById('avatarImg').src = p.avatarUrl;
+                    }
+                }catch(e){ console.error(e); }
+            }
+            
+            // Save profile
+            document.getElementById('saveProfileBtn').addEventListener('click', async function(){
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const phone = document.getElementById('phone').value;
+                const body = { firstName, lastName, phone };
+                
+                const res = await fetch('/api/shipper/profile/update', { 
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'}, 
+                    body: JSON.stringify(body)
+                });
+                const j = await res.json();
+                alert(j.success ? 'Cập nhật hồ sơ thành công' : (j.message||'Cập nhật thất bại'));
+            });
+            
+            // Avatar upload
+            document.getElementById('avatarUpload').addEventListener('change', async function(e){
+                const f=e.target.files[0]; 
+                if(!f) return;
+                const form=new FormData(); 
+                form.append('file', f);
+                const r = await fetch('/api/shipper/profile/avatar',{method:'POST', body: form});
+                const j = await r.json();
+                alert(j.success ? 'Đổi ảnh thành công' : (j.message||'Đổi ảnh thất bại'));
+                if(j.success && j.data) {
+                    document.getElementById('avatarImg').src = j.data;
+                }
+            });
+            
+            // Change password
+            document.getElementById('changePasswordBtn').addEventListener('click', async function(){
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+                
+                if (newPassword !== confirmNewPassword) { 
+                    alert('Mật khẩu xác nhận không khớp'); 
+                    return; 
+                }
+                
+                const form = new URLSearchParams();
+                form.append('currentPassword', currentPassword);
+                form.append('newPassword', newPassword);
+                const res = await fetch('/api/shipper/profile/change-password',{ 
+                    method:'POST', 
+                    headers:{'Content-Type':'application/x-www-form-urlencoded'}, 
+                    body: form.toString() 
+                });
+                const j = await res.json();
+                alert(j.success ? 'Đổi mật khẩu thành công' : (j.message||'Đổi mật khẩu thất bại'));
+            });
+            
+            // Load initial data
+            loadProfile();
         });
         /*]]>*/
     </script>

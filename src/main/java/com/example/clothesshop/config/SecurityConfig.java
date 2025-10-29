@@ -44,7 +44,7 @@ public class SecurityConfig {
 
             // ✅ Bật CSRF (để Spring sinh token) — bạn có thể thêm ignore nếu cần
             .csrf(csrf -> csrf
-            	    .ignoringRequestMatchers("/h2-console/**", "/verify-email", "/verify/**", "/resend-verification")
+            	    .ignoringRequestMatchers("/h2-console/**", "/verify-email", "/verify/**", "/resend-verification", "/api/**")
             	)
 
             // ✅ Configure OAuth2 login
@@ -60,14 +60,16 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Public resources and pages
                 .requestMatchers(
-                    "/css/**", "/js/**", "/images/**",
+                    "/css/**", "/js/**", "/images/**", "/uploads/**",
                     "/register", "/login", 
                     "/verify/**", "/verify-email", "/resend-verification",
                     "/forgot-password", "/reset-password",
                     "/seller/register",
                     // Public pages - không cần đăng nhập
                     "/", "/home", "/products", "/products/**", "/product/**",
-                    "/about-us", "/contact", "/policy", "/search"
+                    "/about-us", "/contact", "/policy", "/search",
+                    // API endpoints - public access
+                    "/api/products/**", "/api/categories/**"
                 ).permitAll()
                 // Admin paths
                 .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -76,7 +78,11 @@ public class SecurityConfig {
                     "/orders", "/orders/**", "/account", "/account/**")
                     .hasAnyRole("USER", "SELLER", "SHIPPER")
                 .requestMatchers("/seller/**").hasRole("SELLER")
+                // Shipper paths - allow partial views without authentication check
+                .requestMatchers("/shipper/partial/**").hasRole("SHIPPER")
                 .requestMatchers("/shipper/**").hasRole("SHIPPER")
+                // API shipper endpoints require authentication
+                .requestMatchers("/api/shipper/**").hasRole("SHIPPER")
                 .anyRequest().authenticated()
             )
 
@@ -91,7 +97,7 @@ public class SecurityConfig {
                 .permitAll()
             )
 
-            // ✅ Cấu hình đăng xuất
+            // ✅ Cấu hình đăng xuấtcó
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/")

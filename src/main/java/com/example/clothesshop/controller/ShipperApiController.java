@@ -19,6 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/shipper")
@@ -34,8 +38,12 @@ public class ShipperApiController {
     // Lấy thông tin shipper hiện tại
     private User getCurrentShipper() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        return userService.findByUsername(username)
+        String principal = authentication.getName();
+        return userService.findByUsername(principal)
+            .or(() -> {
+                User byEmail = userService.findByEmail(principal);
+                return java.util.Optional.ofNullable(byEmail);
+            })
             .orElseThrow(() -> new RuntimeException("Không tìm thấy shipper"));
     }
 
@@ -253,6 +261,7 @@ public class ShipperApiController {
             profile.put("lastName", shipper.getLastName());
             profile.put("phone", shipper.getPhone());
             profile.put("enabled", shipper.isEnabled());
+            profile.put("avatarUrl", shipper.getAvatarUrl());
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -324,13 +333,24 @@ public class ShipperApiController {
                 return ResponseEntity.badRequest().body(response);
             }
             User shipper = getCurrentShipper();
-            // For demo, we just store filename as avatarUrl; real apps should save to storage
-            shipper.setAvatarUrl("/uploads/" + file.getOriginalFilename());
+            // Save file to local uploads directory and store public URL
+            String uploadsDir = System.getProperty("user.dir") + "/uploads";
+            Files.createDirectories(Paths.get(uploadsDir));
+            String filename = java.util.UUID.randomUUID() + "_" + file.getOriginalFilename();
+            Path target = Paths.get(uploadsDir, filename);
+            Files.copy(file.getInputStream(), target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+            String publicUrl = "/uploads/" + filename;
+            shipper.setAvatarUrl(publicUrl);
             userService.save(shipper);
             response.put("success", true);
-            response.put("data", shipper.getAvatarUrl());
+            response.put("data", publicUrl);
             response.put("message", "Cập nhật ảnh đại diện thành công");
             return ResponseEntity.ok(response);
+        } catch (IOException e) {
+            response.put("success", false);
+            response.put("message", "Lỗi khi lưu ảnh: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Lỗi: " + e.getMessage());

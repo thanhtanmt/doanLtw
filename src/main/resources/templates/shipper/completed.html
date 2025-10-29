@@ -76,8 +76,11 @@
 
         function renderPage() {
             const container = document.getElementById('deliveredList');
-            if (filteredItems.length === 0) { container.innerHTML = '<div class="text-muted">Không có đơn phù hợp.</div>'; document.getElementById('pagination').innerHTML=''; return; }
-            const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+            if (filteredItems.length === 0) { 
+                container.innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-box-open fa-3x mb-3"></i><p>Không có đơn hàng nào đã giao</p></div>'; 
+                document.getElementById('pagination').innerHTML=''; 
+                return; 
+            }            const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
             const start = (currentPage - 1) * ITEMS_PER_PAGE;
             const pageItems = filteredItems.slice(start, start + ITEMS_PER_PAGE);
             container.innerHTML = pageItems.map((o, idx) => {
@@ -86,7 +89,9 @@
                     const color = isDelivered ? '#22c55e' : '#ef4444';
                     const statusText = isDelivered ? 'Giao thành công' : 'Giao thất bại';
                     const reason = !isDelivered && o.failureReason ? ` (Lý do: ${o.failureReason})` : '';
-                    const timeLabel = o.deliveredAt ? new Date(o.deliveredAt).toLocaleString('vi-VN') : '';
+                    const timeLabel = (o.deliveredAt || o.createdAt)
+                    ? new Date(o.deliveredAt || o.createdAt).toLocaleString('vi-VN')
+                    : '';
                     const earning = calcEarning(o.totalAmount);
                     return `
                     <div class="shipment-item scale-in" style="animation-delay: ${(idx+1)*0.1}s;">

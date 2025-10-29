@@ -467,16 +467,14 @@ footer {
 				FASHION
 			</a>
 
-			<div class="search-bar">
-				<form th:action="@{/products}" method="get">
-					<input type="text" name="search" placeholder="Tìm kiếm sản phẩm...">
-					<button type="submit">
-						<i class="fas fa-search"></i>
-					</button>
-				</form>
-			</div>
-
-			<div class="header-actions">
+		<div class="search-bar">
+			<form th:action="@{/search}" method="get">
+				<input type="text" name="query" placeholder="Tìm kiếm sản phẩm..." required>
+				<button type="submit">
+					<i class="fas fa-search"></i>
+				</button>
+			</form>
+		</div>			<div class="header-actions">
 				<!-- User Menu - Chỉ một dropdown duy nhất -->
 				<div class="user-menu">
 					<!-- Toggle button - Hiển thị username nếu đã đăng nhập, "Tài khoản" nếu chưa -->
@@ -530,12 +528,13 @@ footer {
 		<!-- Navigation -->
 		<nav>
 			<div class="nav-container">
-				<a th:href="@{/}">TRANG CHỦ</a> <a th:href="@{/products}">SẢN
-					PHẨM</a> <a th:href="@{/products?category=nam}">NAM</a> <a
-					th:href="@{/products?category=nu}">NỮ</a> <a
-					th:href="@{/products?category=sale}">SALE</a> <a
-					th:href="@{/about-us}">GIỚI THIỆU</a> <a th:href="@{/contact}">LIÊN
-					HỆ</a>
+				<a th:href="@{/}">TRANG CHỦ</a> 
+				<a th:href="@{/products}">SẢN PHẨM</a> 
+				<a th:href="@{/products(parentCategory='Thời trang Nam')}">NAM</a> 
+				<a th:href="@{/products(parentCategory='Thời trang Nữ')}">NỮ</a> 
+				<a th:href="@{/products?category=sale}">SALE</a> 
+				<a th:href="@{/about-us}">GIỚI THIỆU</a> 
+				<a th:href="@{/contact}">LIÊN HỆ</a>
 			</div>
 		</nav>
 	</header>
@@ -623,5 +622,8 @@ footer {
 			}
 		});
 	</script>
+	
+	<!-- Custom Scripts Fragment -->
+	<th:block layout:fragment="scripts"></th:block>
 </body>
 </html>

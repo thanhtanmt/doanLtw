@@ -84,6 +84,7 @@ public class OrderServiceImpl implements OrderService {
             order.setDeliveryNotes(deliveryUpdate.getDeliveryNotes());
         } else if (deliveryUpdate.getStatus().equals("FAILED")) {
             order.setStatus(OrderStatus.FAILED);
+            order.setDeliveredDate(LocalDateTime.now()); // ✅ thêm dòng này
             order.setFailureReason(deliveryUpdate.getFailureReason());
         }
         
