@@ -30,4 +30,9 @@ public class HomeController {
 	public String policy() {
 		return "policy";
 	}
+	
+	@GetMapping("/access-denied")
+	public String accessDenied() {
+		return "access-denied";
+	}
 }

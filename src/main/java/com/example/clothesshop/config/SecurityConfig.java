@@ -14,14 +14,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 public class SecurityConfig {
     private final CustomAuthenticationSuccessHandler successHandler;
     private final CustomOAuth2UserService oAuth2UserService;
-    private final AdminAccessDeniedHandler adminAccessDeniedHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     
     public SecurityConfig(CustomAuthenticationSuccessHandler successHandler, 
                         CustomOAuth2UserService oAuth2UserService,
-                        AdminAccessDeniedHandler adminAccessDeniedHandler) {
+                        CustomAccessDeniedHandler customAccessDeniedHandler) {
         this.successHandler = successHandler;
         this.oAuth2UserService = oAuth2UserService;
-        this.adminAccessDeniedHandler = adminAccessDeniedHandler;
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
     }
 
     @Bean
@@ -61,7 +61,7 @@ public class SecurityConfig {
                 // Public resources and pages
                 .requestMatchers(
                     "/css/**", "/js/**", "/images/**", "/uploads/**",
-                    "/register", "/login", 
+                    "/register", "/login", "/access-denied",
                     "/verify/**", "/verify-email", "/resend-verification",
                     "/forgot-password", "/reset-password",
                     "/seller/register",
@@ -106,7 +106,7 @@ public class SecurityConfig {
 
             // ✅ Configure access denied handler
             .exceptionHandling(ex -> ex
-                .accessDeniedHandler(adminAccessDeniedHandler)
+                .accessDeniedHandler(customAccessDeniedHandler)
             );
 
         return http.build();
