@@ -352,6 +352,9 @@
             cursor: pointer;
             transition: all 0.3s;
             margin-top: 20px;
+            margin-bottom: 12px; /* ensure spacing from next button */
+            display: block; /* make width and margins effective */
+            text-align: center;
         }
 
         .btn-checkout:hover {
@@ -370,7 +373,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 15px;
+            margin-top: 0; /* spacing handled by .btn-checkout margin-bottom */
             text-decoration: none;
             display: block;
             text-align: center;

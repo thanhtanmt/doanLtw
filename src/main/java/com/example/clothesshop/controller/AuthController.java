@@ -16,6 +16,7 @@ import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.Random;
+import org.springframework.security.core.Authentication;
 
 @Controller
 @SessionAttributes("pendingUser")
@@ -34,7 +35,14 @@ public class AuthController {
 	}
 
 	@GetMapping("/login")
-	public String loginPage() {
+	public String loginPage(Authentication authentication,
+							@RequestParam(value = "redirect", required = false) String redirect) {
+		// Nếu đã đăng nhập, không cho vào trang login, chuyển về home
+		if (authentication != null && authentication.isAuthenticated()
+				&& authentication.getPrincipal() != null
+				&& !"anonymousUser".equals(authentication.getPrincipal())) {
+			return "redirect:/";
+		}
 		return "login";
 	}
 

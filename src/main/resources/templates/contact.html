@@ -16,10 +16,145 @@
     <div class="page-header"><h1>Liên Hệ</h1></div>
     <div class="static-page">
         <div class="content-container">
-            <h2>Thông tin liên hệ</h2>
-            <p>Địa chỉ, số điện thoại, email và form liên hệ...</p>
+            <h2 style="margin-top:0; color:#2c3e50;">Thông tin liên hệ</h2>
+            <p style="color:#555; line-height:1.8;">
+                Nếu bạn cần hỗ trợ về đơn hàng, sản phẩm hoặc chính sách, hãy liên hệ với chúng tôi qua các kênh dưới đây.
+                Đội ngũ CSKH luôn sẵn sàng hỗ trợ bạn nhanh nhất có thể.
+            </p>
+
+            <!-- Quick contact cards -->
+            <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:20px 0 30px;">
+                <div style="display:flex; gap:12px; align-items:flex-start; background:#f8f9fa; border-radius:12px; padding:18px;">
+                    <div style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700; color:#2c3e50;">Hotline</div>
+                        <div style="color:#7f8c8d;">1900 1234 (08:00 - 21:00)</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:12px; align-items:flex-start; background:#f8f9fa; border-radius:12px; padding:18px;">
+                    <div style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700; color:#2c3e50;">Email</div>
+                        <div style="color:#7f8c8d;">support@fashionstore.vn</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:12px; align-items:flex-start; background:#f8f9fa; border-radius:12px; padding:18px;">
+                    <div style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700; color:#2c3e50;">Chat/Zalo</div>
+                        <div style="color:#7f8c8d;">Kênh chat trực tuyến (08:00 - 21:00)</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:12px; align-items:flex-start; background:#f8f9fa; border-radius:12px; padding:18px;">
+                    <div style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; display:flex; align-items:center; justify-content:center;">
+                        <i class="fab fa-facebook"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700; color:#2c3e50;">Fanpage</div>
+                        <div style="color:#7f8c8d;">facebook.com/fashionstore</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Working hours -->
+            <div style="background:#ffffff; border:1px solid #eef2f7; border-radius:12px; padding:18px; margin-bottom:24px;">
+                <h3 style="margin:0 0 10px; color:#2c3e50;"><i class="far fa-clock" style="color:#667eea;"></i> Thời gian làm việc</h3>
+                <ul style="margin:0 0 0 18px; color:#555; line-height:1.9;">
+                    <li>Thứ 2 - Thứ 6: 08:00 - 21:00</li>
+                    <li>Thứ 7: 08:00 - 20:00</li>
+                    <li>Chủ nhật & Ngày lễ: 09:00 - 18:00</li>
+                </ul>
+            </div>
+
+            <!-- Stores -->
+            <div style="display:grid; grid-template-columns:1fr; gap:16px;">
+                <div style="background:#ffffff; border:1px solid #eef2f7; border-radius:12px; padding:18px;">
+                    <h3 style="margin:0 0 10px; color:#2c3e50;"><i class="fas fa-map-marker-alt" style="color:#667eea;"></i> Hệ thống cửa hàng</h3>
+                    <ul style="margin:0 0 0 18px; color:#555; line-height:1.9;">
+                        <li>TP. Hồ Chí Minh: 123 Nguyễn Trãi, Q.1</li>
+                        <li>Hà Nội: 456 Cầu Giấy, Q. Cầu Giấy</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Contact form (frontend only) -->
+            <div style="margin-top:28px; background:#ffffff; border:1px solid #eef2f7; border-radius:12px; padding:20px;">
+                <h3 style="margin:0 0 10px; color:#2c3e50;"><i class="fas fa-paper-plane" style="color:#667eea;"></i> Gửi tin nhắn cho chúng tôi</h3>
+                <form id="contactForm">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div>
+                            <label style="display:block; font-weight:600; color:#2c3e50; margin-bottom:6px;">Họ và tên</label>
+                            <input type="text" id="cfName" required placeholder="Nguyễn Văn A" style="width:100%; padding:12px; border:2px solid #e9ecef; border-radius:10px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-weight:600; color:#2c3e50; margin-bottom:6px;">Email</label>
+                            <input type="email" id="cfEmail" required placeholder="you@example.com" style="width:100%; padding:12px; border:2px solid #e9ecef; border-radius:10px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-weight:600; color:#2c3e50; margin-bottom:6px;">Số điện thoại</label>
+                            <input type="text" id="cfPhone" placeholder="090xxxxxxx" style="width:100%; padding:12px; border:2px solid #e9ecef; border-radius:10px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-weight:600; color:#2c3e50; margin-bottom:6px;">Chủ đề</label>
+                            <input type="text" id="cfSubject" placeholder="Hỗ trợ đơn hàng / Tư vấn sản phẩm" style="width:100%; padding:12px; border:2px solid #e9ecef; border-radius:10px;">
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;">
+                        <label style="display:block; font-weight:600; color:#2c3e50; margin-bottom:6px;">Nội dung</label>
+                        <textarea id="cfMessage" rows="5" required placeholder="Mô tả vấn đề hoặc yêu cầu của bạn..." style="width:100%; padding:12px; border:2px solid #e9ecef; border-radius:10px; resize:vertical;"></textarea>
+                        <div id="cfCounter" style="text-align:right; font-size:12px; color:#7f8c8d; margin-top:4px;">0/1000</div>
+                    </div>
+                    <div style="margin-top:14px; display:flex; gap:10px;">
+                        <button type="submit" style="padding:12px 20px; border:none; border-radius:10px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; font-weight:700;">
+                            Gửi liên hệ
+                        </button>
+                        <button type="button" id="cfClear" style="padding:12px 20px; border:none; border-radius:10px; background:#e9ecef; color:#2c3e50; font-weight:700;">Làm mới</button>
+                    </div>
+                </form>
+                <div id="cfToast" style="display:none; margin-top:12px; padding:14px; border-radius:10px; background:#ecfdf5; color:#065f46; font-weight:600;">
+                    Cảm ơn bạn! Chúng tôi đã ghi nhận liên hệ và sẽ phản hồi sớm nhất.
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Frontend-only form handling
+    (function(){
+        const form = document.getElementById('contactForm');
+        const toast = document.getElementById('cfToast');
+        const msg = document.getElementById('cfMessage');
+        const counter = document.getElementById('cfCounter');
+        const clearBtn = document.getElementById('cfClear');
+        if (!form) return;
+        msg?.addEventListener('input', function(){
+            const len = this.value.length;
+            counter.textContent = `${len}/1000`;
+            if (len > 1000) {
+                this.value = this.value.slice(0, 1000);
+                counter.textContent = '1000/1000';
+            }
+        });
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            // Here you could integrate a real endpoint later
+            toast.style.display = 'block';
+            setTimeout(()=> toast.style.display = 'none', 4000);
+            form.reset();
+            counter.textContent = '0/1000';
+        });
+        clearBtn?.addEventListener('click', function(){
+            form.reset();
+            counter.textContent = '0/1000';
+        });
+    })();
+</script>
 </body>
 </html>

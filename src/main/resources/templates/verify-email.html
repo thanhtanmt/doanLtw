@@ -18,7 +18,7 @@
         .verification-form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 18px;
         }
 
         .verification-code {
@@ -63,6 +63,31 @@
             border-color: #c3e6cb;
             color: #155724;
         }
+
+        /* Fancy verify button */
+        .btn-verify {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.35);
+            transition: transform .15s ease, box-shadow .15s ease, filter .2s ease;
+        }
+        .btn-verify:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(102, 126, 234, 0.45);
+            filter: brightness(1.02);
+        }
+        .btn-verify:active { transform: translateY(0); }
+        .btn-verify i { font-size: 16px; }
     </style>
 </head>
 
@@ -85,7 +110,7 @@
                        placeholder="XXXXXX" required pattern="[0-9]{6}"
                        title="Vui lòng nhập mã 6 số" />
 
-                <button type="submit" class="btn btn-primary">Xác thực</button>
+                <button type="submit" class="btn-verify"><i class="fas fa-check-circle"></i> Xác nhận</button>
             </form>
 
             <form th:action="@{/resend-verification}" method="post" class="text-center">

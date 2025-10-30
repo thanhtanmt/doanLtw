@@ -698,7 +698,7 @@
                     ${badgeHTML}
                     <img src="${imageUrl}" alt="${product.name}" onerror="this.src='https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=400'">
                     <div class="product-actions">
-                        <button class="product-action-btn" title="Yêu thích">
+                        <button class="product-action-btn btn-wishlist" data-product-id="${product.id}" title="Yêu thích">
                             <i class="far fa-heart"></i>
                         </button>
                         <button class="product-action-btn" title="Xem nhanh" onclick="window.location.href='/product/${product.id}'">
@@ -716,7 +716,7 @@
                     <div class="product-price">
                         ${priceHTML}
                     </div>
-                    <button class="add-to-cart-btn" ${!product.hasStock ? 'disabled style="background: #95a5a6; cursor: not-allowed;"' : ''}>
+                    <button class="add-to-cart-btn" data-product-id="${product.id}" ${!product.hasStock ? 'disabled style="background: #95a5a6; cursor: not-allowed;"' : ''}>
                         <i class="fas fa-shopping-cart"></i> ${product.hasStock ? 'THÊM VÀO GIỎ' : 'HẾT HÀNG'}
                     </button>
                 </div>
@@ -753,29 +753,61 @@
 
         // Attach event listeners to dynamically loaded products
         function attachProductEventListeners() {
-            // Add to cart animation
+            // Add to cart: redirect to product detail page
             document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
                 if (!btn.disabled) {
                     btn.addEventListener('click', function() {
-                        this.innerHTML = '<i class="fas fa-check"></i> ĐÃ THÊM';
-                        setTimeout(() => {
-                            this.innerHTML = '<i class="fas fa-shopping-cart"></i> THÊM VÀO GIỎ';
-                        }, 2000);
+                        const pid = this.getAttribute('data-product-id');
+                        if (pid) {
+                            window.location.href = `/product/${pid}`;
+                        }
                     });
                 }
             });
 
-            // Wishlist toggle
-            document.querySelectorAll('.product-action-btn').forEach(btn => {
-                const heartIcon = btn.querySelector('.fa-heart');
-                if (heartIcon) {
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const icon = this.querySelector('i');
-                        icon.classList.toggle('far');
-                        icon.classList.toggle('fas');
-                    });
-                }
+            // Wishlist: call backend toggle API
+            document.querySelectorAll('.btn-wishlist').forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    const icon = this.querySelector('i');
+                    const productId = this.getAttribute('data-product-id');
+                    if (!productId) return;
+                    try {
+                        const res = await fetch(`/wishlist/toggle/${productId}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        });
+                        if (res.status === 401) {
+                            const redirectUrl = encodeURIComponent(window.location.href);
+                            window.location.href = `/login?redirect=${redirectUrl}`;
+                            return;
+                        }
+                        const contentType = res.headers.get('content-type') || '';
+                        let data = null;
+                        if (contentType.includes('application/json')) {
+                            data = await res.json();
+                        }
+                        if (res.ok) {
+                            if (data && data.success === false) {
+                                alert(data.message || 'Không thể cập nhật yêu thích');
+                            } else {
+                                // Toggle visual state even if server returned HTML (success page)
+                                icon.classList.toggle('far');
+                                icon.classList.toggle('fas');
+                            }
+                        } else {
+                            const text = await res.text();
+                            console.error('Wishlist toggle failed:', res.status, text);
+                            alert('Không thể cập nhật yêu thích');
+                        }
+                    } catch (err) {
+                        console.error('Wishlist toggle error', err);
+                        alert('Có lỗi xảy ra, vui lòng thử lại');
+                    }
+                });
             });
         }
 

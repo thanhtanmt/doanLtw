@@ -776,18 +776,6 @@
 
                         <!-- Options -->
                         <div class="product-options">
-                            <!-- Colors -->
-                            <div class="option-group">
-                                <label class="option-label">Màu sắc: <span style="color: #667eea;">Đen</span></label>
-                                <div class="color-options">
-                                    <div class="color-option active" style="background: #000000;"></div>
-                                    <div class="color-option" style="background: #FFFFFF; border: 1px solid #ddd;"></div>
-                                    <div class="color-option" style="background: #1e3a8a;"></div>
-                                    <div class="color-option" style="background: #16a34a;"></div>
-                                    <div class="color-option" style="background: #dc2626;"></div>
-                                </div>
-                            </div>
-
                             <!-- Sizes -->
                             <div class="option-group">
                                 <label class="option-label">Kích thước: <span style="color: #667eea;">M</span></label>
@@ -1047,13 +1035,7 @@
             });
         });
 
-        // Color selection
-        document.querySelectorAll('.color-option').forEach(color => {
-            color.addEventListener('click', function() {
-                document.querySelectorAll('.color-option').forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
+        // Color selection removed
 
         // Size selection
         document.querySelectorAll('.size-option:not(.out-of-stock)').forEach(size => {
@@ -1074,14 +1056,38 @@
             });
         }
 
-        // Wishlist toggle
-        const wishlistBtn = document.querySelector('.btn-wishlist');
-        if (wishlistBtn) {
-            wishlistBtn.addEventListener('click', function() {
-                this.classList.toggle('active');
-                const icon = this.querySelector('i');
-                icon.classList.toggle('far');
-                icon.classList.toggle('fas');
+        // Wishlist toggle (static block) -> call backend
+        const staticWishlistBtn = document.querySelector('.btn-wishlist');
+        if (staticWishlistBtn) {
+            const pid = staticWishlistBtn.getAttribute('data-product-id');
+            if (pid) initWishlistState(pid, staticWishlistBtn);
+
+            staticWishlistBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                const productId = this.getAttribute('data-product-id');
+                if (!productId) return;
+                try {
+                    const res = await fetch(`/wishlist/toggle/${productId}`, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    });
+                    if (res.status === 401) {
+                        const redirectUrl = encodeURIComponent(window.location.href);
+                        window.location.href = `/login?redirect=${redirectUrl}`;
+                        return;
+                    }
+                    const ct = res.headers.get('content-type') || '';
+                    let data = null;
+                    if (ct.includes('application/json')) data = await res.json();
+                    if (res.ok && (!data || data.success !== false)) {
+                        toggleHeart(this);
+                    } else {
+                        alert((data && data.message) || 'Không thể cập nhật yêu thích');
+                    }
+                } catch (err) {
+                    console.error('Wishlist toggle error', err);
+                    alert('Có lỗi xảy ra, vui lòng thử lại');
+                }
             });
         }
 
@@ -1126,6 +1132,34 @@
     <!-- Include cart.js for add to cart functionality -->
     <script th:src="@{/js/cart.js}"></script>
     <script>
+        // Toggle heart utility
+        function toggleHeart(btn) {
+            btn.classList.toggle('active');
+            const icon = btn.querySelector('i');
+            if (!icon) return;
+            icon.classList.toggle('far');
+            icon.classList.toggle('fas');
+        }
+
+        // Initialize wishlist heart state
+        async function initWishlistState(productId, btn) {
+            try {
+                const res = await fetch(`/wishlist/check/${productId}`, { headers: { 'Accept': 'application/json' } });
+                const ct = res.headers.get('content-type') || '';
+                if (!ct.includes('application/json')) return;
+                const data = await res.json();
+                if (data && data.inWishlist && btn) {
+                    // Ensure active (filled heart)
+                    btn.classList.add('active');
+                    const icon = btn.querySelector('i');
+                    if (icon) { icon.classList.remove('far'); icon.classList.add('fas'); }
+                }
+            } catch (e) {
+                // ignore init failure silently
+                console.debug('initWishlistState failed', e);
+            }
+        }
+
         // Get product ID from URL
         function getProductIdFromUrl() {
             const path = window.location.pathname;
@@ -1219,17 +1253,9 @@
             }
 
             // Generate variants (colors and sizes)
-            let colorsHTML = '';
             let sizesHTML = '';
             if (product.variants && product.variants.length > 0) {
-                const uniqueColors = [...new Set(product.variants.map(v => v.color))];
                 const uniqueSizes = [...new Set(product.variants.map(v => v.size))];
-
-                colorsHTML = uniqueColors.map((color, index) => {
-                    const colorHex = getColorHex(color);
-                    return `<div class="color-option ${index === 0 ? 'active' : ''}" style="background: ${colorHex};" data-color="${color}"></div>`;
-                }).join('');
-
                 sizesHTML = uniqueSizes.map((size, index) => {
                     const variant = product.variants.find(v => v.size === size);
                     const outOfStock = !variant || variant.quantity <= 0;
@@ -1298,15 +1324,6 @@
 
                             <!-- Options -->
                             <div class="product-options">
-                                ${colorsHTML ? `
-                                <div class="option-group">
-                                    <label class="option-label">Màu sắc: <span style="color: #667eea;" id="selectedColor">Chọn màu</span></label>
-                                    <div class="color-options">
-                                        ${colorsHTML}
-                                    </div>
-                                </div>
-                                ` : ''}
-
                                 ${sizesHTML ? `
                                 <div class="option-group">
                                     <label class="option-label">Kích thước: <span style="color: #667eea;" id="selectedSize">Chọn size</span></label>
@@ -1333,7 +1350,7 @@
                                     <i class="fas fa-shopping-cart"></i>
                                     ${product.hasStock ? 'THÊM VÀO GIỎ HÀNG' : 'HẾT HÀNG'}
                                 </button>
-                                <button class="btn-wishlist">
+                                <button class="btn-wishlist" data-product-id="${product.id}">
                                     <i class="far fa-heart"></i>
                                 </button>
                             </div>
@@ -1473,21 +1490,7 @@
             attachEventListeners();
         }
 
-        // Get color hex from color name
-        function getColorHex(colorName) {
-            const colors = {
-                'Đen': '#000000',
-                'Trắng': '#FFFFFF',
-                'Xanh': '#1e3a8a',
-                'Đỏ': '#dc2626',
-                'Xanh lá': '#16a34a',
-                'Vàng': '#facc15',
-                'Hồng': '#ec4899',
-                'Xám': '#6b7280',
-                'Nâu': '#92400e'
-            };
-            return colors[colorName] || '#667eea';
-        }
+        // Color feature removed
 
         // Generate rating bars
         function generateRatingBars(totalReviews) {
@@ -1705,15 +1708,7 @@
                 });
             });
 
-            // Color selection
-            document.querySelectorAll('.color-option').forEach(color => {
-                color.addEventListener('click', function() {
-                    document.querySelectorAll('.color-option').forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
-                    const colorName = this.getAttribute('data-color');
-                    document.getElementById('selectedColor').textContent = colorName;
-                });
-            });
+            // Color selection removed
 
             // Size selection
             document.querySelectorAll('.size-option:not(.out-of-stock)').forEach(size => {
@@ -1736,16 +1731,38 @@
                 });
             }
 
-            // Wishlist toggle
-            const wishlistBtn = document.querySelector('.btn-wishlist');
-            if (wishlistBtn) {
-                wishlistBtn.addEventListener('click', function() {
-                    this.classList.toggle('active');
-                    const icon = this.querySelector('i');
-                    icon.classList.toggle('far');
-                    icon.classList.toggle('fas');
+            // Wishlist toggle (dynamic block)
+            document.querySelectorAll('.btn-wishlist').forEach(btn => {
+                const pid = btn.getAttribute('data-product-id');
+                if (pid) initWishlistState(pid, btn);
+                btn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    const productId = this.getAttribute('data-product-id');
+                    if (!productId) return;
+                    try {
+                        const res = await fetch(`/wishlist/toggle/${productId}`, {
+                            method: 'POST',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                        });
+                        if (res.status === 401) {
+                            const redirectUrl = encodeURIComponent(window.location.href);
+                            window.location.href = `/login?redirect=${redirectUrl}`;
+                            return;
+                        }
+                        const ct = res.headers.get('content-type') || '';
+                        let data = null;
+                        if (ct.includes('application/json')) data = await res.json();
+                        if (res.ok && (!data || data.success !== false)) {
+                            toggleHeart(this);
+                        } else {
+                            alert((data && data.message) || 'Không thể cập nhật yêu thích');
+                        }
+                    } catch (err) {
+                        console.error('Wishlist toggle error', err);
+                        alert('Có lỗi xảy ra, vui lòng thử lại');
+                    }
                 });
-            }
+            });
 
             // Add to cart
             const addCartBtn = document.querySelector('.btn-add-cart');

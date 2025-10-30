@@ -27,16 +27,19 @@ public class SellerController {
     private final CloudinaryService cloudinaryService;
     private final OrderRepository orderRepository;
     private final VoucherRepository voucherRepository;
+    private final ProductImageRepository productImageRepository;
 
     public SellerController(UserRepository userRepository, ProductRepository productRepository, 
                           CategoryRepository categoryRepository, CloudinaryService cloudinaryService,
-                          OrderRepository orderRepository, VoucherRepository voucherRepository) {
+                          OrderRepository orderRepository, VoucherRepository voucherRepository,
+                          ProductImageRepository productImageRepository) {
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.cloudinaryService = cloudinaryService;
         this.orderRepository = orderRepository;
         this.voucherRepository = voucherRepository;
+        this.productImageRepository = productImageRepository;
     }
 
     @GetMapping
@@ -302,14 +305,37 @@ public class SellerController {
                     }
                     if (!ids.isEmpty()) {
                         String[] idArray = ids.split(",");
+                        List<Long> imageIdsToDelete = new ArrayList<>();
+                        
                         for (String idStr : idArray) {
                             Long imageId = Long.parseLong(idStr.trim());
-                            // Remove from product's images list
-                            product.getImages().removeIf(img -> img.getId().equals(imageId));
+                            imageIdsToDelete.add(imageId);
+                            
+                            // Xóa ảnh trên Cloudinary
+                            Optional<ProductImage> imageOpt = productImageRepository.findById(imageId);
+                            if (imageOpt.isPresent()) {
+                                ProductImage image = imageOpt.get();
+                                if (image.getUrl() != null && image.getUrl().contains("cloudinary.com")) {
+                                    try {
+                                        String publicId = cloudinaryService.extractPublicId(image.getUrl());
+                                        cloudinaryService.deleteImage(publicId);
+                                    } catch (Exception e) {
+                                        System.err.println("Không thể xóa ảnh trên Cloudinary: " + e.getMessage());
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Xóa ảnh trong database
+                        if (!imageIdsToDelete.isEmpty()) {
+                            productImageRepository.deleteAllById(imageIdsToDelete);
+                            // Remove từ product's images list
+                            product.getImages().removeIf(img -> imageIdsToDelete.contains(img.getId()));
                         }
                     }
                 } catch (Exception e) {
-                    System.out.println("Error parsing deleted image IDs: " + e.getMessage());
+                    System.err.println("Error deleting images: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
             
@@ -328,20 +354,48 @@ public class SellerController {
             
             // Update variants if provided
             if (variantsJson != null && !variantsJson.trim().isEmpty()) {
-                // Clear existing variants
-                product.getVariants().clear();
+                List<Map<String, String>> newVariantsData = parseVariantsJson(variantsJson);
+                List<ProductVariant> existingVariants = product.getVariants();
                 
-                // Add new variants
-                List<Map<String, String>> variants = parseVariantsJson(variantsJson);
-                for (Map<String, String> variantData : variants) {
-                    ProductVariant variant = new ProductVariant();
-                    variant.setProduct(product);
-                    variant.setSize(variantData.get("size"));
-                    variant.setPrice(new BigDecimal(variantData.get("price")));
-                    variant.setQuantity(Integer.parseInt(variantData.get("quantity")));
-                    variant.setSku(variantData.get("sku"));
-                    variant.setAvailable(true);
-                    product.getVariants().add(variant);
+                // Track which existing variants are still in the new list (by SKU)
+                List<String> newSkus = newVariantsData.stream()
+                    .map(v -> v.get("sku"))
+                    .collect(java.util.stream.Collectors.toList());
+                
+                // Mark variants not in the new list as unavailable (soft delete)
+                for (ProductVariant existingVariant : existingVariants) {
+                    if (!newSkus.contains(existingVariant.getSku())) {
+                        existingVariant.setAvailable(false);
+                    }
+                }
+                
+                // Update existing variants or add new ones
+                for (Map<String, String> variantData : newVariantsData) {
+                    String sku = variantData.get("sku");
+                    
+                    // Find existing variant by SKU
+                    ProductVariant existingVariant = existingVariants.stream()
+                        .filter(v -> sku.equals(v.getSku()))
+                        .findFirst()
+                        .orElse(null);
+                    
+                    if (existingVariant != null) {
+                        // Update existing variant
+                        existingVariant.setSize(variantData.get("size"));
+                        existingVariant.setPrice(new BigDecimal(variantData.get("price")));
+                        existingVariant.setQuantity(Integer.parseInt(variantData.get("quantity")));
+                        existingVariant.setAvailable(true);
+                    } else {
+                        // Add new variant
+                        ProductVariant newVariant = new ProductVariant();
+                        newVariant.setProduct(product);
+                        newVariant.setSize(variantData.get("size"));
+                        newVariant.setPrice(new BigDecimal(variantData.get("price")));
+                        newVariant.setQuantity(Integer.parseInt(variantData.get("quantity")));
+                        newVariant.setSku(sku);
+                        newVariant.setAvailable(true);
+                        product.getVariants().add(newVariant);
+                    }
                 }
             }
             
