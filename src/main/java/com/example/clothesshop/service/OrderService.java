@@ -18,6 +18,9 @@ public interface OrderService {
     // Lấy đơn hàng theo ID
     Optional<Order> findById(Long id);
     
+    // Lấy đơn hàng theo user ID
+    List<Order> findByUserId(Long userId);
+    
     // Lấy đơn hàng theo mã đơn hàng
     Optional<Order> findByOrderCode(String orderCode);
     

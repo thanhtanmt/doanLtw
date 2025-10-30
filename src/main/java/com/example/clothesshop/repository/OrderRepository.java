@@ -18,6 +18,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     
     Optional<Order> findByOrderCode(String orderCode);
     
+    List<Order> findByUser_IdOrderByCreatedAtDesc(Long userId);
+    
     List<Order> findByShipperAndStatus(User shipper, OrderStatus status);
     
     @Query("SELECT o FROM Order o WHERE o.status = :status AND o.shipper IS NULL")

@@ -21,8 +21,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Controller
 public class OrderController {
@@ -292,11 +294,264 @@ public class OrderController {
     public String listOrders() {
         return "orders";
     }
+    
+    /**
+     * API: Get user's orders
+     * GET /api/user/orders
+     */
+    @GetMapping("/api/user/orders")
+    @ResponseBody
+    public Map<String, Object> getUserOrders() {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            User user = getCurrentUser();
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "Vui lòng đăng nhập");
+                return response;
+            }
+            
+            List<Order> orders = orderService.findByUserId(user.getId());
+            
+            // Convert to simple maps to avoid circular reference
+            List<Map<String, Object>> orderMaps = orders.stream()
+                    .map(this::convertOrderToMap)
+                    .collect(Collectors.toList());
+            
+            response.put("success", true);
+            response.put("data", orderMaps);
+            return response;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Lỗi: " + e.getMessage());
+            return response;
+        }
+    }
+    
+    /**
+     * API: Cancel order
+     * POST /api/user/orders/{id}/cancel
+     */
+    @PostMapping("/api/user/orders/{id}/cancel")
+    @ResponseBody
+    public Map<String, Object> cancelOrder(@PathVariable Long id, 
+                                          @RequestParam(required = false) String reason) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            User user = getCurrentUser();
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "Vui lòng đăng nhập");
+                return response;
+            }
+            
+            Order order = orderService.findById(id).orElse(null);
+            if (order == null) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy đơn hàng");
+                return response;
+            }
+            
+            // Check ownership
+            if (!order.getUser().getId().equals(user.getId())) {
+                response.put("success", false);
+                response.put("message", "Bạn không có quyền hủy đơn hàng này");
+                return response;
+            }
+            
+            // Check if order can be canceled (only PENDING and CONFIRMED)
+            if (order.getStatus() != OrderStatus.PENDING && 
+                order.getStatus() != OrderStatus.CONFIRMED) {
+                response.put("success", false);
+                response.put("message", "Không thể hủy đơn hàng ở trạng thái hiện tại");
+                return response;
+            }
+            
+            // Change order status to CANCELED
+            order.setStatus(OrderStatus.CANCELED);
+            if (reason != null && !reason.trim().isEmpty()) {
+                order.setFailureReason("Khách hàng hủy: " + reason);
+            } else {
+                order.setFailureReason("Khách hàng hủy đơn hàng");
+            }
+            
+            // Refund if paid by wallet
+            if ("WALLET".equalsIgnoreCase(order.getPaymentMethod())) {
+                BigDecimal refundAmount = order.getTotalPrice();
+                if (refundAmount != null && refundAmount.compareTo(BigDecimal.ZERO) > 0) {
+                    walletService.refund(user, refundAmount, 
+                        "Hoàn tiền đơn hàng #" + order.getOrderCode(), order);
+                    
+                    response.put("refunded", true);
+                    response.put("refundAmount", refundAmount);
+                }
+            }
+            
+            orderService.save(order);
+            
+            response.put("success", true);
+            response.put("message", "Đã hủy đơn hàng thành công" + 
+                ("WALLET".equalsIgnoreCase(order.getPaymentMethod()) ? 
+                    ". Tiền đã được hoàn vào ví." : ""));
+            response.put("order", convertOrderToMap(order));
+            
+            return response;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Lỗi: " + e.getMessage());
+            return response;
+        }
+    }
+    
+    /**
+     * Helper method to convert Order to Map for JSON response
+     */
+    private Map<String, Object> convertOrderToMap(Order order) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", order.getId());
+        map.put("orderCode", order.getOrderCode());
+        
+        // Use totalPrice first, fallback to totalAmount
+        BigDecimal total = order.getTotalPrice() != null ? order.getTotalPrice() : 
+                          (order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO);
+        map.put("totalPrice", total);
+        map.put("totalAmount", order.getTotalAmount());
+        
+        map.put("status", order.getStatus().name());
+        map.put("statusDisplay", getStatusDisplay(order.getStatus()));
+        map.put("paymentMethod", order.getPaymentMethod());
+        map.put("shippingAddress", order.getShippingAddress());
+        map.put("shippingPhone", order.getShippingPhone());
+        map.put("shippingName", order.getShippingName());
+        map.put("createdAt", order.getCreatedAt());
+        map.put("failureReason", order.getFailureReason());
+        return map;
+    }
+    
+    private String getStatusDisplay(OrderStatus status) {
+        switch (status) {
+            case PENDING: return "Chờ xác nhận";
+            case CONFIRMED: return "Đã xác nhận";
+            case ASSIGNED: return "Đã giao cho shipper";
+            case DELIVERING: return "Đang giao hàng";
+            case DELIVERED: return "Đã giao hàng";
+            case FAILED: return "Giao thất bại";
+            case CANCELED: return "Đã hủy";
+            default: return status.name();
+        }
+    }
 
     @GetMapping("/order/{id}")
     public String orderDetails(@PathVariable Long id, Model model) {
-        // Mapping để vào trang chi tiết đơn hàng
+        User user = getCurrentUser();
+        if (user == null) {
+            return "redirect:/login";
+        }
+        
+        Order order = orderService.findById(id).orElse(null);
+        if (order == null) {
+            return "redirect:/orders";
+        }
+        
+        // Check ownership
+        if (!order.getUser().getId().equals(user.getId())) {
+            return "redirect:/orders";
+        }
+        
+        model.addAttribute("order", order);
         return "order-detail";
+    }
+    
+    /**
+     * API: Get order detail
+     * GET /api/user/orders/{id}
+     */
+    @GetMapping("/api/user/orders/{id}")
+    @ResponseBody
+    public Map<String, Object> getOrderDetail(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            User user = getCurrentUser();
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "Vui lòng đăng nhập");
+                return response;
+            }
+            
+            Order order = orderService.findById(id).orElse(null);
+            if (order == null) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy đơn hàng");
+                return response;
+            }
+            
+            // Check ownership
+            if (!order.getUser().getId().equals(user.getId())) {
+                response.put("success", false);
+                response.put("message", "Bạn không có quyền xem đơn hàng này");
+                return response;
+            }
+            
+            Map<String, Object> orderMap = convertOrderToDetailMap(order);
+            
+            response.put("success", true);
+            response.put("data", orderMap);
+            return response;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Lỗi: " + e.getMessage());
+            return response;
+        }
+    }
+    
+    /**
+     * Convert Order to detailed Map including order details
+     */
+    private Map<String, Object> convertOrderToDetailMap(Order order) {
+        Map<String, Object> map = convertOrderToMap(order);
+        
+        // Add order details (products)
+        List<Map<String, Object>> items = new java.util.ArrayList<>();
+        if (order.getOrderDetails() != null) {
+            for (OrderDetail detail : order.getOrderDetails()) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", detail.getId());
+                item.put("quantity", detail.getQuantity());
+                item.put("unitPrice", detail.getUnitPrice());
+                item.put("subtotal", detail.getUnitPrice().multiply(new BigDecimal(detail.getQuantity())));
+                
+                if (detail.getVariant() != null) {
+                    ProductVariant variant = detail.getVariant();
+                    item.put("variantId", variant.getId());
+                    item.put("size", variant.getSize());
+                    
+                    if (variant.getProduct() != null) {
+                        Product product = variant.getProduct();
+                        item.put("productId", product.getId());
+                        item.put("productName", product.getName());
+                        
+                        // Get first image
+                        if (product.getImages() != null && !product.getImages().isEmpty()) {
+                            item.put("imageUrl", product.getImages().get(0).getUrl());
+                        }
+                    }
+                }
+                
+                items.add(item);
+            }
+        }
+        map.put("items", items);
+        
+        return map;
     }
 
     @GetMapping("/order-success")

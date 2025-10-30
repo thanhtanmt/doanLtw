@@ -5,10 +5,13 @@
 
 <head>
     <title>Đơn hàng của tôi</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <style>
         .orders-page {
             padding: 40px 0;
             background: #f8f9fa;
+            min-height: 100vh;
         }
 
         .page-header {
@@ -22,12 +25,47 @@
         .page-header h1 {
             font-size: 42px;
             font-weight: 700;
+            margin: 0;
         }
 
         .orders-container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+        }
+        
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .filter-tab {
+            padding: 10px 20px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .filter-tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .filter-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
         }
 
         .order-card {
@@ -51,6 +89,8 @@
             padding: 20px 25px;
             background: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .order-id {
@@ -67,7 +107,7 @@
         .order-card-body {
             padding: 25px;
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 150px;
+            grid-template-columns: repeat(4, 1fr);
             align-items: center;
             gap: 20px;
         }
@@ -81,6 +121,7 @@
             color: #7f8c8d;
             margin-bottom: 8px;
             text-transform: uppercase;
+            font-weight: 600;
         }
 
         .info-value {
@@ -97,6 +138,40 @@
             text-transform: uppercase;
             display: inline-block;
         }
+        
+        .status-PENDING {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-CONFIRMED {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-ASSIGNED,
+        .status-DELIVERING {
+            background: #cfe2ff;
+            color: #084298;
+        }
+        
+        .status-DELIVERED {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-CANCELED,
+        .status-FAILED {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .order-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+        }
 
         .btn-view-detail {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -106,11 +181,38 @@
             padding: 12px 20px;
             font-weight: 600;
             transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+            display: block;
         }
 
         .btn-view-detail:hover {
             transform: scale(1.05);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .btn-cancel-order {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .btn-cancel-order:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .btn-cancel-order:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .empty-orders {
@@ -147,21 +249,182 @@
             font-weight: 700;
             border-radius: 10px;
             transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-shop-now:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .loading i {
+            font-size: 3rem;
+            color: #667eea;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header i {
+            font-size: 50px;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+        
+        .modal-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .modal-body {
+            margin-bottom: 25px;
+        }
+        
+        .modal-body p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .modal-body textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        
+        .modal-body textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .btn-modal {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-modal-cancel {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-modal-cancel:hover {
+            background: #5a6268;
+        }
+        
+        .btn-modal-confirm {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-modal-confirm:hover {
+            background: #c82333;
         }
 
         @media (max-width: 768px) {
             .order-card-body {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
+            
+            .order-info-item {
+                text-align: left;
+                padding: 10px 0;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            
+            .order-info-item:last-child {
+                border-bottom: none;
+            }
+            
             .order-card-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 5px;
+            }
+            
+            .page-header h1 {
+                font-size: 32px;
+            }
+            
+            .filter-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .filter-tab {
+                white-space: nowrap;
+            }
+            
+            .order-actions {
+                width: 100%;
+            }
+            
+            .btn-view-detail,
+            .btn-cancel-order {
+                width: 100%;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .order-card-body {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            .order-info-item {
+                text-align: left;
             }
         }
     </style>
@@ -175,54 +438,266 @@
         </div>
 
         <div class="orders-container">
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-status="" onclick="filterOrders('')">
+                    <i class="fas fa-list"></i> Tất cả
+                </button>
+                <button class="filter-tab" data-status="PENDING" onclick="filterOrders('PENDING')">
+                    <i class="fas fa-clock"></i> Chờ xác nhận
+                </button>
+                <button class="filter-tab" data-status="CONFIRMED" onclick="filterOrders('CONFIRMED')">
+                    <i class="fas fa-check"></i> Đã xác nhận
+                </button>
+                <button class="filter-tab" data-status="DELIVERING" onclick="filterOrders('DELIVERING')">
+                    <i class="fas fa-shipping-fast"></i> Đang giao
+                </button>
+                <button class="filter-tab" data-status="DELIVERED" onclick="filterOrders('DELIVERED')">
+                    <i class="fas fa-check-double"></i> Đã giao
+                </button>
+                <button class="filter-tab" data-status="CANCELED" onclick="filterOrders('CANCELED')">
+                    <i class="fas fa-times-circle"></i> Đã hủy
+                </button>
+            </div>
+            
+            <!-- Loading -->
+            <div id="loadingOrders" class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Đang tải đơn hàng...</p>
+            </div>
+
             <!-- Empty Orders Message -->
-            <div th:if="${orders == null || orders.isEmpty()}" class="empty-orders">
+            <div id="emptyOrders" class="empty-orders" style="display: none;">
                 <i class="fas fa-box-open"></i>
                 <h3>Bạn chưa có đơn hàng nào</h3>
                 <p>Hãy bắt đầu mua sắm để lấp đầy giỏ hàng của bạn nhé!</p>
-                <a href="/products" class="btn btn-shop-now">
+                <a href="/products" class="btn-shop-now">
                     <i class="fas fa-shopping-bag"></i> Mua Sắm Ngay
                 </a>
             </div>
 
             <!-- Orders List -->
-            <div th:if="${orders != null && !orders.isEmpty()}">
-                <div th:each="order : ${orders}" class="order-card">
-                    <div class="order-card-header">
-                        <div class="order-id" th:text="'Mã đơn: #' + ${order.id}">Mã đơn: #12345</div>
-                        <div class="order-date" th:text="'Ngày đặt: ' + ${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">Ngày đặt: 01/01/2024 10:00</div>
-                    </div>
-                    <div class="order-card-body">
-                        <div class="order-info-item">
-                            <div class="info-label">Tổng tiền</div>
-                            <div class="info-value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</div>
-                        </div>
-                        <div class="order-info-item">
-                            <div class="info-label">Thanh toán</div>
-                            <div class="info-value" th:text="${order.paymentMethod}">COD</div>
-                        </div>
-                        <div class="order-info-item">
-                            <div class="info-label">Trạng thái</div>
-                            <div class="info-value">
-                                <span class="order-status"
-                                      th:classappend="(${order.status == 'PENDING'} ? 'bg-warning text-dark' :
-                                                      ${order.status == 'CONFIRMED'} ? 'bg-info text-dark' :
-                                                      ${order.status == 'SHIPPED'} ? 'bg-primary text-white' :
-                                                      ${order.status == 'DELIVERED'} ? 'bg-success text-white' : 'bg-danger text-white')"
-                                      th:text="${order.status}">
-                                    Đang giao
-                                </span>
-                            </div>
-                        </div>
-                        <div class="order-info-item">
-                            <a th:href="@{/order/{id}(id=${order.id})}" class="btn btn-view-detail">
-                                <i class="fas fa-eye"></i> Xem
-                            </a>
-                        </div>
-                    </div>
+            <div id="ordersList"></div>
+        </div>
+        
+        <!-- Cancel Order Modal -->
+        <div id="cancelModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Hủy đơn hàng</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn hủy đơn hàng này?</p>
+                    <textarea id="cancelReason" placeholder="Lý do hủy đơn (không bắt buộc)..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-modal btn-modal-cancel" onclick="closeCancelModal()">
+                        Không
+                    </button>
+                    <button class="btn-modal btn-modal-confirm" onclick="confirmCancelOrder()">
+                        Xác nhận hủy
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+    
+    <th:block layout:fragment="scripts">
+        <script>
+            let allOrders = [];
+            let currentFilter = '';
+            let orderToCancel = null;
+            
+            // Load orders on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                loadOrders();
+            });
+            
+            // Load orders from API
+            async function loadOrders() {
+                try {
+                    document.getElementById('loadingOrders').style.display = 'block';
+                    document.getElementById('emptyOrders').style.display = 'none';
+                    document.getElementById('ordersList').innerHTML = '';
+                    
+                    const response = await fetch('/api/user/orders', {
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    
+                    document.getElementById('loadingOrders').style.display = 'none';
+                    
+                    if (result.success) {
+                        allOrders = result.data;
+                        displayOrders(allOrders);
+                    } else {
+                        alert(result.message || 'Không thể tải đơn hàng');
+                    }
+                } catch (error) {
+                    console.error('Error loading orders:', error);
+                    document.getElementById('loadingOrders').style.display = 'none';
+                    alert('Có lỗi xảy ra khi tải đơn hàng');
+                }
+            }
+            
+            // Display orders
+            function displayOrders(orders) {
+                const ordersList = document.getElementById('ordersList');
+                const emptyOrders = document.getElementById('emptyOrders');
+                
+                if (!orders || orders.length === 0) {
+                    ordersList.innerHTML = '';
+                    emptyOrders.style.display = 'block';
+                    return;
+                }
+                
+                emptyOrders.style.display = 'none';
+                
+                ordersList.innerHTML = orders.map(order => `
+                    <div class="order-card">
+                        <div class="order-card-header">
+                            <div class="order-id">Mã đơn: #${order.orderCode || order.id}</div>
+                            <div class="order-date">${formatDate(order.createdAt)}</div>
+                        </div>
+                        <div class="order-card-body">
+                            <div class="order-info-item">
+                                <div class="info-label">Tổng tiền</div>
+                                <div class="info-value">${formatCurrency(order.totalPrice)}</div>
+                            </div>
+                            <div class="order-info-item">
+                                <div class="info-label">Thanh toán</div>
+                                <div class="info-value">${order.paymentMethod || 'COD'}</div>
+                            </div>
+                            <div class="order-info-item">
+                                <div class="info-label">Trạng thái</div>
+                                <div class="info-value">
+                                    <span class="order-status status-${order.status}">
+                                        ${order.statusDisplay || order.status}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="order-info-item">
+                                <div class="order-actions">
+                                    <a href="/order/${order.id}" class="btn-view-detail">
+                                        <i class="fas fa-eye"></i> Xem chi tiết
+                                    </a>
+                                    ${canCancelOrder(order) ? `
+                                        <button class="btn-cancel-order" onclick="openCancelModal(${order.id})">
+                                            <i class="fas fa-times"></i> Hủy đơn
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Filter orders
+            function filterOrders(status) {
+                currentFilter = status;
+                
+                // Update active tab
+                document.querySelectorAll('.filter-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                    if (tab.dataset.status === status) {
+                        tab.classList.add('active');
+                    }
+                });
+                
+                // Filter and display
+                if (status === '') {
+                    displayOrders(allOrders);
+                } else {
+                    const filtered = allOrders.filter(order => {
+                        if (status === 'DELIVERING') {
+                            return order.status === 'DELIVERING' || order.status === 'ASSIGNED';
+                        }
+                        return order.status === status;
+                    });
+                    displayOrders(filtered);
+                }
+            }
+            
+            // Check if order can be canceled
+            function canCancelOrder(order) {
+                return order.status === 'PENDING' || order.status === 'CONFIRMED';
+            }
+            
+            // Open cancel modal
+            function openCancelModal(orderId) {
+                orderToCancel = orderId;
+                document.getElementById('cancelReason').value = '';
+                document.getElementById('cancelModal').classList.add('active');
+            }
+            
+            // Close cancel modal
+            function closeCancelModal() {
+                orderToCancel = null;
+                document.getElementById('cancelModal').classList.remove('active');
+            }
+            
+            // Confirm cancel order
+            async function confirmCancelOrder() {
+                if (!orderToCancel) return;
+                
+                const reason = document.getElementById('cancelReason').value.trim();
+                
+                try {
+                    const formData = new FormData();
+                    if (reason) {
+                        formData.append('reason', reason);
+                    }
+                    
+                    const response = await fetch(`/api/user/orders/${orderToCancel}/cancel`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                        },
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        closeCancelModal();
+                        alert(result.message);
+                        loadOrders(); // Reload orders
+                    } else {
+                        alert(result.message || 'Không thể hủy đơn hàng');
+                    }
+                } catch (error) {
+                    console.error('Error canceling order:', error);
+                    alert('Có lỗi xảy ra khi hủy đơn hàng');
+                }
+            }
+            
+            // Format currency
+            function formatCurrency(amount) {
+                if (!amount) return '0 đ';
+                return new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(amount);
+            }
+            
+            // Format date
+            function formatDate(dateString) {
+                if (!dateString) return 'N/A';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('vi-VN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        </script>
+    </th:block>
 </body>
 </html>
