@@ -52,4 +52,7 @@ public class User extends BaseEntity {
 
     @Column(name = "avatar_url")
     private String avatarUrl;
+    
+    @Column(name = "address", columnDefinition = "NVARCHAR(500)")
+    private String address;
 }

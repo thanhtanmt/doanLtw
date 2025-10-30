@@ -215,10 +215,6 @@ body {
 .dashboard-card .icon {
   font-size: 48px;
   margin-bottom: 15px;
-  background: var(--gradient);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .dashboard-card h2 {
@@ -482,9 +478,9 @@ body {
     <div class="seller-content" id="products" style="display:none;">
       <div class="action-bar">
         <h2><i class="fas fa-box"></i> Quản lý sản phẩm</h2>
-        <a href="#" class="btn">
+        <button class="btn" id="addProductBtn">
           <i class="fas fa-plus"></i> Thêm sản phẩm mới
-        </a>
+        </button>
       </div>
       <div class="table-container">
         <table class="table">
@@ -610,9 +606,9 @@ body {
     <div class="seller-content" id="vouchers" style="display:none;">
       <div class="action-bar">
         <h2><i class="fas fa-tags"></i> Quản lý khuyến mãi</h2>
-        <a href="#" class="btn">
+        <button class="btn" id="addVoucherBtn">
           <i class="fas fa-plus"></i> Tạo voucher mới
-        </a>
+        </button>
       </div>
       <div class="table-container">
         <table class="table">
@@ -674,374 +670,317 @@ body {
     </div>
   </div>
 
-  <!-- Modal Thêm Sản Phẩm (Bootstrap Style) -->
-  <div id="productModal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">
-            <i class="fas fa-box-open me-2"></i>
-            Thêm sản phẩm mới
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="productForm">
-            <!-- Tabs Navigation -->
-            <ul class="nav nav-tabs mb-4" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
-                  <i class="fas fa-info-circle me-1"></i> Thông tin cơ bản
-                </button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="variants-tab" data-bs-toggle="tab" data-bs-target="#variants" type="button" role="tab">
-                  <i class="fas fa-th me-1"></i> Phân loại hàng
-                </button>
-              </li>
-            </ul>
-            
-            <!-- Tab Content -->
-            <div class="tab-content">
-              <!-- Tab 1: Thông tin cơ bản -->
-              <div class="tab-pane fade show active" id="basic" role="tabpanel">
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label class="form-label">
-                      <i class="fas fa-tag text-primary me-1"></i> Tên sản phẩm <span class="text-danger">*</span>
-                    </label>
-                    <input type="text" class="form-control" name="name" required placeholder="Ví dụ: Áo phông basic">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">
-                      <i class="fas fa-copyright text-primary me-1"></i> Thương hiệu
-                    </label>
-                    <input type="text" class="form-control" name="brand" placeholder="Ví dụ: Nike">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">
-                      <i class="fas fa-list text-primary me-1"></i> Danh mục <span class="text-danger">*</span>
-                    </label>
-                    <select class="form-select" name="categoryId" required>
-                      <option value="">-- Chọn danh mục --</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">
-                      <i class="fas fa-venus-mars text-primary me-1"></i> Giới tính
-                    </label>
-                    <select class="form-select" name="gender">
-                      <option value="">-- Chọn giới tính --</option>
-                      <option value="Nam">Nam</option>
-                      <option value="Nữ">Nữ</option>
-                      <option value="Unisex">Unisex</option>
-                    </select>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">
-                      <i class="fas fa-tshirt text-primary me-1"></i> Chất liệu
-                    </label>
-                    <input type="text" class="form-control" name="material" placeholder="Ví dụ: Cotton 100%">
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">
-                      <i class="fas fa-align-left text-primary me-1"></i> Mô tả ngắn
-                    </label>
-                    <textarea class="form-control" name="description" rows="2" placeholder="Giới thiệu ngắn về sản phẩm..."></textarea>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">
-                      <i class="fas fa-file-alt text-primary me-1"></i> Mô tả chi tiết
-                    </label>
-                    <textarea class="form-control" name="detail" rows="3" placeholder="Mô tả chi tiết về sản phẩm..."></textarea>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">
-                      <i class="fas fa-clipboard-list text-primary me-1"></i> Thông số kỹ thuật
-                    </label>
-                    <textarea class="form-control" name="specification" rows="2" placeholder="Hướng dẫn bảo quản, xuất xứ..."></textarea>
-                  </div>
-                </div>
+  <!-- Modal Thêm Sản Phẩm -->
+  <div class="modal-overlay" id="productModal" style="display:none;">
+    <div class="modal-content modal-large">
+      <button class="modal-close">&times;</button>
+      
+      <div class="modal-header">
+        <i class="fas fa-box-open"></i>
+        <h2>Thêm sản phẩm mới</h2>
+      </div>
+      
+      <div class="modal-body">
+        <form id="productForm">
+          <!-- Tabs -->
+          <div class="modal-tabs">
+            <button type="button" class="modal-tab active" data-tab="basic-info">
+              <i class="fas fa-info-circle"></i> Thông tin cơ bản
+            </button>
+            <button type="button" class="modal-tab" data-tab="variants-info">
+              <i class="fas fa-th"></i> Phân loại hàng
+            </button>
+          </div>
+          
+          <!-- Tab: Thông tin cơ bản -->
+          <div class="modal-tab-content active" id="basic-info">
+            <div class="form-grid">
+              <div class="form-group">
+                <label><i class="fas fa-tag"></i> Tên sản phẩm <span class="required">*</span></label>
+                <input type="text" name="name" required placeholder="Ví dụ: Áo phông basic">
               </div>
               
-              <!-- Tab 2: Phân loại hàng -->
-              <div class="tab-pane fade" id="variants" role="tabpanel">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h6><i class="fas fa-th-large text-primary me-2"></i> Danh sách phân loại</h6>
-                  <button type="button" class="btn btn-success btn-sm" id="addVariantBtn">
-                    <i class="fas fa-plus me-1"></i> Thêm phân loại
-                  </button>
-                </div>
-                <div class="table-responsive">
-                  <table class="table table-bordered table-hover">
-                    <thead class="table-light">
-                      <tr>
-                        <th>Size</th>
-                        <th>Giá (VNĐ)</th>
-                        <th>Số lượng</th>
-                        <th>SKU</th>
-                        <th style="width: 50px;"></th>
-                      </tr>
-                    </thead>
-                    <tbody id="variantsContainer">
-                      <tr class="variant-row">
-                        <td><input type="text" class="form-control form-control-sm" name="variants[0].size" required placeholder="S, M, L..."></td>
-                        <td><input type="number" class="form-control form-control-sm" name="variants[0].price" required placeholder="250000"></td>
-                        <td><input type="number" class="form-control form-control-sm" name="variants[0].quantity" required placeholder="50"></td>
-                        <td><input type="text" class="form-control form-control-sm" name="variants[0].sku" placeholder="PRO-001-S"></td>
-                        <td></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <div class="form-group">
+                <label><i class="fas fa-copyright"></i> Thương hiệu</label>
+                <input type="text" name="brand" placeholder="Ví dụ: Nike">
               </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-          <button type="submit" form="productForm" class="btn btn-primary">
-            <i class="fas fa-save me-1"></i> Lưu sản phẩm
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Tạo Voucher (Bootstrap Style) -->
-  <div id="voucherModal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header bg-warning text-dark">
-          <h5 class="modal-title">
-            <i class="fas fa-tags me-2"></i>
-            Tạo voucher mới
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="voucherForm">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-barcode text-warning me-1"></i> Mã voucher <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control text-uppercase" name="code" required placeholder="SALE10">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-tag text-warning me-1"></i> Tên voucher <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control" name="name" required placeholder="Giảm giá 10%">
-              </div>
-              <div class="col-12">
-                <label class="form-label">
-                  <i class="fas fa-align-left text-warning me-1"></i> Mô tả
-                </label>
-                <textarea class="form-control" name="description" rows="2" placeholder="Mô tả về voucher..."></textarea>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-percentage text-warning me-1"></i> Loại giảm giá <span class="text-danger">*</span>
-                </label>
-                <select class="form-select" name="discountType" required id="discountType">
-                  <option value="PERCENTAGE">Phần trăm (%)</option>
-                  <option value="FIXED_AMOUNT">Số tiền cố định (VNĐ)</option>
+              
+              <div class="form-group">
+                <label><i class="fas fa-list"></i> Danh mục <span class="required">*</span></label>
+                <select name="categoryId" required>
+                  <option value="">-- Chọn danh mục --</option>
                 </select>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-dollar-sign text-warning me-1"></i> Giá trị giảm <span class="text-danger">*</span>
-                </label>
-                <input type="number" class="form-control" name="discountValue" required placeholder="10" step="0.01">
+              
+              <div class="form-group">
+                <label><i class="fas fa-venus-mars"></i> Giới tính</label>
+                <select name="gender">
+                  <option value="">-- Chọn giới tính --</option>
+                  <option value="Nam">Nam</option>
+                  <option value="Nữ">Nữ</option>
+                  <option value="Unisex">Unisex</option>
+                </select>
               </div>
-              <div class="col-md-6" id="maxDiscountGroup">
-                <label class="form-label">
-                  <i class="fas fa-hand-holding-usd text-warning me-1"></i> Giảm tối đa (VNĐ)
-                </label>
-                <input type="number" class="form-control" name="maxDiscount" placeholder="50000">
+              
+              <div class="form-group full-width">
+                <label><i class="fas fa-tshirt"></i> Chất liệu</label>
+                <input type="text" name="material" placeholder="Ví dụ: Cotton 100%">
               </div>
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-shopping-cart text-warning me-1"></i> Đơn hàng tối thiểu (VNĐ)
-                </label>
-                <input type="number" class="form-control" name="minOrderValue" placeholder="200000" value="0">
+              
+              <div class="form-group full-width">
+                <label><i class="fas fa-align-left"></i> Mô tả ngắn</label>
+                <textarea name="description" rows="2" placeholder="Giới thiệu ngắn về sản phẩm..."></textarea>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-boxes text-warning me-1"></i> Số lượng voucher <span class="text-danger">*</span>
-                </label>
-                <input type="number" class="form-control" name="totalQuantity" required placeholder="100" value="1">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-user-check text-warning me-1"></i> Giới hạn sử dụng/người
-                </label>
-                <input type="number" class="form-control" name="usageLimit" placeholder="1" value="1">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-calendar-alt text-warning me-1"></i> Ngày bắt đầu <span class="text-danger">*</span>
-                </label>
-                <input type="date" class="form-control" name="startDate" required>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-calendar-times text-warning me-1"></i> Ngày kết thúc <span class="text-danger">*</span>
-                </label>
-                <input type="date" class="form-control" name="endDate" required>
-              </div>
-              <div class="col-12">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="active" checked id="activeCheck">
-                  <label class="form-check-label" for="activeCheck">
-                    <i class="fas fa-check-circle text-success me-1"></i> Kích hoạt ngay
-                  </label>
-                </div>
+              
+              <div class="form-group full-width">
+                <label><i class="fas fa-file-alt"></i> Mô tả chi tiết</label>
+                <textarea name="detail" rows="3" placeholder="Mô tả chi tiết về sản phẩm..."></textarea>
               </div>
             </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-          <button type="submit" form="voucherForm" class="btn btn-warning">
-            <i class="fas fa-save me-1"></i> Tạo voucher
-          </button>
-        </div>
+          </div>
+          
+          <!-- Tab: Phân loại hàng -->
+          <div class="modal-tab-content" id="variants-info" style="display:none;">
+            <div class="variants-header">
+              <h4><i class="fas fa-th-large"></i> Danh sách phân loại</h4>
+              <button type="button" class="btn btn-success" id="addVariantBtn">
+                <i class="fas fa-plus"></i> Thêm phân loại
+              </button>
+            </div>
+            
+            <div class="variants-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Size</th>
+                    <th>Giá (VNĐ)</th>
+                    <th>Số lượng</th>
+                    <th>SKU</th>
+                    <th style="width: 50px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="variantsContainer">
+                  <tr class="variant-row">
+                    <td><input type="text" name="variants[0].size" required placeholder="S, M, L..."></td>
+                    <td><input type="number" name="variants[0].price" required placeholder="250000"></td>
+                    <td><input type="number" name="variants[0].quantity" required placeholder="50"></td>
+                    <td><input type="text" name="variants[0].sku" placeholder="PRO-001-S"></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary modal-close-btn">Đóng</button>
+            <button type="submit" class="btn">
+              <i class="fas fa-save"></i> Lưu sản phẩm
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 
-</div> <!-- End of layout:fragment="content" -->
+  <!-- Modal Tạo Voucher -->
+  <div class="modal-overlay" id="voucherModal" style="display:none;">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      
+      <div class="modal-header">
+        <i class="fas fa-tags"></i>
+        <h2>Tạo voucher mới</h2>
+      </div>
+      
+      <div class="modal-body">
+        <form id="voucherForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label><i class="fas fa-barcode"></i> Mã voucher <span class="required">*</span></label>
+              <input type="text" name="code" required placeholder="SALE10" style="text-transform: uppercase;">
+            </div>
+            
+            <div class="form-group">
+              <label><i class="fas fa-tag"></i> Tên voucher <span class="required">*</span></label>
+              <input type="text" name="name" required placeholder="Giảm giá 10%">
+            </div>
+            
+            <div class="form-group full-width">
+              <label><i class="fas fa-align-left"></i> Mô tả</label>
+              <textarea name="description" rows="2" placeholder="Mô tả về voucher..."></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label><i class="fas fa-percentage"></i> Loại giảm giá <span class="required">*</span></label>
+              <select name="discountType" required id="discountType">
+                <option value="PERCENTAGE">Phần trăm (%)</option>
+                <option value="FIXED_AMOUNT">Số tiền cố định (VNĐ)</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label><i class="fas fa-dollar-sign"></i> Giá trị giảm <span class="required">*</span></label>
+              <input type="number" name="discountValue" required placeholder="10" step="0.01">
+            </div>
+            
+            <div class="form-group" id="maxDiscountGroup">
+              <label><i class="fas fa-hand-holding-usd"></i> Giảm tối đa (VNĐ)</label>
+              <input type="number" name="maxDiscount" placeholder="50000">
+            </div>
+            
+            <div class="form-group">
+              <label><i class="fas fa-shopping-cart"></i> Đơn hàng tối thiểu (VNĐ)</label>
+              <input type="number" name="minOrderValue" placeholder="200000" value="0">
+            </div>
+            
+            <div class="form-group">
+              <label><i class="fas fa-boxes"></i> Số lượng voucher <span class="required">*</span></label>
+              <input type="number" name="totalQuantity" required placeholder="100" value="1">
+            </div>
+            
+            <div class="form-group">
+              <label><i class="fas fa-user-check"></i> Giới hạn sử dụng/người</label>
+              <input type="number" name="usageLimit" placeholder="1" value="1">
+            </div>
+            
+            <div class="form-group">
+              <label><i class="fas fa-calendar-alt"></i> Ngày bắt đầu <span class="required">*</span></label>
+              <input type="date" name="startDate" required>
+            </div>
+            
+            <div class="form-group">
+              <label><i class="fas fa-calendar-times"></i> Ngày kết thúc <span class="required">*</span></label>
+              <input type="date" name="endDate" required>
+            </div>
+            
+            <div class="form-group full-width">
+              <label class="checkbox-label">
+                <input type="checkbox" name="active" checked>
+                <span><i class="fas fa-check-circle"></i> Kích hoạt ngay</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary modal-close-btn">Đóng</button>
+            <button type="submit" class="btn">
+              <i class="fas fa-save"></i> Tạo voucher
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <th:block layout:fragment="scripts">
-<script th:inline="javascript">
+<script>
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Seller page loaded');
   
-  // Bootstrap Modal instances
-  const productModalEl = document.getElementById('productModal');
-  const voucherModalEl = document.getElementById('voucherModal');
-  
-  const productModal = productModalEl ? new bootstrap.Modal(productModalEl) : null;
-  const voucherModal = voucherModalEl ? new bootstrap.Modal(voucherModalEl) : null;
-  
-  console.log('Product Modal Element:', productModalEl);
-  console.log('Voucher Modal Element:', voucherModalEl);
-  
-  // Button handlers - Mở modal khi click
-  const addProductBtn = document.getElementById('addProductBtn');
-  const addVoucherBtn = document.getElementById('addVoucherBtn');
-  
-  if (addProductBtn && productModal) {
-    addProductBtn.addEventListener('click', function() {
-      console.log('Opening product modal');
-      productModal.show();
+  // Tab switching
+  document.querySelectorAll('.seller-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.seller-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.seller-content').forEach(c => c.style.display = 'none');
+      document.getElementById(tab.dataset.tab).style.display = 'block';
     });
-  }
+  });
   
-  if (addVoucherBtn && voucherModal) {
-    addVoucherBtn.addEventListener('click', function() {
-      console.log('Opening voucher modal');
-      voucherModal.show();
+  // Modal functions
+  const productModal = document.getElementById('productModal');
+  const voucherModal = document.getElementById('voucherModal');
+  
+  // Open modals
+  document.getElementById('addProductBtn')?.addEventListener('click', function() {
+    productModal.style.display = 'flex';
+  });
+  
+  document.getElementById('addVoucherBtn')?.addEventListener('click', function() {
+    voucherModal.style.display = 'flex';
+  });
+  
+  // Close modals
+  document.querySelectorAll('.modal-close, .modal-close-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      productModal.style.display = 'none';
+      voucherModal.style.display = 'none';
     });
-  }
+  });
   
-  // Voucher discount type logic
-  const discountTypeSelect = document.getElementById('discountType');
-  const maxDiscountGroup = document.getElementById('maxDiscountGroup');
-  
-  if (discountTypeSelect && maxDiscountGroup) {
-    discountTypeSelect.addEventListener('change', function() {
-      if (this.value === 'PERCENTAGE') {
-        maxDiscountGroup.style.display = 'block';
-      } else {
-        maxDiscountGroup.style.display = 'none';
+  // Close on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.style.display = 'none';
       }
     });
-  }
+  });
   
-  // Add variant row handler
+  // Modal tabs
+  document.querySelectorAll('.modal-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      const modal = this.closest('.modal-content');
+      modal.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+      modal.querySelectorAll('.modal-tab-content').forEach(c => c.style.display = 'none');
+      
+      this.classList.add('active');
+      const targetId = this.getAttribute('data-tab');
+      modal.querySelector('#' + targetId).style.display = 'block';
+    });
+  });
+  
+  // Add variant
   let variantIndex = 1;
-  const addVariantBtn = document.getElementById('addVariantBtn');
-  const variantsContainer = document.getElementById('variantsContainer');
+  document.getElementById('addVariantBtn')?.addEventListener('click', function() {
+    const tbody = document.getElementById('variantsContainer');
+    const newRow = document.createElement('tr');
+    newRow.className = 'variant-row';
+    newRow.innerHTML = `
+      <td><input type="text" name="variants[${variantIndex}].size" required placeholder="S, M, L..."></td>
+      <td><input type="number" name="variants[${variantIndex}].price" required placeholder="250000"></td>
+      <td><input type="number" name="variants[${variantIndex}].quantity" required placeholder="50"></td>
+      <td><input type="text" name="variants[${variantIndex}].sku" placeholder="PRO-${variantIndex}"></td>
+      <td><button type="button" class="btn-remove-variant" onclick="this.closest('tr').remove()">&times;</button></td>
+    `;
+    tbody.appendChild(newRow);
+    variantIndex++;
+  });
   
-  if (addVariantBtn && variantsContainer) {
-    addVariantBtn.addEventListener('click', function() {
-      const newRow = document.createElement('tr');
-      newRow.className = 'variant-row';
-      newRow.innerHTML = `
-        <td><input type="text" class="form-control form-control-sm" name="variants[${variantIndex}].size" required placeholder="S, M, L..."></td>
-        <td><input type="number" class="form-control form-control-sm" name="variants[${variantIndex}].price" required placeholder="250000"></td>
-        <td><input type="number" class="form-control form-control-sm" name="variants[${variantIndex}].quantity" required placeholder="50"></td>
-        <td><input type="text" class="form-control form-control-sm" name="variants[${variantIndex}].sku" placeholder="PRO-001-${variantIndex}"></td>
-        <td>
-          <button type="button" class="btn btn-danger btn-sm remove-variant">
-            <i class="fas fa-trash"></i>
-          </button>
-        </td>
-      `;
-      variantsContainer.appendChild(newRow);
-      variantIndex++;
-      
-      // Add remove handler
-      newRow.querySelector('.remove-variant').addEventListener('click', function() {
-        newRow.remove();
-      });
-    });
-  }
+  // Voucher discount type
+  document.getElementById('discountType')?.addEventListener('change', function() {
+    const maxDiscountGroup = document.getElementById('maxDiscountGroup');
+    if (this.value === 'FIXED_AMOUNT') {
+      maxDiscountGroup.style.display = 'none';
+    } else {
+      maxDiscountGroup.style.display = 'block';
+    }
+  });
   
-  // Form submissions
-  const productForm = document.getElementById('productForm');
-  if (productForm) {
-    productForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      console.log('Product form submitted');
-      
-      const formData = new FormData(this);
-      const data = {};
-      formData.forEach((value, key) => {
-        data[key] = value;
-      });
-      
-      console.log('Product data:', data);
-      alert('Chức năng đang phát triển. Dữ liệu: ' + JSON.stringify(data, null, 2));
-      
-      // Close modal
-      if (productModal) productModal.hide();
-    });
-  }
+  // Product form submit
+  document.getElementById('productForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    console.log('Product form submitted');
+    alert('Chức năng đang phát triển. Dữ liệu sẽ được gửi lên server.');
+    productModal.style.display = 'none';
+  });
   
-  const voucherForm = document.getElementById('voucherForm');
-  if (voucherForm) {
-    voucherForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      console.log('Voucher form submitted');
-      
-      const formData = new FormData(this);
-      const data = {};
-      formData.forEach((value, key) => {
-        data[key] = value;
-      });
-      
-      console.log('Voucher data:', data);
-      alert('Chức năng đang phát triển. Dữ liệu: ' + JSON.stringify(data, null, 2));
-      
-      // Close modal
-      if (voucherModal) voucherModal.hide();
-    });
-  }
+  // Voucher form submit
+  document.getElementById('voucherForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    console.log('Voucher form submitted');
+    alert('Chức năng đang phát triển. Dữ liệu sẽ được gửi lên server.');
+    voucherModal.style.display = 'none';
+  });
   
-  // Load categories for product form
+  // Load categories
   fetch('/api/categories')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to load categories');
-      }
-      return response.json();
-    })
+    .then(response => response.json())
     .then(categories => {
-      const select = productForm?.querySelector('select[name="categoryId"]');
+      const select = document.querySelector('select[name="categoryId"]');
       if (select && categories) {
         categories.forEach(cat => {
           const option = document.createElement('option');
@@ -1054,228 +993,21 @@ document.addEventListener('DOMContentLoaded', function() {
     .catch(error => console.error('Error loading categories:', error));
 });
 </script>
-</th:block>
-</body>
-</html>
-    
-    <div class="modal-modern-header">
-      <i class="fas fa-box-open"></i>
-      <h2>Thêm sản phẩm mới</h2>
-    </div>
-    
-    <div class="modal-modern-body">
-      <form id="productForm">
-        <!-- Tabs -->
-        <div class="modal-tabs">
-          <button type="button" class="modal-tab active" data-tab="basic">
-            <i class="fas fa-info-circle"></i> Thông tin cơ bản
-          </button>
-          <button type="button" class="modal-tab" data-tab="variants">
-            <i class="fas fa-th"></i> Phân loại hàng
-          </button>
-        </div>
-        
-        <!-- Tab Content: Thông tin cơ bản -->
-        <div class="modal-tab-content active" id="basic">
-          <div class="info-grid">
-            <div class="info-item">
-              <label><i class="fas fa-tag"></i> Tên sản phẩm <span class="required">*</span></label>
-              <input type="text" name="name" required placeholder="Ví dụ: Áo phông basic">
-            </div>
-            
-            <div class="info-item">
-              <label><i class="fas fa-copyright"></i> Thương hiệu</label>
-              <input type="text" name="brand" placeholder="Ví dụ: Nike">
-            </div>
-            
-            <div class="info-item">
-              <label><i class="fas fa-list"></i> Danh mục <span class="required">*</span></label>
-              <select name="categoryId" required>
-                <option value="">-- Chọn danh mục --</option>
-              </select>
-            </div>
-            
-            <div class="info-item">
-              <label><i class="fas fa-venus-mars"></i> Giới tính</label>
-              <select name="gender">
-                <option value="">-- Chọn giới tính --</option>
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-                <option value="Unisex">Unisex</option>
-              </select>
-            </div>
-            
-            <div class="info-item full-width">
-              <label><i class="fas fa-tshirt"></i> Chất liệu</label>
-              <input type="text" name="material" placeholder="Ví dụ: Cotton 100%">
-            </div>
-            
-            <div class="info-item full-width">
-              <label><i class="fas fa-align-left"></i> Mô tả ngắn</label>
-              <textarea name="description" rows="2" placeholder="Giới thiệu ngắn về sản phẩm..."></textarea>
-            </div>
-            
-            <div class="info-item full-width">
-              <label><i class="fas fa-file-alt"></i> Mô tả chi tiết</label>
-              <textarea name="detail" rows="3" placeholder="Mô tả chi tiết về sản phẩm..."></textarea>
-            </div>
-            
-            <div class="info-item full-width">
-              <label><i class="fas fa-clipboard-list"></i> Thông số kỹ thuật</label>
-              <textarea name="specification" rows="2" placeholder="Hướng dẫn bảo quản, xuất xứ..."></textarea>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Tab Content: Phân loại hàng -->
-        <div class="modal-tab-content" id="variants" style="display:none;">
-          <div class="variants-header">
-            <h4><i class="fas fa-th-large"></i> Danh sách phân loại</h4>
-            <button type="button" class="btn-add-variant" id="addVariantBtn">
-              <i class="fas fa-plus"></i> Thêm phân loại
-            </button>
-          </div>
-          
-          <div class="variants-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Size</th>
-                  <th>Giá (VNĐ)</th>
-                  <th>Số lượng</th>
-                  <th>SKU</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="variantsContainer">
-                <tr class="variant-row">
-                  <td><input type="text" name="variants[0].size" required placeholder="S, M, L..."></td>
-                  <td><input type="number" name="variants[0].price" required placeholder="250000"></td>
-                  <td><input type="number" name="variants[0].quantity" required placeholder="50"></td>
-                  <td><input type="text" name="variants[0].sku" placeholder="PRO-001-S"></td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        <div class="modal-modern-footer">
-          <button type="button" class="btn-cancel modal-modern-close">Đóng</button>
-          <button type="submit" class="btn-submit">
-            <i class="fas fa-paper-plane"></i> Lưu sản phẩm
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Thêm Voucher -->
-<div class="modal-modern" id="voucherModal" style="display:none;">
-  <div class="modal-modern-overlay"></div>
-  <div class="modal-modern-content">
-    <button class="modal-modern-close">&times;</button>
-    
-    <div class="modal-modern-header">
-      <i class="fas fa-tags"></i>
-      <h2>Tạo voucher mới</h2>
-    </div>
-    
-    <div class="modal-modern-body">
-      <form id="voucherForm">
-        <div class="info-grid">
-          <div class="info-item">
-            <label><i class="fas fa-barcode"></i> Mã voucher <span class="required">*</span></label>
-            <input type="text" name="code" required placeholder="SALE10" style="text-transform: uppercase;">
-          </div>
-          
-          <div class="info-item">
-            <label><i class="fas fa-tag"></i> Tên voucher <span class="required">*</span></label>
-            <input type="text" name="name" required placeholder="Giảm giá 10%">
-          </div>
-          
-          <div class="info-item full-width">
-            <label><i class="fas fa-align-left"></i> Mô tả</label>
-            <textarea name="description" rows="2" placeholder="Mô tả về voucher..."></textarea>
-          </div>
-          
-          <div class="info-item">
-            <label><i class="fas fa-percentage"></i> Loại giảm giá <span class="required">*</span></label>
-            <select name="discountType" required id="discountType">
-              <option value="PERCENTAGE">Phần trăm (%)</option>
-              <option value="FIXED_AMOUNT">Số tiền cố định (VNĐ)</option>
-            </select>
-          </div>
-          
-          <div class="info-item">
-            <label><i class="fas fa-dollar-sign"></i> Giá trị giảm <span class="required">*</span></label>
-            <input type="number" name="discountValue" required placeholder="10" step="0.01">
-          </div>
-          
-          <div class="info-item" id="maxDiscountGroup">
-            <label><i class="fas fa-hand-holding-usd"></i> Giảm tối đa (VNĐ)</label>
-            <input type="number" name="maxDiscount" placeholder="50000">
-          </div>
-          
-          <div class="info-item">
-            <label><i class="fas fa-shopping-cart"></i> Đơn hàng tối thiểu (VNĐ)</label>
-            <input type="number" name="minOrderValue" placeholder="200000" value="0">
-          </div>
-          
-          <div class="info-item">
-            <label><i class="fas fa-boxes"></i> Số lượng voucher <span class="required">*</span></label>
-            <input type="number" name="totalQuantity" required placeholder="100" value="1">
-          </div>
-          
-          <div class="info-item">
-            <label><i class="fas fa-user-check"></i> Giới hạn sử dụng/người</label>
-            <input type="number" name="usageLimit" placeholder="1" value="1">
-          </div>
-          
-          <div class="info-item">
-            <label><i class="fas fa-calendar-alt"></i> Ngày bắt đầu <span class="required">*</span></label>
-            <input type="date" name="startDate" required>
-          </div>
-          
-          <div class="info-item">
-            <label><i class="fas fa-calendar-times"></i> Ngày kết thúc <span class="required">*</span></label>
-            <input type="date" name="endDate" required>
-          </div>
-          
-          <div class="info-item full-width">
-            <label class="checkbox-label">
-              <input type="checkbox" name="active" checked>
-              <span><i class="fas fa-check-circle"></i> Kích hoạt ngay</span>
-            </label>
-          </div>
-        </div>
-        
-        <div class="modal-modern-footer">
-          <button type="button" class="btn-cancel modal-modern-close">Đóng</button>
-          <button type="submit" class="btn-submit">
-            <i class="fas fa-paper-plane"></i> Tạo voucher
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div> <!-- End of Voucher Modal -->
-
-</div> <!-- End of layout:fragment="content" -->
 
 <style>
-/* Modern Modal Styles */
-.modal-modern {
+/* Modal Styles */
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 10000;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10000;
   animation: fadeIn 0.3s ease;
 }
 
@@ -1284,26 +1016,20 @@ document.addEventListener('DOMContentLoaded', function() {
   to { opacity: 1; }
 }
 
-.modal-modern-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-}
-
-.modal-modern-content {
+.modal-content {
   position: relative;
   background: white;
   border-radius: 24px;
-  max-width: 900px;
+  max-width: 600px;
   width: 95%;
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
   animation: slideUp 0.4s ease;
+}
+
+.modal-content.modal-large {
+  max-width: 900px;
 }
 
 @keyframes slideUp {
@@ -1317,11 +1043,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 }
 
-.modal-modern-close {
+.modal-close {
   position: absolute;
   top: 20px;
   right: 20px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.2);
   border: none;
   width: 40px;
   height: 40px;
@@ -1334,39 +1060,40 @@ document.addEventListener('DOMContentLoaded', function() {
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
 }
 
-.modal-modern-close:hover {
+.modal-close:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: rotate(90deg);
 }
 
-.modal-modern-header {
+.modal-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 35px 40px;
   text-align: center;
   color: white;
 }
 
-.modal-modern-header i {
+.modal-header i {
   font-size: 48px;
   margin-bottom: 15px;
   opacity: 0.9;
 }
 
-.modal-modern-header h2 {
+.modal-header h2 {
   margin: 0;
   font-size: 28px;
   font-weight: 600;
 }
 
-.modal-modern-body {
+.modal-body {
   padding: 35px 40px;
   max-height: calc(90vh - 250px);
   overflow-y: auto;
 }
 
-/* Tabs */
+/* Modal Tabs */
 .modal-tabs {
   display: flex;
   gap: 10px;
@@ -1404,31 +1131,26 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .modal-tab-content {
-  display: none;
-}
-
-.modal-tab-content.active {
-  display: block;
   animation: fadeIn 0.3s ease;
 }
 
-/* Info Grid */
-.info-grid {
+/* Form Grid */
+.form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 25px;
 }
 
-.info-item {
+.form-group {
   display: flex;
   flex-direction: column;
 }
 
-.info-item.full-width {
+.form-group.full-width {
   grid-column: 1 / -1;
 }
 
-.info-item label {
+.form-group label {
   font-size: 14px;
   font-weight: 600;
   color: #495057;
@@ -1438,14 +1160,14 @@ document.addEventListener('DOMContentLoaded', function() {
   gap: 8px;
 }
 
-.info-item label i {
+.form-group label i {
   color: #667eea;
   font-size: 16px;
 }
 
-.info-item input,
-.info-item select,
-.info-item textarea {
+.form-group input,
+.form-group select,
+.form-group textarea {
   padding: 12px 16px;
   border: 2px solid #e9ecef;
   border-radius: 12px;
@@ -1455,16 +1177,16 @@ document.addEventListener('DOMContentLoaded', function() {
   background: #f8f9fa;
 }
 
-.info-item input:focus,
-.info-item select:focus,
-.info-item textarea:focus {
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: #667eea;
   background: white;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
-.info-item textarea {
+.form-group textarea {
   resize: vertical;
   min-height: 80px;
 }
@@ -1521,26 +1243,6 @@ document.addEventListener('DOMContentLoaded', function() {
   gap: 10px;
 }
 
-.btn-add-variant {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #51cf66, #37b24d);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-add-variant:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(55, 178, 77, 0.3);
-}
-
 .variants-table {
   background: #f8f9fa;
   border-radius: 12px;
@@ -1593,6 +1295,7 @@ document.addEventListener('DOMContentLoaded', function() {
   cursor: pointer;
   font-size: 18px;
   transition: all 0.3s;
+  line-height: 1;
 }
 
 .btn-remove-variant:hover {
@@ -1600,8 +1303,8 @@ document.addEventListener('DOMContentLoaded', function() {
   transform: rotate(90deg);
 }
 
-/* Footer */
-.modal-modern-footer {
+/* Modal Footer */
+.modal-footer {
   padding: 25px 40px;
   border-top: 2px solid #e9ecef;
   display: flex;
@@ -1610,52 +1313,22 @@ document.addEventListener('DOMContentLoaded', function() {
   background: #f8f9fa;
 }
 
-.btn-cancel {
-  padding: 12px 30px;
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-family: inherit;
+.btn-secondary {
+  background: #6c757d !important;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3) !important;
 }
 
-.btn-cancel:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
-}
-
-.btn-submit {
-  padding: 12px 30px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: inherit;
-}
-
-.btn-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+.btn-secondary:hover {
+  background: #5a6268 !important;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .info-grid {
+  .form-grid {
     grid-template-columns: 1fr;
   }
   
-  .modal-modern-content {
+  .modal-content {
     width: 100%;
     height: 100%;
     max-height: 100vh;
@@ -1671,213 +1344,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 }
 </style>
-
-<th:block layout:fragment="scripts">
-<script>
-// Tab switching functionality
-document.addEventListener('DOMContentLoaded', function() {
-  // ===== TAB SWITCHING =====
-  document.querySelectorAll('.seller-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.seller-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      document.querySelectorAll('.seller-content').forEach(c => c.style.display = 'none');
-      document.getElementById(tab.dataset.tab).style.display = 'block';
-    });
-  });
-
-  // ===== MODAL FUNCTIONS =====
-  const productModal = document.getElementById('productModal');
-  const voucherModal = document.getElementById('voucherModal');
-  
-  console.log('Product Modal:', productModal);
-  console.log('Voucher Modal:', voucherModal);
-  
-  // Product Modal Tabs
-  document.querySelectorAll('.modal-tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
-      
-      this.classList.add('active');
-      const targetTab = document.getElementById(this.dataset.tab);
-      if (targetTab) {
-        targetTab.classList.add('active');
-      }
-    });
-  });
-  
-  // Open modals
-  document.querySelectorAll('a[href="#"]').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      const text = this.textContent.trim();
-      
-      console.log('Clicked link text:', text);
-      
-      if (text.includes('Thêm sản phẩm') && productModal) {
-        console.log('Opening product modal');
-        productModal.style.display = 'flex';
-      } else if (text.includes('Tạo voucher') && voucherModal) {
-        console.log('Opening voucher modal');
-        voucherModal.style.display = 'flex';
-      }
-    });
-  });
-  
-  // Close modals
-  document.querySelectorAll('.modal-modern-close, .modal-modern-overlay').forEach(el => {
-    el.addEventListener('click', function() {
-      if (productModal) productModal.style.display = 'none';
-      if (voucherModal) voucherModal.style.display = 'none';
-    });
-  });
-  
-  // ===== ADD VARIANT =====
-  let variantCount = 1;
-  document.getElementById('addVariantBtn')?.addEventListener('click', function() {
-    const tbody = document.getElementById('variantsContainer');
-    const newRow = `
-      <tr class="variant-row">
-        <td><input type="text" name="variants[${variantCount}].size" required placeholder="S, M, L..."></td>
-        <td><input type="number" name="variants[${variantCount}].price" required placeholder="250000"></td>
-        <td><input type="number" name="variants[${variantCount}].quantity" required placeholder="50"></td>
-        <td><input type="text" name="variants[${variantCount}].sku" placeholder="PRO-001-M"></td>
-        <td><button type="button" class="btn-remove-variant" onclick="this.parentElement.parentElement.remove()">&times;</button></td>
-      </tr>
-    `;
-    tbody.insertAdjacentHTML('beforeend', newRow);
-    variantCount++;
-  });
-  
-  // ===== VOUCHER DISCOUNT TYPE =====
-  const discountType = document.getElementById('discountType');
-  const maxDiscountGroup = document.getElementById('maxDiscountGroup');
-  
-  if (discountType && maxDiscountGroup) {
-    discountType.addEventListener('change', function() {
-      if (this.value === 'FIXED_AMOUNT') {
-        maxDiscountGroup.style.display = 'none';
-      } else {
-        maxDiscountGroup.style.display = 'block';
-      }
-    });
-  }
-  
-  // ===== PRODUCT FORM SUBMIT =====
-  document.getElementById('productForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const productData = {
-      name: formData.get('name'),
-      brand: formData.get('brand'),
-      categoryId: formData.get('categoryId'),
-      gender: formData.get('gender'),
-      material: formData.get('material'),
-      description: formData.get('description'),
-      detail: formData.get('detail'),
-      specification: formData.get('specification'),
-      variants: []
-    };
-    
-    // Collect variants
-    for (let i = 0; i <= variantCount; i++) {
-      const size = formData.get(`variants[${i}].size`);
-      if (size) {
-        productData.variants.push({
-          size: size,
-          price: formData.get(`variants[${i}].price`),
-          quantity: formData.get(`variants[${i}].quantity`),
-          sku: formData.get(`variants[${i}].sku`)
-        });
-      }
-    }
-    
-    console.log('Product Data:', productData);
-    
-    // TODO: Send to API
-    fetch('/api/seller/products', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content
-      },
-      body: JSON.stringify(productData)
-    })
-    .then(response => response.json())
-    .then(data => {
-      alert('Thêm sản phẩm thành công!');
-      productModal.style.display = 'none';
-      location.reload();
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Có lỗi xảy ra khi thêm sản phẩm!');
-    });
-  });
-  
-  // ===== VOUCHER FORM SUBMIT =====
-  document.getElementById('voucherForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const voucherData = {
-      code: formData.get('code').toUpperCase(),
-      name: formData.get('name'),
-      description: formData.get('description'),
-      discountType: formData.get('discountType'),
-      discountValue: formData.get('discountValue'),
-      maxDiscount: formData.get('maxDiscount'),
-      minOrderValue: formData.get('minOrderValue') || 0,
-      totalQuantity: formData.get('totalQuantity') || 1,
-      usageLimit: formData.get('usageLimit') || 1,
-      startDate: formData.get('startDate'),
-      endDate: formData.get('endDate'),
-      active: formData.get('active') === 'on'
-    };
-    
-    console.log('Voucher Data:', voucherData);
-    
-    // TODO: Send to API
-    fetch('/api/seller/vouchers', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content
-      },
-      body: JSON.stringify(voucherData)
-    })
-    .then(response => response.json())
-    .then(data => {
-      alert('Tạo voucher thành công!');
-      voucherModal.style.display = 'none';
-      location.reload();
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Có lỗi xảy ra khi tạo voucher!');
-    });
-  });
-  
-  // ===== LOAD CATEGORIES =====
-  // Load categories for product form
-  fetch('/api/categories')
-    .then(response => response.json())
-    .then(categories => {
-      const select = document.querySelector('select[name="categoryId"]');
-      if (select) {
-        categories.forEach(cat => {
-          const option = document.createElement('option');
-          option.value = cat.id;
-          option.textContent = cat.name;
-          select.appendChild(option);
-        });
-      }
-    })
-    .catch(error => console.error('Error loading categories:', error));
-});
-</script>
 </th:block>
 </body>
 </html>
