@@ -231,6 +231,162 @@ body {
   margin-top: 8px;
 }
 
+/* Stats Section */
+.stats-section {
+  margin-top: 40px;
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+}
+
+.stats-section h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2d3436;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stats-section h3 i {
+  color: #667eea;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border-radius: 15px;
+  background: #f8f9fa;
+  transition: all 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.stat-card.pending {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+}
+
+.stat-card.confirmed {
+  background: linear-gradient(135deg, #d1ecf1 0%, #a8dadc 100%);
+}
+
+.stat-card.shipping {
+  background: linear-gradient(135deg, #cfe2ff 0%, #a3c4f3 100%);
+}
+
+.stat-card.done {
+  background: linear-gradient(135deg, #d4edda 0%, #b7e4c7 100%);
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 24px;
+}
+
+.stat-card.pending .stat-icon {
+  color: #856404;
+}
+
+.stat-card.confirmed .stat-icon {
+  color: #0c5460;
+}
+
+.stat-card.shipping .stat-icon {
+  color: #084298;
+}
+
+.stat-card.done .stat-icon {
+  color: #155724;
+}
+
+.stat-info h4 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  color: #2d3436;
+}
+
+.stat-info p {
+  font-size: 14px;
+  margin: 5px 0 0 0;
+  color: #636e72;
+  font-weight: 600;
+}
+
+/* Revenue Cards */
+.revenue-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.revenue-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 30px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transition: all 0.3s;
+}
+
+.revenue-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.revenue-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 32px;
+}
+
+.revenue-info {
+  flex: 1;
+}
+
+.revenue-label {
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  opacity: 0.9;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.revenue-value {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
 /* Table */
 .table-container {
   background: white;
@@ -453,23 +609,115 @@ body {
       <div class="dashboard-grid">
         <div class="dashboard-card">
           <div class="icon">💰</div>
-          <h2>12,500,000 đ</h2>
+          <h2 id="monthlyRevenue">
+            <i class="fas fa-spinner fa-spin"></i>
+          </h2>
           <p>Doanh thu tháng này</p>
         </div>
         <div class="dashboard-card">
           <div class="icon">📦</div>
-          <h2>56</h2>
-          <p>Đơn hàng đã bán</p>
+          <h2 id="totalOrders">
+            <i class="fas fa-spinner fa-spin"></i>
+          </h2>
+          <p>Tổng đơn hàng</p>
         </div>
         <div class="dashboard-card">
           <div class="icon">👕</div>
-          <h2>24</h2>
+          <h2 id="totalProducts">
+            <i class="fas fa-spinner fa-spin"></i>
+          </h2>
           <p>Sản phẩm đang bán</p>
         </div>
         <div class="dashboard-card">
-          <div class="icon">⭐</div>
-          <h2>4.8/5</h2>
-          <p>Đánh giá trung bình</p>
+          <div class="icon">🎫</div>
+          <h2 id="activeVouchers">
+            <i class="fas fa-spinner fa-spin"></i>
+          </h2>
+          <p>Voucher đang hoạt động</p>
+        </div>
+      </div>
+      
+      <!-- Order Status Overview -->
+      <div class="stats-section">
+        <h3><i class="fas fa-chart-bar"></i> Thống kê đơn hàng</h3>
+        <div class="stats-grid">
+          <div class="stat-card pending">
+            <div class="stat-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+              <h4 id="pendingOrders">
+                <i class="fas fa-spinner fa-spin"></i>
+              </h4>
+              <p>Chờ xác nhận</p>
+            </div>
+          </div>
+          
+          <div class="stat-card confirmed">
+            <div class="stat-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+              <h4 id="confirmedOrders">
+                <i class="fas fa-spinner fa-spin"></i>
+              </h4>
+              <p>Đã xác nhận</p>
+            </div>
+          </div>
+          
+          <div class="stat-card shipping">
+            <div class="stat-icon">
+              <i class="fas fa-shipping-fast"></i>
+            </div>
+            <div class="stat-info">
+              <h4 id="deliveringOrders">
+                <i class="fas fa-spinner fa-spin"></i>
+              </h4>
+              <p>Đang giao hàng</p>
+            </div>
+          </div>
+          
+          <div class="stat-card done">
+            <div class="stat-icon">
+              <i class="fas fa-check-double"></i>
+            </div>
+            <div class="stat-info">
+              <h4 id="deliveredOrders">
+                <i class="fas fa-spinner fa-spin"></i>
+              </h4>
+              <p>Đã giao hàng</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Revenue Overview -->
+      <div class="stats-section">
+        <h3><i class="fas fa-dollar-sign"></i> Tổng quan doanh thu</h3>
+        <div class="revenue-cards">
+          <div class="revenue-card">
+            <div class="revenue-icon">
+              <i class="fas fa-coins"></i>
+            </div>
+            <div class="revenue-info">
+              <p class="revenue-label">Tổng doanh thu</p>
+              <h3 id="totalRevenue" class="revenue-value">
+                <i class="fas fa-spinner fa-spin"></i>
+              </h3>
+            </div>
+          </div>
+          
+          <div class="revenue-card">
+            <div class="revenue-icon">
+              <i class="fas fa-warehouse"></i>
+            </div>
+            <div class="revenue-info">
+              <p class="revenue-label">Tổng tồn kho</p>
+              <h3 id="totalStock" class="revenue-value">
+                <i class="fas fa-spinner fa-spin"></i>
+              </h3>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -537,6 +785,26 @@ body {
     <div class="seller-content" id="orders" style="display:none;">
       <div class="action-bar">
         <h2><i class="fas fa-shopping-cart"></i> Quản lý đơn hàng</h2>
+        <div class="filter-buttons">
+          <button class="btn btn-sm" data-status="" onclick="filterOrders('')">
+            <i class="fas fa-list"></i> Tất cả
+          </button>
+          <button class="btn btn-sm btn-warning" data-status="PENDING" onclick="filterOrders('PENDING')">
+            <i class="fas fa-clock"></i> Chờ xác nhận
+          </button>
+          <button class="btn btn-sm btn-info" data-status="CONFIRMED" onclick="filterOrders('CONFIRMED')">
+            <i class="fas fa-check"></i> Đã xác nhận
+          </button>
+          <button class="btn btn-sm btn-primary" data-status="DELIVERING" onclick="filterOrders('DELIVERING')">
+            <i class="fas fa-shipping-fast"></i> Đang giao
+          </button>
+          <button class="btn btn-sm btn-success" data-status="DELIVERED" onclick="filterOrders('DELIVERED')">
+            <i class="fas fa-check-circle"></i> Hoàn thành
+          </button>
+          <button class="btn btn-sm btn-danger" data-status="CANCELED" onclick="filterOrders('CANCELED')">
+            <i class="fas fa-ban"></i> Đã hủy
+          </button>
+        </div>
       </div>
       <div class="table-container">
         <table class="table">
@@ -551,50 +819,11 @@ body {
               <th>Hành động</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="ordersTableBody">
             <tr>
-              <td><strong>#DH1001</strong></td>
-              <td>Nguyễn Văn A</td>
-              <td>Áo phông Basic x2</td>
-              <td><strong>500,000 đ</strong></td>
-              <td>28/10/2025</td>
-              <td><span class="status pending">Chờ xử lý</span></td>
-              <td>
-                <a href="#" class="btn btn-success"><i class="fas fa-check"></i> Xác nhận</a>
-                <a href="#" class="btn btn-danger"><i class="fas fa-times"></i> Hủy</a>
-              </td>
-            </tr>
-            <tr>
-              <td><strong>#DH1002</strong></td>
-              <td>Trần Thị B</td>
-              <td>Quần Jeans x1</td>
-              <td><strong>450,000 đ</strong></td>
-              <td>27/10/2025</td>
-              <td><span class="status shipping">Đang giao</span></td>
-              <td>
-                <a href="#" class="btn btn-info"><i class="fas fa-eye"></i> Chi tiết</a>
-              </td>
-            </tr>
-            <tr>
-              <td><strong>#DH1003</strong></td>
-              <td>Lê Văn C</td>
-              <td>Áo sơ mi x1</td>
-              <td><strong>320,000 đ</strong></td>
-              <td>26/10/2025</td>
-              <td><span class="status done">Hoàn thành</span></td>
-              <td>
-                <a href="#" class="btn btn-info"><i class="fas fa-eye"></i> Chi tiết</a>
-              </td>
-            </tr>
-            <tr>
-              <td><strong>#DH1004</strong></td>
-              <td>Phạm Thị D</td>
-              <td>Áo phông x3</td>
-              <td><strong>750,000 đ</strong></td>
-              <td>25/10/2025</td>
-              <td><span class="status cancel">Đã hủy</span></td>
-              <td>
-                <a href="#" class="btn btn-info"><i class="fas fa-eye"></i> Chi tiết</a>
+              <td colspan="7" style="text-align: center; padding: 50px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #667eea;"></i>
+                <p style="color: #999; margin-top: 10px;">Đang tải đơn hàng...</p>
               </td>
             </tr>
           </tbody>
@@ -606,7 +835,7 @@ body {
     <div class="seller-content" id="vouchers" style="display:none;">
       <div class="action-bar">
         <h2><i class="fas fa-tags"></i> Quản lý khuyến mãi</h2>
-        <button class="btn" id="addVoucherBtn">
+        <button class="btn" id="addVoucherBtn" onclick="openAddVoucherModal()">
           <i class="fas fa-plus"></i> Tạo voucher mới
         </button>
       </div>
@@ -615,53 +844,21 @@ body {
           <thead>
             <tr>
               <th>Mã voucher</th>
-              <th>Loại giảm giá</th>
+              <th>Tên voucher</th>
+              <th>Loại giảm</th>
               <th>Giá trị</th>
+              <th>Đơn tối thiểu</th>
               <th>Số lượng</th>
-              <th>Đã dùng</th>
-              <th>Hạn sử dụng</th>
+              <th>Thời gian</th>
               <th>Trạng thái</th>
               <th>Hành động</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="vouchersTableBody">
             <tr>
-              <td><strong>SALE10</strong></td>
-              <td>Phần trăm</td>
-              <td><strong>10%</strong></td>
-              <td>100</td>
-              <td>23</td>
-              <td>31/12/2025</td>
-              <td><span class="status done">Đang hoạt động</span></td>
-              <td>
-                <a href="#" class="btn btn-info"><i class="fas fa-edit"></i> Sửa</a>
-                <a href="#" class="btn btn-danger"><i class="fas fa-ban"></i> Vô hiệu</a>
-              </td>
-            </tr>
-            <tr>
-              <td><strong>FREESHIP</strong></td>
-              <td>Miễn phí ship</td>
-              <td><strong>30,000 đ</strong></td>
-              <td>50</td>
-              <td>12</td>
-              <td>15/11/2025</td>
-              <td><span class="status done">Đang hoạt động</span></td>
-              <td>
-                <a href="#" class="btn btn-info"><i class="fas fa-edit"></i> Sửa</a>
-                <a href="#" class="btn btn-danger"><i class="fas fa-ban"></i> Vô hiệu</a>
-              </td>
-            </tr>
-            <tr>
-              <td><strong>WELCOME50K</strong></td>
-              <td>Giảm tiền</td>
-              <td><strong>50,000 đ</strong></td>
-              <td>200</td>
-              <td>156</td>
-              <td>30/11/2025</td>
-              <td><span class="status shipping">Sắp hết</span></td>
-              <td>
-                <a href="#" class="btn btn-info"><i class="fas fa-edit"></i> Sửa</a>
-                <a href="#" class="btn btn-danger"><i class="fas fa-ban"></i> Vô hiệu</a>
+              <td colspan="9" style="text-align: center; padding: 60px; color: #999;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #667eea;"></i>
+                <p style="margin-top: 10px;">Đang tải...</p>
               </td>
             </tr>
           </tbody>
@@ -686,6 +883,9 @@ body {
           <div class="modal-tabs">
             <button type="button" class="modal-tab active" data-tab="basic-info">
               <i class="fas fa-info-circle"></i> Thông tin cơ bản
+            </button>
+            <button type="button" class="modal-tab" data-tab="images-info">
+              <i class="fas fa-images"></i> Hình ảnh
             </button>
             <button type="button" class="modal-tab" data-tab="variants-info">
               <i class="fas fa-th"></i> Phân loại hàng
@@ -722,7 +922,7 @@ body {
                 </select>
               </div>
               
-              <div class="form-group full-width">
+              <div class="form-group">
                 <label><i class="fas fa-tshirt"></i> Chất liệu</label>
                 <input type="text" name="material" placeholder="Ví dụ: Cotton 100%">
               </div>
@@ -733,8 +933,55 @@ body {
               </div>
               
               <div class="form-group full-width">
-                <label><i class="fas fa-file-alt"></i> Mô tả chi tiết</label>
-                <textarea name="detail" rows="3" placeholder="Mô tả chi tiết về sản phẩm..."></textarea>
+                <label>
+                  <i class="fas fa-file-alt"></i> Mô tả chi tiết 
+                  <small style="color: #6c757d;">(Hỗ trợ HTML)</small>
+                </label>
+                <div class="html-editor-toolbar">
+                  <button type="button" class="editor-btn" onclick="formatText('detail', 'bold')" title="Bold"><i class="fas fa-bold"></i></button>
+                  <button type="button" class="editor-btn" onclick="formatText('detail', 'italic')" title="Italic"><i class="fas fa-italic"></i></button>
+                  <button type="button" class="editor-btn" onclick="formatText('detail', 'underline')" title="Underline"><i class="fas fa-underline"></i></button>
+                  <button type="button" class="editor-btn" onclick="insertHTML('detail', '<h3>Tiêu đề</h3>')" title="Heading"><i class="fas fa-heading"></i></button>
+                  <button type="button" class="editor-btn" onclick="insertHTML('detail', '<ul><li>Mục 1</li><li>Mục 2</li></ul>')" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                  <button type="button" class="editor-btn" onclick="insertHTML('detail', '<p>Đoạn văn</p>')" title="Paragraph"><i class="fas fa-paragraph"></i></button>
+                  <button type="button" class="editor-btn" onclick="toggleHTMLView('detail')" title="View HTML"><i class="fas fa-code"></i></button>
+                </div>
+                <div id="detailEditor" class="html-editor" contenteditable="true" data-field="detail"></div>
+                <textarea name="detail" id="detailTextarea" style="display:none;"></textarea>
+              </div>
+              
+              <div class="form-group full-width">
+                <label>
+                  <i class="fas fa-clipboard-list"></i> Thông số kỹ thuật 
+                  <small style="color: #6c757d;">(Hỗ trợ HTML - Table)</small>
+                </label>
+                <div class="html-editor-toolbar">
+                  <button type="button" class="editor-btn" onclick="formatText('specification', 'bold')" title="Bold"><i class="fas fa-bold"></i></button>
+                  <button type="button" class="editor-btn" onclick="formatText('specification', 'italic')" title="Italic"><i class="fas fa-italic"></i></button>
+                  <button type="button" class="editor-btn" onclick="insertHTML('specification', '<table><tr><td>Thuộc tính</td><td>Giá trị</td></tr></table>')" title="Table"><i class="fas fa-table"></i></button>
+                  <button type="button" class="editor-btn" onclick="insertHTML('specification', '<ul><li>Mục 1</li><li>Mục 2</li></ul>')" title="List"><i class="fas fa-list"></i></button>
+                  <button type="button" class="editor-btn" onclick="toggleHTMLView('specification')" title="View HTML"><i class="fas fa-code"></i></button>
+                </div>
+                <div id="specificationEditor" class="html-editor" contenteditable="true" data-field="specification"></div>
+                <textarea name="specification" id="specificationTextarea" style="display:none;"></textarea>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tab: Hình ảnh -->
+          <div class="modal-tab-content" id="images-info" style="display:none;">
+            <div class="images-upload-section">
+              <div class="upload-area">
+                <label for="productImages" class="upload-label">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p>Kéo thả hoặc click để chọn ảnh</p>
+                  <span>Hỗ trợ: JPG, PNG, WEBP (tối đa 5MB/ảnh)</span>
+                </label>
+                <input type="file" id="productImages" multiple accept="image/*" style="display: none;">
+              </div>
+              
+              <div class="images-preview" id="imagesPreview">
+                <!-- Preview images will be inserted here -->
               </div>
             </div>
           </div>
@@ -872,6 +1119,70 @@ body {
       </div>
     </div>
   </div>
+  
+  <!-- Modal Order Detail -->
+  <div class="modal-overlay" id="orderDetailModal" style="display:none;">
+    <div class="modal-content modal-large">
+      <button class="modal-close">&times;</button>
+      
+      <div class="modal-header">
+        <i class="fas fa-file-invoice"></i>
+        <h2>Chi tiết đơn hàng</h2>
+      </div>
+      
+      <div class="modal-body" id="orderDetailContent">
+        <div style="text-align: center; padding: 50px;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #667eea;"></i>
+          <p style="color: #999; margin-top: 10px;">Đang tải...</p>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-close-btn">Đóng</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Custom Notification Modals -->
+  <div id="notificationModal" class="notification-modal">
+    <div class="notification-content">
+      <div class="notification-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h3 id="notificationTitle">Thành công!</h3>
+      <p id="notificationMessage">Thao tác đã được thực hiện thành công.</p>
+      <button class="btn" onclick="closeNotification()">Đóng</button>
+    </div>
+  </div>
+  
+  <div id="confirmModal" class="notification-modal">
+    <div class="notification-content">
+      <div class="notification-icon warning">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3 id="confirmTitle">Xác nhận</h3>
+      <p id="confirmMessage">Bạn có chắc chắn muốn thực hiện thao tác này?</p>
+      <div class="notification-buttons">
+        <button class="btn btn-secondary" onclick="closeConfirm()">Hủy</button>
+        <button class="btn btn-danger" id="confirmActionBtn">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="promptModal" class="notification-modal">
+    <div class="notification-content">
+      <div class="notification-icon info">
+        <i class="fas fa-question-circle"></i>
+      </div>
+      <h3 id="promptTitle">Nhập thông tin</h3>
+      <p id="promptMessage">Vui lòng nhập thông tin:</p>
+      <input type="text" id="promptInput" class="form-control" placeholder="Nhập nội dung...">
+      <div class="notification-buttons">
+        <button class="btn btn-secondary" onclick="closePrompt(null)">Hủy</button>
+        <button class="btn" onclick="submitPrompt()">Xác nhận</button>
+      </div>
+    </div>
+  </div>
 
 </div>
 
@@ -896,18 +1207,41 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Open modals
   document.getElementById('addProductBtn')?.addEventListener('click', function() {
+    currentEditingProductId = null;
+    selectedProductImages = [];
+    deletedImageIds = [];
+    document.querySelector('#productModal h2').textContent = 'Thêm sản phẩm mới';
+    document.getElementById('productForm').reset();
+    document.getElementById('imagesPreview').innerHTML = '';
+    
+    // Reset variants to one empty row
+    document.getElementById('variantsContainer').innerHTML = `
+      <tr class="variant-row">
+        <td><input type="text" name="variants[0].size" required placeholder="S, M, L..."></td>
+        <td><input type="number" name="variants[0].price" required placeholder="250000"></td>
+        <td><input type="number" name="variants[0].quantity" required placeholder="50"></td>
+        <td><input type="text" name="variants[0].sku" placeholder="PRO-001-S"></td>
+        <td></td>
+      </tr>
+    `;
+    
+    // Reset HTML editors
+    const detailEditor = document.getElementById('detailEditor');
+    const specEditor = document.getElementById('specificationEditor');
+    if (detailEditor) detailEditor.innerHTML = '<p>Nhập mô tả chi tiết sản phẩm...</p>';
+    if (specEditor) specEditor.innerHTML = '<p>Nhập thông số kỹ thuật...</p>';
+    
     productModal.style.display = 'flex';
   });
   
-  document.getElementById('addVoucherBtn')?.addEventListener('click', function() {
-    voucherModal.style.display = 'flex';
-  });
+  document.getElementById('addVoucherBtn')?.addEventListener('click', openAddVoucherModal);
   
   // Close modals
   document.querySelectorAll('.modal-close, .modal-close-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       productModal.style.display = 'none';
       voucherModal.style.display = 'none';
+      document.getElementById('orderDetailModal').style.display = 'none';
     });
   });
   
@@ -960,38 +1294,1182 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Product form submit
-  document.getElementById('productForm')?.addEventListener('submit', function(e) {
+  // Image upload handling
+  const productImagesInput = document.getElementById('productImages');
+  const imagesPreview = document.getElementById('imagesPreview');
+  
+  productImagesInput?.addEventListener('change', function(e) {
+    handleImageSelection(e.target.files);
+  });
+  
+  // Drag and drop support
+  const uploadLabel = document.querySelector('.upload-label');
+  uploadLabel?.addEventListener('dragover', function(e) {
     e.preventDefault();
-    console.log('Product form submitted');
-    alert('Chức năng đang phát triển. Dữ liệu sẽ được gửi lên server.');
-    productModal.style.display = 'none';
+    this.style.borderColor = '#667eea';
+    this.style.background = '#f0f2ff';
+  });
+  
+  uploadLabel?.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '#dee2e6';
+    this.style.background = '#f8f9fa';
+  });
+  
+  uploadLabel?.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '#dee2e6';
+    this.style.background = '#f8f9fa';
+    handleImageSelection(e.dataTransfer.files);
+  });
+  
+  // Product form submit
+  document.getElementById('productForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Sync HTML editors to hidden textareas
+    syncHTMLEditors();
+    
+    const formData = new FormData(this);
+    
+    // Collect variants data
+    const variants = [];
+    const variantRows = document.querySelectorAll('#variantsContainer tr');
+    variantRows.forEach((row, index) => {
+      const size = row.querySelector(`input[name*="size"]`)?.value;
+      const price = row.querySelector(`input[name*="price"]`)?.value;
+      const quantity = row.querySelector(`input[name*="quantity"]`)?.value;
+      const sku = row.querySelector(`input[name*="sku"]`)?.value;
+      
+      if (size && price && quantity) {
+        variants.push({ size, price, quantity, sku: sku || `PRO-${index+1}` });
+      }
+    });
+    
+    if (variants.length === 0) {
+      showNotification('Thiếu thông tin', 'Vui lòng thêm ít nhất một variant (size, giá, số lượng)', 'warning');
+      return;
+    }
+    
+    formData.append('variantsJson', JSON.stringify(variants));
+    
+    // If editing, send deleted image IDs
+    if (currentEditingProductId && deletedImageIds.length > 0) {
+      formData.append('deletedImageIds', JSON.stringify(deletedImageIds));
+    }
+    
+    // Append selected images (filter out null entries)
+    selectedProductImages.forEach((file) => {
+      if (file !== null) {
+        formData.append('images', file);
+      }
+    });
+    
+    try {
+      const url = currentEditingProductId 
+        ? `/seller/api/products/${currentEditingProductId}`
+        : '/seller/api/products';
+      
+      const method = currentEditingProductId ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method: method,
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        showNotification('Thành công!', result.message, 'success');
+        document.getElementById('productModal').style.display = 'none';
+        deletedImageIds = []; // Reset deleted images list
+        loadSellerProducts(); // Reload products list
+      } else {
+        showNotification('Lỗi', result.message || 'Có lỗi xảy ra', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showNotification('Lỗi', 'Có lỗi xảy ra khi lưu sản phẩm', 'error');
+    }
   });
   
   // Voucher form submit
   document.getElementById('voucherForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    console.log('Voucher form submitted');
-    alert('Chức năng đang phát triển. Dữ liệu sẽ được gửi lên server.');
-    voucherModal.style.display = 'none';
-  });
-  
-  // Load categories
-  fetch('/api/categories')
+    const formData = new FormData(this);
+    
+    // Validate dates
+    const startDate = formData.get('startDate');
+    const endDate = formData.get('endDate');
+    if (new Date(startDate) > new Date(endDate)) {
+      showNotification('Lỗi', 'Ngày kết thúc phải sau ngày bắt đầu', 'error');
+      return;
+    }
+    
+    // Validate discount value
+    const discountType = formData.get('discountType');
+    const discountValue = parseFloat(formData.get('discountValue'));
+    if (discountType === 'PERCENTAGE' && discountValue > 100) {
+      showNotification('Lỗi', 'Phần trăm giảm không được vượt quá 100%', 'error');
+      return;
+    }
+    
+    const url = currentEditingVoucherId ? 
+      `/seller/api/vouchers/${currentEditingVoucherId}` : 
+      '/seller/api/vouchers';
+    
+    const method = currentEditingVoucherId ? 'PUT' : 'POST';
+    
+    fetch(url, {
+      method: method,
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+      },
+      body: formData
+    })
     .then(response => response.json())
-    .then(categories => {
-      const select = document.querySelector('select[name="categoryId"]');
-      if (select && categories) {
-        categories.forEach(cat => {
-          const option = document.createElement('option');
-          option.value = cat.id;
-          option.textContent = cat.name;
-          select.appendChild(option);
-        });
+    .then(data => {
+      if (data.success) {
+        showNotification('Thành công', data.message, 'success');
+        document.getElementById('voucherModal').style.display = 'none';
+        loadSellerVouchers();
+      } else {
+        showNotification('Lỗi', data.message, 'error');
       }
     })
-    .catch(error => console.error('Error loading categories:', error));
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('Lỗi', 'Có lỗi xảy ra khi lưu voucher', 'error');
+    });
+  });
+  
+  // Load initial data
+  loadDashboardStats();
+  loadCategories();
+  loadSellerProducts();
+  loadSellerOrders();
+  loadSellerVouchers();
+  
+  // Tab switching - reload data when clicking tabs
+  document.querySelector('.seller-tab[data-tab="dashboard"]')?.addEventListener('click', function() {
+    loadDashboardStats();
+  });
+  
+  document.querySelector('.seller-tab[data-tab="orders"]')?.addEventListener('click', function() {
+    loadSellerOrders();
+  });
+  
+  document.querySelector('.seller-tab[data-tab="vouchers"]')?.addEventListener('click', function() {
+    loadSellerVouchers();
+  });
+  
+  // Voucher discount type change
+  document.querySelector('[name="discountType"]')?.addEventListener('change', toggleMaxDiscountField);
 });
+
+// ===== GLOBAL FUNCTIONS (accessible from inline onclick) =====
+
+// Global variables
+let currentEditingProductId = null;
+let currentEditingVoucherId = null;
+let selectedProductImages = [];
+let promptCallback = null;
+
+// ===== CUSTOM NOTIFICATION FUNCTIONS =====
+
+function showNotification(title, message, type = 'success') {
+  const modal = document.getElementById('notificationModal');
+  const icon = modal.querySelector('.notification-icon i');
+  const iconContainer = modal.querySelector('.notification-icon');
+  const titleEl = document.getElementById('notificationTitle');
+  const messageEl = document.getElementById('notificationMessage');
+  
+  // Reset classes
+  iconContainer.className = 'notification-icon';
+  
+  // Set type
+  if (type === 'success') {
+    iconContainer.classList.add('success');
+    icon.className = 'fas fa-check-circle';
+  } else if (type === 'error') {
+    iconContainer.classList.add('error');
+    icon.className = 'fas fa-times-circle';
+  } else if (type === 'warning') {
+    iconContainer.classList.add('warning');
+    icon.className = 'fas fa-exclamation-triangle';
+  } else if (type === 'info') {
+    iconContainer.classList.add('info');
+    icon.className = 'fas fa-info-circle';
+  }
+  
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+  modal.style.display = 'flex';
+  
+  // Auto close after 3 seconds
+  setTimeout(() => {
+    modal.style.display = 'none';
+  }, 3000);
+}
+
+function closeNotification() {
+  document.getElementById('notificationModal').style.display = 'none';
+}
+
+function showConfirm(title, message, callback) {
+  const modal = document.getElementById('confirmModal');
+  const titleEl = document.getElementById('confirmTitle');
+  const messageEl = document.getElementById('confirmMessage');
+  const confirmBtn = document.getElementById('confirmActionBtn');
+  
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+  modal.style.display = 'flex';
+  
+  // Remove old event listeners
+  const newBtn = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+  
+  // Add new event listener
+  document.getElementById('confirmActionBtn').onclick = function() {
+    modal.style.display = 'none';
+    if (callback) callback();
+  };
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').style.display = 'none';
+}
+
+function showPrompt(title, message, callback) {
+  const modal = document.getElementById('promptModal');
+  const titleEl = document.getElementById('promptTitle');
+  const messageEl = document.getElementById('promptMessage');
+  const input = document.getElementById('promptInput');
+  
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+  input.value = '';
+  modal.style.display = 'flex';
+  input.focus();
+  
+  promptCallback = callback;
+}
+
+function submitPrompt() {
+  const input = document.getElementById('promptInput');
+  const value = input.value.trim();
+  document.getElementById('promptModal').style.display = 'none';
+  
+  if (promptCallback) {
+    promptCallback(value);
+    promptCallback = null;
+  }
+}
+
+function closePrompt(value) {
+  document.getElementById('promptModal').style.display = 'none';
+  if (promptCallback && value !== null) {
+    promptCallback(value);
+  }
+  promptCallback = null;
+}
+
+// HTML Editor functions
+function formatText(editorId, command) {
+  const editor = document.getElementById(editorId + 'Editor');
+  if (!editor) return;
+  
+  editor.focus();
+  document.execCommand(command, false, null);
+}
+
+function insertHTML(editorId, html) {
+  const editor = document.getElementById(editorId + 'Editor');
+  if (!editor) return;
+  
+  editor.focus();
+  document.execCommand('insertHTML', false, html);
+}
+
+function toggleHTMLView(editorId) {
+  const editor = document.getElementById(editorId + 'Editor');
+  if (!editor) return;
+  
+  if (editor.classList.contains('html-view')) {
+    // Switch back to visual mode
+    const htmlContent = editor.textContent;
+    editor.innerHTML = htmlContent;
+    editor.classList.remove('html-view');
+    editor.contentEditable = 'true';
+  } else {
+    // Switch to HTML mode
+    const htmlContent = editor.innerHTML;
+    editor.textContent = htmlContent;
+    editor.classList.add('html-view');
+    editor.contentEditable = 'true';
+  }
+}
+
+// Sync contenteditable with hidden textarea before form submit
+function syncHTMLEditors() {
+  const detailEditor = document.getElementById('detailEditor');
+  const detailTextarea = document.getElementById('detailTextarea');
+  const specEditor = document.getElementById('specificationEditor');
+  const specTextarea = document.getElementById('specificationTextarea');
+  
+  if (detailEditor && detailTextarea) {
+    // If in HTML view mode, get textContent, otherwise get innerHTML
+    if (detailEditor.classList.contains('html-view')) {
+      detailTextarea.value = detailEditor.textContent;
+    } else {
+      detailTextarea.value = detailEditor.innerHTML;
+    }
+  }
+  
+  if (specEditor && specTextarea) {
+    if (specEditor.classList.contains('html-view')) {
+      specTextarea.value = specEditor.textContent;
+    } else {
+      specTextarea.value = specEditor.innerHTML;
+    }
+  }
+}
+
+// Remove image from preview
+function removeImage(index) {
+  // Mark file as null instead of removing to keep indices stable
+  selectedProductImages[index] = null;
+  
+  // Remove the preview item from DOM
+  const previewItem = document.querySelector(`.image-preview-item[data-file-index="${index}"]`);
+  if (previewItem) {
+    previewItem.remove();
+  }
+}
+
+// Array to track deleted image IDs
+let deletedImageIds = [];
+
+// Remove existing image (for editing)
+function removeExistingImage(button, imageId) {
+  const imageItem = button.closest('.image-preview-item');
+  if (imageItem) {
+    // Add to deleted list
+    deletedImageIds.push(imageId);
+    // Remove from DOM
+    imageItem.remove();
+  }
+}
+
+// Handle image file selection
+function handleImageSelection(files) {
+  if (!files || files.length === 0) return;
+  
+  const imagesPreview = document.getElementById('imagesPreview');
+  
+  Array.from(files).forEach((file) => {
+    if (!file.type.startsWith('image/')) {
+      showNotification('Lỗi', `File "${file.name}" không phải là ảnh`, 'error');
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      showNotification('Lỗi', `File "${file.name}" quá lớn (tối đa 5MB)`, 'error');
+      return;
+    }
+    
+    // Get current index before pushing
+    const currentIndex = selectedProductImages.length;
+    selectedProductImages.push(file);
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imageItem = document.createElement('div');
+      imageItem.className = 'image-preview-item';
+      imageItem.dataset.newImage = 'true';
+      imageItem.dataset.fileIndex = currentIndex;
+      imageItem.innerHTML = `
+        <img src="${e.target.result}" alt="Preview">
+        <button type="button" class="remove-image" onclick="removeImage(${currentIndex})">&times;</button>
+      `;
+      imagesPreview.appendChild(imageItem);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Load categories
+// ===== DASHBOARD STATISTICS =====
+
+async function loadDashboardStats() {
+  try {
+    const response = await fetch('/seller/api/dashboard-stats', {
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+      }
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      const stats = result.data;
+      
+      // Format currency
+      const formatCurrency = (value) => {
+        return new Intl.NumberFormat('vi-VN', {
+          style: 'currency',
+          currency: 'VND'
+        }).format(value);
+      };
+      
+      // Update dashboard cards
+      document.getElementById('monthlyRevenue').textContent = formatCurrency(stats.monthlyRevenue);
+      document.getElementById('totalOrders').textContent = stats.totalOrders;
+      document.getElementById('totalProducts').textContent = stats.activeProducts + ' / ' + stats.totalProducts;
+      document.getElementById('activeVouchers').textContent = stats.activeVouchers + ' / ' + stats.totalVouchers;
+      
+      // Update order status stats
+      document.getElementById('pendingOrders').textContent = stats.pendingOrders;
+      document.getElementById('confirmedOrders').textContent = stats.confirmedOrders;
+      document.getElementById('deliveringOrders').textContent = stats.deliveringOrders;
+      document.getElementById('deliveredOrders').textContent = stats.deliveredOrders;
+      
+      // Update revenue overview
+      document.getElementById('totalRevenue').textContent = formatCurrency(stats.totalRevenue);
+      document.getElementById('totalStock').textContent = new Intl.NumberFormat('vi-VN').format(stats.totalStock) + ' sản phẩm';
+    } else {
+      showNotification('Lỗi', result.message, 'error');
+    }
+  } catch (error) {
+    console.error('Error loading dashboard stats:', error);
+    showNotification('Lỗi', 'Không thể tải thống kê dashboard', 'error');
+  }
+}
+
+// ===== CATEGORY & PRODUCT FUNCTIONS =====
+
+async function loadCategories() {
+  try {
+    const response = await fetch('/api/categories');
+    const result = await response.json();
+    
+    const select = document.querySelector('select[name="categoryId"]');
+    if (select && result.success && result.data) {
+      select.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+      result.data.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.name;
+        select.appendChild(option);
+      });
+    }
+  } catch (error) {
+    console.error('Error loading categories:', error);
+  }
+}
+
+// Load seller products
+async function loadSellerProducts() {
+  try {
+    const response = await fetch('/seller/api/products');
+    const result = await response.json();
+    
+    if (result.success) {
+      renderProducts(result.data);
+    }
+  } catch (error) {
+    console.error('Error loading products:', error);
+  }
+}
+
+// Render products table
+function renderProducts(products) {
+  const tbody = document.querySelector('#products table tbody');
+  if (!tbody) return;
+  
+  if (products.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 40px;">
+          <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc;"></i>
+          <p style="color: #999; margin-top: 10px;">Chưa có sản phẩm nào. Hãy thêm sản phẩm đầu tiên!</p>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+  
+  tbody.innerHTML = products.map(product => `
+    <tr>
+      <td><strong>${product.name}</strong></td>
+      <td>${product.category ? product.category.name : 'N/A'}</td>
+      <td><strong>${formatPrice(product.minPrice)}</strong></td>
+      <td>${product.totalQuantity}</td>
+      <td>
+        <span class="status ${product.active ? 'done' : 'cancel'}">
+          ${product.active ? 'Đang bán' : 'Ngưng bán'}
+        </span>
+      </td>
+      <td>
+        <button onclick="editProduct(${product.id})" class="btn btn-info" title="Sửa sản phẩm">
+          <i class="fas fa-edit"></i> Sửa
+        </button>
+        <button onclick="deleteProduct(${product.id})" class="btn btn-danger" title="Xóa sản phẩm">
+          <i class="fas fa-trash"></i> Xóa
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Edit product
+async function editProduct(productId) {
+  try {
+    const response = await fetch(`/seller/api/products/${productId}`);
+    const result = await response.json();
+    
+    if (result.success) {
+      const product = result.data;
+      currentEditingProductId = productId;
+      
+      // Reset deleted images list
+      deletedImageIds = [];
+      
+      // Get modal and form
+      const modal = document.getElementById('productModal');
+      const form = document.getElementById('productForm');
+      
+      // Update modal title
+      const modalTitle = modal.querySelector('.modal-header h2');
+      if (modalTitle) modalTitle.textContent = 'Sửa sản phẩm';
+      
+      // Fill form data - use form context to find inputs
+      const nameInput = form.querySelector('input[name="name"]');
+      const brandInput = form.querySelector('input[name="brand"]');
+      const genderSelect = form.querySelector('select[name="gender"]');
+      const descInput = form.querySelector('textarea[name="description"]');
+      const materialInput = form.querySelector('input[name="material"]');
+      const categorySelect = form.querySelector('select[name="categoryId"]');
+      
+      if (nameInput) nameInput.value = product.name || '';
+      if (brandInput) brandInput.value = product.brand || '';
+      if (genderSelect) genderSelect.value = product.gender || '';
+      if (descInput) descInput.value = product.description || '';
+      if (materialInput) materialInput.value = product.material || '';
+      if (categorySelect) categorySelect.value = product.category?.id || '';
+      
+      // Load HTML content into editors
+      const detailEditor = document.getElementById('detailEditor');
+      const specificationEditor = document.getElementById('specificationEditor');
+      
+      if (detailEditor) {
+        detailEditor.innerHTML = product.detail || '<p>Nhập mô tả chi tiết...</p>';
+      }
+      
+      if (specificationEditor) {
+        specificationEditor.innerHTML = product.specification || '<p>Nhập thông số kỹ thuật...</p>';
+      }
+      
+      // Display existing images with delete button
+      const imagesPreview = document.getElementById('imagesPreview');
+      if (imagesPreview) {
+        imagesPreview.innerHTML = '';
+        selectedProductImages = []; // Reset
+        
+        if (product.images && product.images.length > 0) {
+          product.images.forEach((image, index) => {
+            const imageItem = document.createElement('div');
+            imageItem.className = 'image-preview-item';
+            imageItem.dataset.imageId = image.id;
+            imageItem.dataset.existingImage = 'true';
+            imageItem.innerHTML = `
+              <img src="${image.url}" alt="Product image">
+              ${image.isPrimary ? '<span class="primary-badge">Ảnh chính</span>' : ''}
+              <button type="button" class="btn-remove-image" onclick="removeExistingImage(this, ${image.id})">&times;</button>
+            `;
+            imagesPreview.appendChild(imageItem);
+          });
+        }
+      }
+      
+      // Fill variants
+      const variantsContainer = document.getElementById('variantsContainer');
+      if (variantsContainer) {
+        variantsContainer.innerHTML = '';
+        
+        if (product.variants && product.variants.length > 0) {
+          product.variants.forEach((variant, index) => {
+            const row = document.createElement('tr');
+            row.className = 'variant-row';
+            row.innerHTML = `
+              <td><input type="text" name="variants[${index}].size" required value="${variant.size || ''}" placeholder="S, M, L..."></td>
+              <td><input type="number" name="variants[${index}].price" required value="${variant.price || ''}" placeholder="250000"></td>
+              <td><input type="number" name="variants[${index}].quantity" required value="${variant.quantity || ''}" placeholder="50"></td>
+              <td><input type="text" name="variants[${index}].sku" value="${variant.sku || ''}" placeholder="PRO-${index+1}"></td>
+              <td><button type="button" class="btn-remove-variant" onclick="this.closest('tr').remove()">&times;</button></td>
+            `;
+            variantsContainer.appendChild(row);
+          });
+        }
+      }
+      
+      // Show modal
+      modal.style.display = 'flex';
+    } else {
+      showNotification('Lỗi', result.message || 'Không thể tải sản phẩm', 'error');
+    }
+  } catch (error) {
+    console.error('Error editing product:', error);
+    showNotification('Lỗi', 'Có lỗi xảy ra khi tải sản phẩm', 'error');
+  }
+}
+
+// Delete product
+async function deleteProduct(productId) {
+  showConfirm('Xác nhận xóa', 'Bạn có chắc chắn muốn xóa sản phẩm này?', async () => {
+    try {
+      const response = await fetch(`/seller/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        showNotification('Thành công!', result.message, 'success');
+        loadSellerProducts(); // Reload products list
+      } else {
+        showNotification('Lỗi', result.message || 'Không thể xóa sản phẩm', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      showNotification('Lỗi', 'Có lỗi xảy ra khi xóa sản phẩm: ' + error.message, 'error');
+    }
+  });
+}
+
+// Format price
+function formatPrice(price) {
+  if (!price) return '0 đ';
+  return new Intl.NumberFormat('vi-VN', { 
+    style: 'currency', 
+    currency: 'VND' 
+  }).format(price);
+}
+
+// ===== ORDER MANAGEMENT FUNCTIONS =====
+
+let currentOrderFilter = '';
+
+// Load seller orders
+async function loadSellerOrders(status = '') {
+  try {
+    currentOrderFilter = status;
+    const url = status ? `/seller/api/orders?status=${status}` : '/seller/api/orders';
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    if (result.success) {
+      renderOrders(result.data);
+    } else {
+      alert(result.message || 'Không thể tải danh sách đơn hàng');
+    }
+  } catch (error) {
+    console.error('Error loading orders:', error);
+    alert('Có lỗi xảy ra khi tải đơn hàng');
+  }
+}
+
+// Filter orders by status
+function filterOrders(status) {
+  loadSellerOrders(status);
+}
+
+// Render orders table
+function renderOrders(orders) {
+  const tbody = document.getElementById('ordersTableBody');
+  
+  if (!orders || orders.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 50px;">
+          <i class="fas fa-inbox" style="font-size: 3rem; color: #ddd;"></i>
+          <p style="color: #999; margin-top: 10px;">Không có đơn hàng nào</p>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+  
+  tbody.innerHTML = orders.map(order => `
+    <tr>
+      <td><strong>${order.orderCode}</strong></td>
+      <td>${order.shippingName || 'N/A'}</td>
+      <td>${order.totalItems} sản phẩm</td>
+      <td><strong>${formatPrice(order.totalAmount)}</strong></td>
+      <td>${formatDate(order.createdAt)}</td>
+      <td>${getStatusBadge(order.status, order.statusDisplay)}</td>
+      <td>
+        <button onclick="viewOrderDetail(${order.id})" class="btn btn-info btn-sm" title="Xem chi tiết">
+          <i class="fas fa-eye"></i>
+        </button>
+        ${order.status === 'PENDING' ? `
+          <button onclick="confirmOrder(${order.id})" class="btn btn-success btn-sm" title="Xác nhận">
+            <i class="fas fa-check"></i>
+          </button>
+        ` : ''}
+        ${order.status === 'PENDING' || order.status === 'CONFIRMED' ? `
+          <button onclick="cancelOrder(${order.id})" class="btn btn-danger btn-sm" title="Hủy đơn">
+            <i class="fas fa-times"></i>
+          </button>
+        ` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// View order detail
+async function viewOrderDetail(orderId) {
+  try {
+    const modal = document.getElementById('orderDetailModal');
+    const content = document.getElementById('orderDetailContent');
+    
+    if (!modal || !content) {
+      console.error('Modal elements not found');
+      alert('Không thể mở chi tiết đơn hàng');
+      return;
+    }
+    
+    modal.style.display = 'flex';
+    content.innerHTML = `
+      <div style="text-align: center; padding: 50px;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #667eea;"></i>
+        <p style="color: #999; margin-top: 10px;">Đang tải...</p>
+      </div>
+    `;
+    
+    const response = await fetch(`/seller/api/orders/${orderId}`);
+    const result = await response.json();
+    
+    if (result.success) {
+      const order = result.data;
+      content.innerHTML = `
+        <div class="order-detail-container">
+          <div class="order-info-section">
+            <h3><i class="fas fa-info-circle"></i> Thông tin đơn hàng</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Mã đơn hàng:</label>
+                <strong>${order.orderCode}</strong>
+              </div>
+              <div class="info-item">
+                <label>Trạng thái:</label>
+                ${getStatusBadge(order.status, order.statusDisplay)}
+              </div>
+              <div class="info-item">
+                <label>Ngày đặt:</label>
+                <span>${formatDate(order.createdAt)}</span>
+              </div>
+              <div class="info-item">
+                <label>Phương thức thanh toán:</label>
+                <span>${order.paymentMethod || 'N/A'}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="order-info-section">
+            <h3><i class="fas fa-user"></i> Thông tin khách hàng</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Tên khách hàng:</label>
+                <span>${order.shippingName || 'N/A'}</span>
+              </div>
+              <div class="info-item">
+                <label>Số điện thoại:</label>
+                <span>${order.shippingPhone || 'N/A'}</span>
+              </div>
+              <div class="info-item full-width">
+                <label>Địa chỉ giao hàng:</label>
+                <span>${order.shippingAddress || 'N/A'}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="order-info-section">
+            <h3><i class="fas fa-box"></i> Sản phẩm</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Sản phẩm</th>
+                  <th>Size</th>
+                  <th>Đơn giá</th>
+                  <th>Số lượng</th>
+                  <th>Thành tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.orderDetails.map(detail => `
+                  <tr>
+                    <td>
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                        ${detail.image ? `<img src="${detail.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">` : ''}
+                        <span>${detail.productName}</span>
+                      </div>
+                    </td>
+                    <td>${detail.size || 'N/A'}</td>
+                    <td>${formatPrice(detail.unitPrice)}</td>
+                    <td>${detail.quantity}</td>
+                    <td><strong>${formatPrice(detail.totalPrice)}</strong></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="order-total">
+            <h3>Tổng cộng: ${formatPrice(order.totalAmount)}</h3>
+          </div>
+          
+          <div class="order-actions">
+            ${order.status === 'PENDING' ? `
+              <button onclick="confirmOrderFromDetail(${order.id})" class="btn btn-success">
+                <i class="fas fa-check"></i> Xác nhận đơn hàng
+              </button>
+              <button onclick="cancelOrderFromDetail(${order.id})" class="btn btn-danger">
+                <i class="fas fa-times"></i> Hủy đơn hàng
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    } else {
+      content.innerHTML = `
+        <div style="text-align: center; padding: 50px;">
+          <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #e74c3c;"></i>
+          <p style="color: #e74c3c; margin-top: 10px;">${result.message || 'Không thể tải chi tiết đơn hàng'}</p>
+        </div>
+      `;
+    }
+  } catch (error) {
+    console.error('Error loading order detail:', error);
+    alert('Có lỗi xảy ra khi tải chi tiết đơn hàng');
+  }
+}
+
+// Confirm order
+async function confirmOrder(orderId) {
+  showConfirm('Xác nhận đơn hàng', 'Bạn có chắc chắn muốn xác nhận đơn hàng này?', async () => {
+    try {
+      const response = await fetch(`/seller/api/orders/${orderId}/confirm`, {
+        method: 'POST'
+      });
+      const result = await response.json();
+      
+      if (result.success) {
+        showNotification('Thành công!', result.message, 'success');
+        loadSellerOrders(currentOrderFilter);
+      } else {
+        showNotification('Lỗi', result.message || 'Không thể xác nhận đơn hàng', 'error');
+      }
+    } catch (error) {
+      console.error('Error confirming order:', error);
+      showNotification('Lỗi', 'Có lỗi xảy ra khi xác nhận đơn hàng', 'error');
+    }
+  });
+}
+
+// Confirm order from detail modal
+async function confirmOrderFromDetail(orderId) {
+  await confirmOrder(orderId);
+  document.getElementById('orderDetailModal').style.display = 'none';
+}
+
+// Cancel order
+async function cancelOrder(orderId) {
+  showPrompt('Hủy đơn hàng', 'Vui lòng nhập lý do hủy đơn hàng:', async (reason) => {
+    if (!reason || reason.trim() === '') {
+      showNotification('Lưu ý', 'Vui lòng nhập lý do hủy đơn hàng', 'warning');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/seller/api/orders/${orderId}/cancel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `reason=${encodeURIComponent(reason)}`
+      });
+      const result = await response.json();
+      
+      if (result.success) {
+        showNotification('Thành công!', result.message, 'success');
+        loadSellerOrders(currentOrderFilter);
+      } else {
+        showNotification('Lỗi', result.message || 'Không thể hủy đơn hàng', 'error');
+      }
+    } catch (error) {
+      console.error('Error canceling order:', error);
+      showNotification('Lỗi', 'Có lỗi xảy ra khi hủy đơn hàng', 'error');
+    }
+  });
+}
+
+// Cancel order from detail modal
+async function cancelOrderFromDetail(orderId) {
+  await cancelOrder(orderId);
+  document.getElementById('orderDetailModal').style.display = 'none';
+}
+
+// Get status badge HTML
+function getStatusBadge(status, display) {
+  const statusClasses = {
+    'PENDING': 'status pending',
+    'CONFIRMED': 'status confirmed',
+    'ASSIGNED': 'status shipping',
+    'DELIVERING': 'status shipping',
+    'DELIVERED': 'status done',
+    'FAILED': 'status canceled',
+    'CANCELED': 'status canceled'
+  };
+  
+  const className = statusClasses[status] || 'status';
+  return `<span class="${className}">${display || status}</span>`;
+}
+
+// Format date
+function formatDate(dateString) {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+// ===== VOUCHER MANAGEMENT FUNCTIONS =====
+
+// Load seller vouchers
+async function loadSellerVouchers() {
+  try {
+    const response = await fetch('/seller/api/vouchers', {
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+      }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      displayVouchers(data.data);
+    } else {
+      showNotification('Lỗi', data.message, 'error');
+    }
+  } catch (error) {
+    console.error('Error loading vouchers:', error);
+    showNotification('Lỗi', 'Không thể tải danh sách voucher', 'error');
+  }
+}
+
+// Display vouchers in table
+function displayVouchers(vouchers) {
+  const tbody = document.getElementById('vouchersTableBody');
+  
+  if (!vouchers || vouchers.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align: center; padding: 60px; color: #999;">
+          <i class="fas fa-ticket-alt" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
+          <p style="font-size: 1.1rem; margin: 0;">Chưa có voucher nào</p>
+          <p style="margin-top: 10px;">Nhấn "Thêm voucher" để tạo voucher mới</p>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+  
+  tbody.innerHTML = vouchers.map(voucher => `
+    <tr>
+      <td><strong>${voucher.code}</strong></td>
+      <td>${voucher.name}</td>
+      <td>
+        <span class="badge ${voucher.discountType === 'PERCENTAGE' ? 'badge-success' : 'badge-info'}">
+          ${voucher.discountTypeDisplay}
+        </span>
+      </td>
+      <td>
+        ${voucher.discountType === 'PERCENTAGE' 
+          ? voucher.discountValue + '%' 
+          : new Intl.NumberFormat('vi-VN').format(voucher.discountValue) + ' VNĐ'}
+        ${voucher.maxDiscount ? '<br><small>(Tối đa: ' + new Intl.NumberFormat('vi-VN').format(voucher.maxDiscount) + ' VNĐ)</small>' : ''}
+      </td>
+      <td>${new Intl.NumberFormat('vi-VN').format(voucher.minOrderValue)} VNĐ</td>
+      <td>
+        <div style="text-align: center;">
+          <strong style="color: #667eea;">${voucher.remainingQuantity}</strong> / ${voucher.totalQuantity}
+          ${voucher.remainingQuantity === 0 ? '<br><small style="color: #dc3545;">Hết lượt</small>' : ''}
+        </div>
+      </td>
+      <td>
+        <small>${new Date(voucher.startDate).toLocaleDateString('vi-VN')}</small><br>
+        <small>${new Date(voucher.endDate).toLocaleDateString('vi-VN')}</small>
+      </td>
+      <td>
+        <label class="switch">
+          <input type="checkbox" ${voucher.active ? 'checked' : ''} 
+                 onchange="toggleVoucherStatus(${voucher.id})">
+          <span class="slider"></span>
+        </label>
+      </td>
+      <td>
+        <div class="action-buttons">
+          <button class="btn-icon edit" onclick="editVoucher(${voucher.id})" title="Sửa">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon delete" onclick="deleteVoucher(${voucher.id})" title="Xóa">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Edit voucher
+async function editVoucher(id) {
+  try {
+    const response = await fetch(`/seller/api/vouchers/${id}`, {
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+      }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      const voucher = data.data;
+      currentEditingVoucherId = id;
+      
+      // Populate form
+      document.querySelector('#voucherModal h2').textContent = 'Sửa voucher';
+      document.querySelector('[name="code"]').value = voucher.code;
+      document.querySelector('[name="code"]').disabled = true; // Cannot change code
+      document.querySelector('[name="name"]').value = voucher.name;
+      document.querySelector('[name="description"]').value = voucher.description || '';
+      document.querySelector('[name="discountType"]').value = voucher.discountType;
+      document.querySelector('[name="discountValue"]').value = voucher.discountValue;
+      document.querySelector('[name="maxDiscount"]').value = voucher.maxDiscount || '';
+      document.querySelector('[name="minOrderValue"]').value = voucher.minOrderValue;
+      document.querySelector('[name="totalQuantity"]').value = voucher.totalQuantity;
+      document.querySelector('[name="usageLimit"]').value = voucher.usageLimit;
+      document.querySelector('[name="startDate"]').value = voucher.startDate;
+      document.querySelector('[name="endDate"]').value = voucher.endDate;
+      document.querySelector('[name="active"]').checked = voucher.active;
+      
+      // Show/hide max discount based on type
+      toggleMaxDiscountField();
+      
+      // Change button text
+      document.querySelector('#voucherForm button[type="submit"]').innerHTML = 
+        '<i class="fas fa-save"></i> Cập nhật voucher';
+      
+      // Show modal
+      document.getElementById('voucherModal').style.display = 'flex';
+    } else {
+      showNotification('Lỗi', data.message, 'error');
+    }
+  } catch (error) {
+    console.error('Error loading voucher:', error);
+    showNotification('Lỗi', 'Không thể tải thông tin voucher', 'error');
+  }
+}
+
+// Delete voucher
+function deleteVoucher(id) {
+  showConfirm(
+    'Xóa voucher',
+    'Bạn có chắc chắn muốn xóa voucher này? Hành động này không thể hoàn tác.',
+    async () => {
+      try {
+        const response = await fetch(`/seller/api/vouchers/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+          }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          showNotification('Thành công', data.message, 'success');
+          loadSellerVouchers();
+        } else {
+          showNotification('Lỗi', data.message, 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting voucher:', error);
+        showNotification('Lỗi', 'Không thể xóa voucher', 'error');
+      }
+    }
+  );
+}
+
+// Toggle voucher status
+async function toggleVoucherStatus(id) {
+  try {
+    const response = await fetch(`/seller/api/vouchers/${id}/toggle`, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+      }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showNotification('Thành công', data.message, 'success');
+      loadSellerVouchers();
+    } else {
+      showNotification('Lỗi', data.message, 'error');
+      loadSellerVouchers(); // Reload to revert toggle
+    }
+  } catch (error) {
+    console.error('Error toggling voucher:', error);
+    showNotification('Lỗi', 'Không thể thay đổi trạng thái voucher', 'error');
+    loadSellerVouchers(); // Reload to revert toggle
+  }
+}
+
+// Toggle max discount field based on discount type
+function toggleMaxDiscountField() {
+  const discountType = document.querySelector('[name="discountType"]').value;
+  const maxDiscountGroup = document.getElementById('maxDiscountGroup');
+  
+  if (discountType === 'PERCENTAGE') {
+    maxDiscountGroup.style.display = 'block';
+  } else {
+    maxDiscountGroup.style.display = 'none';
+    document.querySelector('[name="maxDiscount"]').value = '';
+  }
+}
+
+// Open add voucher modal
+window.openAddVoucherModal = function() {
+  currentEditingVoucherId = null;
+  document.querySelector('#voucherModal h2').textContent = 'Tạo voucher mới';
+  document.getElementById('voucherForm').reset();
+  document.querySelector('[name="code"]').disabled = false;
+  document.querySelector('#voucherForm button[type="submit"]').innerHTML = 
+    '<i class="fas fa-save"></i> Tạo voucher';
+  toggleMaxDiscountField();
+  document.getElementById('voucherModal').style.display = 'flex';
+};
+
 </script>
 
 <style>
@@ -1191,6 +2669,99 @@ document.addEventListener('DOMContentLoaded', function() {
   min-height: 80px;
 }
 
+/* HTML Editor Styles */
+.html-editor-toolbar {
+  display: flex;
+  gap: 5px;
+  padding: 8px;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  flex-wrap: wrap;
+}
+
+.editor-btn {
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: #495057;
+}
+
+.editor-btn:hover {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.editor-btn i {
+  pointer-events: none;
+}
+
+.html-editor {
+  min-height: 150px;
+  padding: 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 0 0 12px 12px;
+  background: white;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.html-editor:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.html-editor h3 {
+  margin: 15px 0 10px 0;
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+.html-editor p {
+  margin: 10px 0;
+  color: #495057;
+}
+
+.html-editor ul, .html-editor ol {
+  margin: 10px 0;
+  padding-left: 25px;
+}
+
+.html-editor li {
+  margin: 5px 0;
+}
+
+.html-editor table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.html-editor table td {
+  padding: 10px;
+  border: 1px solid #dee2e6;
+}
+
+.html-editor table tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.html-editor.html-view {
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  color: #333;
+  background: #f4f4f4;
+}
+
 .required {
   color: #e74c3c;
   font-weight: bold;
@@ -1241,6 +2812,132 @@ document.addEventListener('DOMContentLoaded', function() {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* Images Upload Section */
+.images-upload-section {
+  padding: 20px;
+}
+
+.upload-area {
+  margin-bottom: 20px;
+}
+
+.upload-label {
+  display: block;
+  padding: 40px;
+  border: 3px dashed #dee2e6;
+  border-radius: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: #f8f9fa;
+}
+
+.upload-label:hover {
+  border-color: #667eea;
+  background: #f0f2ff;
+}
+
+.upload-label i {
+  font-size: 3rem;
+  color: #667eea;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.upload-label p {
+  font-size: 16px;
+  font-weight: 600;
+  color: #495057;
+  margin: 10px 0;
+}
+
+.upload-label span {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.images-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.image-preview-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  aspect-ratio: 1;
+}
+
+.image-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-preview-item .remove-image {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 59, 48, 0.9);
+  color: white;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.image-preview-item .remove-image:hover {
+  background: #ff3b30;
+  transform: scale(1.1);
+}
+
+/* Button for removing existing images (same style) */
+.image-preview-item .btn-remove-image {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 59, 48, 0.9);
+  color: white;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.3s;
+  line-height: 1;
+}
+
+.image-preview-item .btn-remove-image:hover {
+  background: #ff3b30;
+  transform: scale(1.1);
+}
+
+.image-preview-item .primary-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(102, 126, 234, 0.95);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .variants-table {
@@ -1343,7 +3040,450 @@ document.addEventListener('DOMContentLoaded', function() {
     overflow-x: scroll;
   }
 }
+
+/* Order Detail Styles */
+.order-detail-container {
+  padding: 20px;
+}
+
+.order-info-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.order-info-section h3 {
+  font-size: 18px;
+  color: #2d3748;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.order-info-section h3 i {
+  color: #667eea;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.info-item label {
+  font-size: 13px;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.info-item strong,
+.info-item span {
+  font-size: 15px;
+  color: #2d3748;
+}
+
+.order-total {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: right;
+  margin: 20px 0;
+}
+
+.order-total h3 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.order-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 2px solid #dee2e6;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-buttons .btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+}
+
+.filter-buttons .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.status.confirmed {
+  background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filter-buttons {
+    width: 100%;
+  }
+  
+  .filter-buttons .btn {
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .order-actions {
+    flex-direction: column;
+  }
+  
+  .order-actions .btn {
+    width: 100%;
+  }
+}
+
+/* Custom Notification Modals */
+.notification-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 10001;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.notification-modal[style*="display: flex"] {
+  display: flex !important;
+}
+
+.notification-content {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease;
+  position: relative;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.notification-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  animation: scaleIn 0.5s ease 0.2s both;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.notification-icon.success {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.notification-icon.error {
+  background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+}
+
+.notification-icon.warning {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.notification-icon.info {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.notification-icon i {
+  font-size: 40px;
+  color: white;
+}
+
+.notification-content h3 {
+  font-size: 24px;
+  color: #2d3748;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.notification-content p {
+  font-size: 16px;
+  color: #718096;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.notification-content .form-control {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+
+.notification-content .form-control:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.notification-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.notification-buttons .btn {
+  flex: 1;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.notification-content > .btn {
+  padding: 12px 40px;
+  font-size: 15px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.notification-content > .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 26px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-success {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
+}
+
+.badge-info {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .notification-content {
+    padding: 30px 20px;
+  }
+  
+  .notification-icon {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .notification-icon i {
+    font-size: 30px;
+  }
+  
+  .notification-content h3 {
+    font-size: 20px;
+  }
+  
+  .notification-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #667eea;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.badge-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.badge-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
 </style>
 </th:block>
 </body>
 </html>
+
