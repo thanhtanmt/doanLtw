@@ -3,14 +3,18 @@ package com.example.clothesshop.controller;
 import com.example.clothesshop.model.User;
 import com.example.clothesshop.model.Wallet;
 import com.example.clothesshop.model.WalletTransaction;
+import com.example.clothesshop.model.VNPayTransaction;
 import com.example.clothesshop.service.WalletService;
 import com.example.clothesshop.service.UserService;
+import com.example.clothesshop.service.VNPayService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -23,10 +27,12 @@ public class WalletController {
     
     private final WalletService walletService;
     private final UserService userService;
+    private final VNPayService vnPayService;
     
-    public WalletController(WalletService walletService, UserService userService) {
+    public WalletController(WalletService walletService, UserService userService, VNPayService vnPayService) {
         this.walletService = walletService;
         this.userService = userService;
+        this.vnPayService = vnPayService;
     }
     
     /**
@@ -166,6 +172,69 @@ public class WalletController {
             response.put("message", e.getMessage());
         }
         return response;
+    }
+    
+    /**
+     * API tạo URL thanh toán VNPay
+     */
+    @PostMapping("/vnpay/create-payment")
+    @ResponseBody
+    public Map<String, Object> createVNPayPayment(@RequestParam BigDecimal amount,
+                                                   @RequestParam(required = false) String description,
+                                                   HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User user = getCurrentUser();
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "Vui lòng đăng nhập");
+                return response;
+            }
+            
+            if (amount.compareTo(new BigDecimal("10000")) < 0) {
+                response.put("success", false);
+                response.put("message", "Số tiền nạp tối thiểu là 10.000đ");
+                return response;
+            }
+            
+            if (description == null || description.trim().isEmpty()) {
+                description = "Nạp tiền vào ví";
+            }
+            
+            String paymentUrl = vnPayService.createPaymentUrl(user, amount, description, request);
+            
+            response.put("success", true);
+            response.put("paymentUrl", paymentUrl);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Lỗi khi tạo thanh toán: " + e.getMessage());
+        }
+        return response;
+    }
+    
+    /**
+     * Xử lý callback từ VNPay
+     */
+    @GetMapping("/vnpay-return")
+    public String vnpayReturn(@RequestParam Map<String, String> params, 
+                             Model model,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            VNPayTransaction transaction = vnPayService.processPaymentReturn(params);
+            
+            if (transaction.getStatus() == VNPayTransaction.TransactionStatus.SUCCESS) {
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Nạp tiền thành công! Số tiền: " + transaction.getAmount().toString() + "đ");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Nạp tiền thất bại! " + transaction.getResponseMessage());
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Có lỗi xảy ra: " + e.getMessage());
+        }
+        
+        return "redirect:/wallet";
     }
     
     /**

@@ -169,6 +169,30 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
+        .payment-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-vnpay {
+            background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+        }
+
+        .btn-vnpay:hover {
+            box-shadow: 0 5px 15px rgba(30, 136, 229, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .transaction-list {
             max-height: 600px;
             overflow-y: auto;
@@ -305,6 +329,14 @@
         </div>
 
         <div class="wallet-container">
+            <!-- Success/Error Messages -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+            </div>
+
             <!-- Balance Card -->
             <div class="wallet-balance-card">
                 <div class="balance-label">Số dư khả dụng</div>
@@ -328,8 +360,9 @@
                     
                     <form class="deposit-form" id="deposit-form">
                         <div class="form-group">
-                            <label>Số tiền nạp (đ)</label>
+                            <label for="deposit-amount">Số tiền nạp (đ)</label>
                             <input type="number" class="form-control" id="deposit-amount" 
+                                   name="deposit-amount"
                                    placeholder="Nhập số tiền muốn nạp" min="10000" step="1000" required>
                             
                             <div class="quick-amounts">
@@ -343,14 +376,20 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Ghi chú (tùy chọn)</label>
+                            <label for="deposit-description">Ghi chú (tùy chọn)</label>
                             <input type="text" class="form-control" id="deposit-description" 
+                                   name="deposit-description"
                                    placeholder="Ví dụ: Nạp tiền mua sắm">
                         </div>
 
-                        <button type="submit" class="btn-submit">
-                            <i class="fas fa-check-circle"></i> Nạp tiền ngay
-                        </button>
+                        <div class="payment-methods">
+                            <button type="submit" class="btn-submit btn-demo">
+                                <i class="fas fa-check-circle"></i> Nạp tiền Demo (Test)
+                            </button>
+                            <button type="button" class="btn-submit btn-vnpay" onclick="payWithVNPay()">
+                                <i class="fas fa-credit-card"></i> Thanh toán qua VNPay
+                            </button>
+                        </div>
                     </form>
                 </div>
 
@@ -389,7 +428,10 @@
             </div>
         </div>
     </div>
+    </div>
 
+    <!-- Scripts -->
+    <th:block layout:fragment="scripts">
     <script th:inline="javascript">
         function setAmount(amount) {
             document.getElementById('deposit-amount').value = amount;
@@ -415,6 +457,55 @@
             return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
         }
 
+        // Thanh toán qua VNPay
+        async function payWithVNPay() {
+            const amount = document.getElementById('deposit-amount').value;
+            const description = document.getElementById('deposit-description').value || 'Nạp tiền vào ví';
+
+            if (!amount || amount < 10000) {
+                showNotification('Số tiền nạp tối thiểu là 10.000đ', 'error');
+                return;
+            }
+
+            try {
+                // Lấy CSRF token
+                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+                
+                const formData = new URLSearchParams();
+                formData.append('amount', amount);
+                formData.append('description', description);
+
+                const headers = {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                };
+                
+                // Thêm CSRF token vào header
+                if (csrfToken && csrfHeader) {
+                    headers[csrfHeader] = csrfToken;
+                }
+
+                const response = await fetch('/wallet/vnpay/create-payment', {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Chuyển hướng đến trang thanh toán VNPay
+                    window.location.href = data.paymentUrl;
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Không thể kết nối đến server', 'error');
+            }
+        }
+
+        // Nạp tiền demo
         document.getElementById('deposit-form').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -427,17 +518,28 @@
             }
 
             try {
+                // Lấy CSRF token
+                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+                
                 const formData = new URLSearchParams();
                 formData.append('amount', amount);
                 if (description) {
                     formData.append('description', description);
                 }
 
+                const headers = {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                };
+                
+                // Thêm CSRF token vào header
+                if (csrfToken && csrfHeader) {
+                    headers[csrfHeader] = csrfToken;
+                }
+
                 const response = await fetch('/wallet/deposit', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
+                    headers: headers,
                     body: formData
                 });
 
@@ -460,9 +562,11 @@
                     showNotification(data.message || 'Có lỗi xảy ra', 'error');
                 }
             } catch (error) {
+                console.error('Error:', error);
                 showNotification('Không thể kết nối đến server', 'error');
             }
         });
     </script>
+    </th:block>
 </body>
 </html>
