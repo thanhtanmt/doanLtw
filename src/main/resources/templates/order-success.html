@@ -168,15 +168,27 @@
                     <div th:if="${order}" class="order-summary-box">
                         <div class="summary-item">
                             <strong>Mã đơn hàng:</strong>
-                            <span class="order-id" th:text="'#' + ${order.id}">#12345</span>
+                            <span class="order-id" th:text="${order.orderCode}">#ORD-ABC123</span>
                         </div>
                         <div class="summary-item">
                             <strong>Ngày đặt:</strong>
-                            <span th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy')}">26/10/2025</span>
+                            <span th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">30/10/2025 14:30</span>
+                        </div>
+                        <div class="summary-item" th:if="${order.totalPrice != null and order.totalPrice > 0}">
+                            <strong>Tạm tính:</strong>
+                            <span th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
+                        </div>
+                        <div class="summary-item" th:if="${order.discountAmount != null and order.discountAmount > 0}">
+                            <strong>Giảm giá <span th:if="${order.voucherCode != null}" th:text="'(' + ${order.voucherCode} + ')'">(SUMMER50)</span>:</strong>
+                            <span style="color: #e74c3c;" th:text="'-' + ${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">-50.000đ</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Phương thức thanh toán:</strong>
+                            <span th:text="${order.paymentMethod == 'WALLET' ? 'Ví điện tử' : 'COD (Thanh toán khi nhận hàng)'}">COD</span>
                         </div>
                         <div class="summary-item">
                             <strong>Tổng cộng:</strong>
-                            <span class="order-total" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
+                            <span class="order-total" th:text="${#numbers.formatDecimal(order.totalAmount != null ? order.totalAmount : 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
                         </div>
                     </div>
 

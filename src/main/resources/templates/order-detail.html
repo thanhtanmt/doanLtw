@@ -83,49 +83,151 @@
             display: flex;
             justify-content: space-between;
             position: relative;
-            margin: 20px 0;
+            margin: 40px 20px 30px 20px;
+            padding: 0;
         }
+        
         .status-tracker::before {
             content: '';
             position: absolute;
-            top: 15px;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: #e9ecef;
+            top: 30px;
+            left: 12.5%;
+            right: 12.5%;
+            height: 3px;
+            background: linear-gradient(90deg, #e9ecef 0%, #e9ecef 100%);
             z-index: 0;
         }
+        
         .status-step {
             position: relative;
             z-index: 1;
             text-align: center;
-            width: 25%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+        
         .step-circle {
-            width: 30px;
-            height: 30px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: #e9ecef;
-            margin: 0 auto 10px;
+            background: #f1f3f5;
+            margin: 0 auto 15px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 24px;
             font-weight: 700;
-            transition: all 0.3s;
-            border: 4px solid #f8f9fa;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            color: #adb5bd;
+            position: relative;
         }
+        
+        .step-circle i {
+            font-size: 26px;
+        }
+        
         .step-label {
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #868e96;
+            transition: all 0.3s;
+            margin-top: 5px;
+        }
+        
+        .step-time {
+            font-size: 12px;
+            color: #adb5bd;
+            margin-top: 5px;
             font-weight: 500;
-            color: #7f8c8d;
         }
+        
+        /* Completed Step */
         .status-step.completed .step-circle {
-            background: #2ecc71;
+            background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
             color: white;
+            box-shadow: 0 6px 20px rgba(55, 178, 77, 0.3);
+            transform: scale(1.05);
         }
+        
+        .status-step.completed .step-label {
+            color: #2b8a3e;
+            font-weight: 700;
+        }
+        
+        .status-step.completed .step-time {
+            color: #37b24d;
+        }
+        
+        /* Active Step */
         .status-step.active .step-circle {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            animation: pulse 2s infinite;
+            transform: scale(1.1);
+        }
+        
+        .status-step.active .step-label {
+            color: #667eea;
+            font-weight: 700;
+        }
+        
+        .status-step.active .step-time {
+            color: #667eea;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            }
+            50% {
+                box-shadow: 0 8px 35px rgba(102, 126, 234, 0.6);
+            }
+        }
+        
+        /* Progress Line Animation */
+        .status-step.completed::after {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #51cf66 0%, #37b24d 100%);
+            z-index: -1;
+        }
+        
+        .status-step:last-child::after {
+            display: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .status-tracker {
+                margin: 30px 10px 20px 10px;
+            }
+            
+            .step-circle {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .step-circle i {
+                font-size: 22px;
+            }
+            
+            .step-label {
+                font-size: 12px;
+            }
+            
+            .step-time {
+                font-size: 10px;
+            }
         }
 
         /* Info List */
@@ -210,6 +312,499 @@
         }
         .btn-back:hover { text-decoration: underline; }
 
+        /* Review Button */
+        .btn-review {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #ffd93d 0%, #ff9800 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+        }
+        .btn-review:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+        .btn-review i {
+            margin-right: 5px;
+        }
+
+        /* Review Modal */
+        .review-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .review-modal.active {
+            display: flex;
+        }
+        .review-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .review-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .review-modal-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+        .review-close {
+            font-size: 28px;
+            color: #7f8c8d;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: all 0.3s;
+        }
+        .review-close:hover {
+            color: #e74c3c;
+            transform: rotate(90deg);
+        }
+        .review-product-info {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        .review-product-info img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        .review-product-details h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 8px 0;
+        }
+        .rating-input {
+            margin: 20px 0;
+        }
+        .rating-input label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        .star-rating {
+            display: flex;
+            gap: 10px;
+            font-size: 40px;
+        }
+        .star-rating i {
+            cursor: pointer;
+            color: #dee2e6;
+            transition: all 0.2s;
+        }
+        .star-rating i.active,
+        .star-rating i:hover {
+            color: #ffd93d;
+            transform: scale(1.2);
+        }
+        .comment-input {
+            margin: 20px 0;
+        }
+        .comment-input label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .comment-input textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 15px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        .comment-input textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        /* Media Upload Section */
+        .media-upload-section {
+            margin-top: 20px;
+        }
+        .upload-group {
+            margin-bottom: 20px;
+        }
+        .upload-group label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .upload-group label i {
+            color: #667eea;
+            margin-right: 5px;
+        }
+        .upload-hint {
+            font-weight: 400;
+            color: #718096;
+            font-size: 12px;
+        }
+        
+        /* Custom File Upload Button */
+        .custom-file-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .custom-file-upload:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #edf2f7 0%, #e6fffa 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+        .custom-file-upload i {
+            font-size: 40px;
+            color: #667eea;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+        .custom-file-upload:hover i {
+            transform: scale(1.1);
+            color: #764ba2;
+        }
+        .upload-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        .upload-subtext {
+            font-size: 12px;
+            color: #718096;
+        }
+        
+        .preview-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .preview-container:empty {
+            display: none;
+        }
+        .preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .video-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100px;
+            height: 100px;
+            padding: 10px;
+        }
+        .video-icon {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+        .video-name {
+            font-size: 10px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 90px;
+        }
+        .remove-preview {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .remove-preview:hover {
+            background: #e74c3c;
+            transform: scale(1.1);
+        }
+        
+        .review-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .review-actions button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-submit-review {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .btn-submit-review:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-cancel-review {
+            background: #e9ecef;
+            color: #495057;
+        }
+        .btn-cancel-review:hover {
+            background: #dee2e6;
+        }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 350px;
+            z-index: 10000;
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .toast-notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .toast-notification.success {
+            border-left: 5px solid #51cf66;
+        }
+        .toast-notification.error {
+            border-left: 5px solid #f56565;
+        }
+        .toast-notification.warning {
+            border-left: 5px solid #ffd93d;
+        }
+        .toast-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .toast-notification.success .toast-icon {
+            background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+            color: white;
+        }
+        .toast-notification.error .toast-icon {
+            background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
+            color: white;
+        }
+        .toast-notification.warning .toast-icon {
+            background: linear-gradient(135deg, #ffd93d 0%, #ff9800 100%);
+            color: white;
+        }
+        .toast-content {
+            flex: 1;
+        }
+        .toast-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .toast-message {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #adb5bd;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 0;
+            line-height: 1;
+        }
+        .toast-close:hover {
+            color: #495057;
+            transform: rotate(90deg);
+        }
+
+        /* Review Success Message */
+        .review-success-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10001;
+            justify-content: center;
+            align-items: center;
+        }
+        .review-success-overlay.active {
+            display: flex;
+        }
+        .review-success-content {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 60px;
+            text-align: center;
+            max-width: 500px;
+            animation: successBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes successBounce {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .success-icon-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: successPulse 2s infinite;
+        }
+        @keyframes successPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(81, 207, 102, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 20px rgba(81, 207, 102, 0);
+            }
+        }
+        .success-icon-circle i {
+            font-size: 50px;
+            color: white;
+        }
+        .review-success-content h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .review-success-content p {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .btn-close-success {
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .btn-close-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
         @media (max-width: 992px) {
             .detail-grid {
                 grid-template-columns: 1fr;
@@ -227,7 +822,7 @@
         <!-- Page Header -->
         <div class="page-header" th:if="${order != null}">
             <h1>Chi Tiết Đơn Hàng</h1>
-            <p th:text="'Mã đơn: #' + ${order.id}">Mã đơn: #12345</p>
+            <p th:text="'Mã đơn: #' + ${order.orderCode != null ? order.orderCode : order.id}">Mã đơn: #12345</p>
         </div>
 
         <div class="order-detail-container">
@@ -237,27 +832,83 @@
                     <!-- Status Tracker -->
                     <div class="detail-card">
                         <div class="card-header">
-                            <i class="fas fa-truck"></i>
+                            <i class="fas fa-shipping-fast"></i>
                             <h3>Trạng thái đơn hàng</h3>
                         </div>
                         <div class="card-body">
                             <div class="status-tracker">
-                                <div class="status-step" th:classappend="${order.status == 'PENDING' || order.status == 'CONFIRMED' || order.status == 'SHIPPED' || order.status == 'DELIVERED'} ? 'completed' : ''">
-                                    <div class="step-circle"><i class="fas fa-check"></i></div>
+                                <!-- Bước 1: Đã đặt -->
+                                <div class="status-step" th:classappend="${order.status.name() == 'PENDING' || order.status.name() == 'CONFIRMED' || order.status.name() == 'ASSIGNED' || order.status.name() == 'DELIVERING' || order.status.name() == 'DELIVERED'} ? 'completed' : ''">
+                                    <div class="step-circle">
+                                        <i class="fas fa-check"></i>
+                                    </div>
                                     <div class="step-label">Đã đặt</div>
+                                    <div class="step-time" th:if="${order.createdAt != null}" 
+                                         th:text="${#temporals.format(order.createdAt, 'dd/MM HH:mm')}">
+                                        30/10 10:30
+                                    </div>
                                 </div>
-                                <div class="status-step" th:classappend="${order.status == 'CONFIRMED' || order.status == 'SHIPPED' || order.status == 'DELIVERED'} ? 'completed' : (${order.status == 'PENDING'} ? 'active' : '')">
-                                    <div class="step-circle">2</div>
+                                
+                                <!-- Bước 2: Xác nhận -->
+                                <div class="status-step" th:classappend="${order.status.name() == 'CONFIRMED' || order.status.name() == 'ASSIGNED' || order.status.name() == 'DELIVERING' || order.status.name() == 'DELIVERED'} ? 'completed' : (${order.status.name() == 'PENDING'} ? 'active' : '')">
+                                    <div class="step-circle">
+                                        <i class="fas fa-clipboard-check"></i>
+                                    </div>
                                     <div class="step-label">Xác nhận</div>
+                                    <div class="step-time" th:if="${order.status.name() == 'CONFIRMED' || order.status.name() == 'ASSIGNED' || order.status.name() == 'DELIVERING' || order.status.name() == 'DELIVERED'}">
+                                        Đã xác nhận
+                                    </div>
                                 </div>
-                                <div class="status-step" th:classappend="${order.status == 'SHIPPED' || order.status == 'DELIVERED'} ? 'completed' : (${order.status == 'CONFIRMED'} ? 'active' : '')">
-                                    <div class="step-circle">3</div>
+                                
+                                <!-- Bước 3: Đang giao -->
+                                <div class="status-step" th:classappend="${order.status.name() == 'ASSIGNED' || order.status.name() == 'DELIVERING' || order.status.name() == 'DELIVERED'} ? 'completed' : (${order.status.name() == 'CONFIRMED'} ? 'active' : '')">
+                                    <div class="step-circle">
+                                        <i class="fas fa-truck"></i>
+                                    </div>
                                     <div class="step-label">Đang giao</div>
+                                    <div class="step-time" th:if="${order.status.name() == 'ASSIGNED' || order.status.name() == 'DELIVERING' || order.status.name() == 'DELIVERED'}">
+                                        Đang vận chuyển
+                                    </div>
                                 </div>
-                                <div class="status-step" th:classappend="${order.status == 'DELIVERED'} ? 'completed' : (${order.status == 'SHIPPED'} ? 'active' : '')">
-                                    <div class="step-circle">4</div>
+                                
+                                <!-- Bước 4: Đã nhận -->
+                                <div class="status-step" th:classappend="${order.status.name() == 'DELIVERED'} ? 'completed' : (${order.status.name() == 'ASSIGNED' || order.status.name() == 'DELIVERING'} ? 'active' : '')">
+                                    <div class="step-circle">
+                                        <i class="fas fa-box-open"></i>
+                                    </div>
                                     <div class="step-label">Đã nhận</div>
+                                    <div class="step-time" th:if="${order.status.name() == 'DELIVERED'}">
+                                        Hoàn thành
+                                    </div>
                                 </div>
+                            </div>
+                            
+                            <!-- Status Badge -->
+                            <div style="text-align: center; margin-top: 30px;">
+                                <span th:if="${order.status.name() == 'PENDING'}" 
+                                      style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #ffd93d 0%, #ff9800 100%); color: white; border-radius: 25px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);">
+                                    <i class="fas fa-clock"></i> Chờ xác nhận
+                                </span>
+                                <span th:if="${order.status.name() == 'CONFIRMED'}" 
+                                      style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 25px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                                    <i class="fas fa-check-circle"></i> Đã xác nhận
+                                </span>
+                                <span th:if="${order.status.name() == 'ASSIGNED' || order.status.name() == 'DELIVERING'}" 
+                                      style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 25px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);">
+                                    <i class="fas fa-shipping-fast"></i> Đang giao hàng
+                                </span>
+                                <span th:if="${order.status.name() == 'DELIVERED'}" 
+                                      style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%); color: white; border-radius: 25px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 15px rgba(55, 178, 77, 0.3);">
+                                    <i class="fas fa-check-double"></i> Đã giao thành công
+                                </span>
+                                <span th:if="${order.status.name() == 'CANCELED'}" 
+                                      style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #f56565 0%, #c53030 100%); color: white; border-radius: 25px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3);">
+                                    <i class="fas fa-times-circle"></i> Đã hủy
+                                </span>
+                                <span th:if="${order.status.name() == 'FAILED'}" 
+                                      style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #fc8181 0%, #e53e3e 100%); color: white; border-radius: 25px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 15px rgba(252, 129, 129, 0.3);">
+                                    <i class="fas fa-exclamation-circle"></i> Giao thất bại
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -276,19 +927,39 @@
                                         <th>Số lượng</th>
                                         <th>Đơn giá</th>
                                         <th>Thành tiền</th>
+                                        <th th:if="${order.status.name() == 'DELIVERED'}">Đánh giá</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr th:each="detail : ${order.orderDetails}">
                                         <td>
                                             <div class="product-info">
-                                                <img th:src="${detail.product.imageUrl}" alt="Product" class="product-image">
-                                                <span class="product-name" th:text="${detail.product.name}">Product Name</span>
+                                                <img th:if="${detail.variant != null && detail.variant.product != null && detail.variant.product.images != null && !detail.variant.product.images.isEmpty()}" 
+                                                     th:src="${detail.variant.product.images[0].url}" 
+                                                     alt="Product" 
+                                                     class="product-image"
+                                                     onerror="this.src='https://via.placeholder.com/80'">
+                                                <img th:unless="${detail.variant != null && detail.variant.product != null && detail.variant.product.images != null && !detail.variant.product.images.isEmpty()}" 
+                                                     src="https://via.placeholder.com/80" 
+                                                     alt="No image" 
+                                                     class="product-image">
+                                                <div>
+                                                    <span class="product-name" th:text="${detail.variant != null && detail.variant.product != null ? detail.variant.product.name : 'Sản phẩm'}">Product Name</span>
+                                                    <small th:if="${detail.variant != null && detail.variant.size != null}" 
+                                                           style="display: block; color: #666; margin-top: 5px;"
+                                                           th:text="'Size: ' + ${detail.variant.size}">Size: M</small>
+                                                </div>
                                             </div>
                                         </td>
                                         <td th:text="${detail.quantity}">1</td>
-                                        <td class="item-price" th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">500.000đ</td>
-                                        <td class="item-price" th:text="${#numbers.formatDecimal(detail.price * detail.quantity, 0, 'COMMA', 0, 'POINT')} + 'đ'">500.000đ</td>
+                                        <td class="item-price" th:text="${#numbers.formatDecimal(detail.unitPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">500.000đ</td>
+                                        <td class="item-price" th:text="${#numbers.formatDecimal(detail.unitPrice * detail.quantity, 0, 'COMMA', 0, 'POINT')} + 'đ'">500.000đ</td>
+                                        <td th:if="${order.status.name() == 'DELIVERED'}">
+                                            <button class="btn-review" 
+                                                    th:attr="data-product-id=${detail.variant != null && detail.variant.product != null ? detail.variant.product.id : ''}">
+                                                <i class="fas fa-star"></i> Đánh giá
+                                            </button>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -307,8 +978,18 @@
                         <div class="card-body">
                             <div class="summary-row">
                                 <span class="summary-label">Tạm tính:</span>
-                                <span class="summary-value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
+                                <span class="summary-value" th:text="${#numbers.formatDecimal(order.totalPrice != null ? order.totalPrice : (order.totalAmount != null ? order.totalAmount : 0), 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
                             </div>
+                            
+                            <!-- Voucher discount row - only show if there's a discount -->
+                            <div class="summary-row" th:if="${order.discountAmount != null and order.discountAmount > 0}">
+                                <span class="summary-label">
+                                    Giảm giá 
+                                    <span th:if="${order.voucherCode != null}" th:text="'(' + ${order.voucherCode} + ')'" style="color: #667eea; font-weight: 600;"></span>:
+                                </span>
+                                <span class="summary-value" style="color: #e74c3c;" th:text="'-' + ${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">-50.000đ</span>
+                            </div>
+                            
                             <div class="summary-row">
                                 <span class="summary-label">Phí vận chuyển:</span>
                                 <span class="summary-value" style="color: #2ecc71;">Miễn phí</span>
@@ -316,7 +997,7 @@
                             <div class="summary-divider"></div>
                             <div class="summary-total">
                                 <span class="summary-label">Tổng cộng:</span>
-                                <span class="summary-value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
+                                <span class="summary-value" th:text="${#numbers.formatDecimal(order.totalAmount != null ? order.totalAmount : (order.totalPrice != null ? order.totalPrice : 0), 0, 'COMMA', 0, 'POINT')} + 'đ'">1.500.000đ</span>
                             </div>
                         </div>
                     </div>
@@ -331,27 +1012,23 @@
                             <div class="info-list">
                                 <div class="info-item" style="grid-column: 1 / -1;">
                                     <strong>Người nhận</strong>
-                                    <span th:text="${order.customerName}">Nguyễn Văn A</span>
-                                </div>
-                                <div class="info-item">
-                                    <strong>Email</strong>
-                                    <span th:text="${order.customerEmail}">email@example.com</span>
+                                    <span th:text="${order.shippingName != null ? order.shippingName : 'N/A'}">Nguyễn Văn A</span>
                                 </div>
                                 <div class="info-item">
                                     <strong>Điện thoại</strong>
-                                    <span th:text="${order.customerPhone}">0123456789</span>
+                                    <span th:text="${order.shippingPhone != null ? order.shippingPhone : 'N/A'}">0123456789</span>
                                 </div>
                                 <div class="info-item" style="grid-column: 1 / -1;">
                                     <strong>Địa chỉ</strong>
-                                    <span th:text="${order.shippingAddress}">123 Đường ABC, Quận 1, TP.HCM</span>
+                                    <span th:text="${order.shippingAddress != null ? order.shippingAddress : (order.address != null ? order.address : 'N/A')}">123 Đường ABC, Quận 1, TP.HCM</span>
                                 </div>
                                 <div class="info-item">
                                     <strong>Thanh toán</strong>
-                                    <span th:text="${order.paymentMethod}">COD</span>
+                                    <span th:text="${order.paymentMethod != null ? order.paymentMethod : 'COD'}">COD</span>
                                 </div>
-                                <div class="info-item" th:if="${order.notes != null && !order.notes.isEmpty()}">
-                                    <strong>Ghi chú</strong>
-                                    <span th:text="${order.notes}">Giao hàng giờ hành chính</span>
+                                <div class="info-item">
+                                    <strong>Ngày đặt</strong>
+                                    <span th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">01/01/2024 10:00</span>
                                 </div>
                             </div>
                         </div>
@@ -366,6 +1043,497 @@
                 Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.
             </div>
         </div>
+
+        <!-- Review Modal -->
+        <div class="review-modal" id="reviewModal">
+            <div class="review-modal-content">
+                <div class="review-modal-header">
+                    <h3><i class="fas fa-star"></i> Đánh giá sản phẩm</h3>
+                    <button class="review-close" onclick="closeReviewModal()">×</button>
+                </div>
+                
+                <div class="review-product-info" id="reviewProductInfo">
+                    <!-- Product info will be inserted here -->
+                </div>
+                
+                <form id="reviewForm">
+                    <input type="hidden" id="reviewProductId" name="productId">
+                    
+                    <div class="rating-input">
+                        <label>Đánh giá của bạn <span style="color: #e74c3c;">*</span></label>
+                        <div class="star-rating" id="starRating">
+                            <i class="fas fa-star" data-rating="1"></i>
+                            <i class="fas fa-star" data-rating="2"></i>
+                            <i class="fas fa-star" data-rating="3"></i>
+                            <i class="fas fa-star" data-rating="4"></i>
+                            <i class="fas fa-star" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="ratingValue" name="rating" required>
+                    </div>
+                    
+                    <div class="comment-input">
+                        <label>Nhận xét của bạn</label>
+                        <textarea id="reviewComment" name="comment" 
+                                  placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."></textarea>
+                    </div>
+                    
+                    <div class="media-upload-section">
+                        <div class="upload-group">
+                            <label>
+                                <i class="fas fa-image"></i> Hình ảnh 
+                                <span class="upload-hint">(Tối đa 5 ảnh)</span>
+                            </label>
+                            <div class="custom-file-upload" onclick="document.getElementById('reviewImages').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span class="upload-text">Chọn ảnh từ máy tính</span>
+                                <span class="upload-subtext">hoặc kéo thả ảnh vào đây</span>
+                            </div>
+                            <input type="file" id="reviewImages" name="images" 
+                                   multiple accept="image/*" onchange="previewImages(event)" style="display: none;">
+                            <div class="preview-container" id="imagePreviewContainer"></div>
+                        </div>
+                        
+                        <div class="upload-group">
+                            <label>
+                                <i class="fas fa-video"></i> Video 
+                                <span class="upload-hint">(Tối đa 2 video)</span>
+                            </label>
+                            <div class="custom-file-upload" onclick="document.getElementById('reviewVideos').click()">
+                                <i class="fas fa-film"></i>
+                                <span class="upload-text">Chọn video từ máy tính</span>
+                                <span class="upload-subtext">MP4, MOV, AVI</span>
+                            </div>
+                            <input type="file" id="reviewVideos" name="videos" 
+                                   multiple accept="video/*" onchange="previewVideos(event)" style="display: none;">
+                            <div class="preview-container" id="videoPreviewContainer"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="review-actions">
+                        <button type="button" class="btn-cancel-review" onclick="closeReviewModal()">
+                            Hủy
+                        </button>
+                        <button type="submit" class="btn-submit-review">
+                            <i class="fas fa-paper-plane"></i> Gửi đánh giá
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Success Overlay -->
+        <div class="review-success-overlay" id="successOverlay">
+            <div class="review-success-content">
+                <div class="success-icon-circle">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3>Cảm ơn bạn!</h3>
+                <p>Đánh giá của bạn đã được gửi thành công.<br>Cảm ơn bạn đã chia sẻ trải nghiệm!</p>
+                <button class="btn-close-success" onclick="closeSuccessOverlay()">
+                    <i class="fas fa-check-circle"></i> Hoàn tất
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div id="toastContainer"></div>
+
+        <script>
+            let currentRating = 0;
+            let currentProductId = null;
+
+            // Star rating interaction
+            document.addEventListener('DOMContentLoaded', function() {
+                const stars = document.querySelectorAll('.star-rating i');
+                
+                stars.forEach(star => {
+                    star.addEventListener('click', function() {
+                        currentRating = parseInt(this.getAttribute('data-rating'));
+                        document.getElementById('ratingValue').value = currentRating;
+                        updateStars();
+                    });
+                    
+                    star.addEventListener('mouseenter', function() {
+                        const rating = parseInt(this.getAttribute('data-rating'));
+                        highlightStars(rating);
+                    });
+                });
+                
+                document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+                    updateStars();
+                });
+
+                // Review buttons
+                document.querySelectorAll('.btn-review').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-product-id');
+                        if (productId) {
+                            openReviewModal(productId, this);
+                        }
+                    });
+                });
+
+                // Review form submit
+                document.getElementById('reviewForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitReview();
+                });
+            });
+
+            function highlightStars(rating) {
+                const stars = document.querySelectorAll('.star-rating i');
+                stars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.add('active');
+                    } else {
+                        star.classList.remove('active');
+                    }
+                });
+            }
+
+            function updateStars() {
+                highlightStars(currentRating);
+            }
+
+            function openReviewModal(productId, button) {
+                currentProductId = productId;
+                document.getElementById('reviewProductId').value = productId;
+                
+                // Get product info from the row
+                const row = button.closest('tr');
+                const productImage = row.querySelector('.product-image').src;
+                const productName = row.querySelector('.product-name').textContent;
+                const productSize = row.querySelector('small') ? row.querySelector('small').textContent : '';
+                
+                // Set product info in modal
+                document.getElementById('reviewProductInfo').innerHTML = `
+                    <img src="${productImage}" alt="${productName}" onerror="this.src='https://via.placeholder.com/80'">
+                    <div class="review-product-details">
+                        <h4>${productName}</h4>
+                        <p style="color: #7f8c8d; margin: 0;">${productSize}</p>
+                    </div>
+                `;
+                
+                // Check if user already reviewed
+                checkExistingReview(productId);
+                
+                document.getElementById('reviewModal').classList.add('active');
+            }
+
+            function closeReviewModal() {
+                document.getElementById('reviewModal').classList.remove('active');
+                resetReviewForm();
+            }
+
+            function resetReviewForm() {
+                currentRating = 0;
+                document.getElementById('ratingValue').value = '';
+                document.getElementById('reviewComment').value = '';
+                document.getElementById('reviewImages').value = '';
+                document.getElementById('reviewVideos').value = '';
+                document.getElementById('imagePreviewContainer').innerHTML = '';
+                document.getElementById('videoPreviewContainer').innerHTML = '';
+                updateStars();
+            }
+
+            async function checkExistingReview(productId) {
+                try {
+                    const response = await fetch(`/api/reviews/check/${productId}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.hasReviewed && data.review) {
+                        // Fill form with existing review
+                        currentRating = data.review.rating;
+                        document.getElementById('ratingValue').value = currentRating;
+                        document.getElementById('reviewComment').value = data.review.comment || '';
+                        updateStars();
+                        
+                        // Change button text
+                        document.querySelector('.btn-submit-review').innerHTML = 
+                            '<i class="fas fa-edit"></i> Cập nhật đánh giá';
+                    }
+                } catch (error) {
+                    console.error('Error checking review:', error);
+                }
+            }
+
+            async function submitReview() {
+                if (currentRating === 0) {
+                    showToast('Vui lòng chọn số sao đánh giá!', 'warning', 'Thiếu thông tin');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('productId', currentProductId);
+                formData.append('rating', currentRating);
+                formData.append('comment', document.getElementById('reviewComment').value);
+                
+                // Add images
+                const imageFiles = document.getElementById('reviewImages').files;
+                if (imageFiles.length > 5) {
+                    showToast('Chỉ được tải lên tối đa 5 ảnh!', 'warning', 'Giới hạn file');
+                    return;
+                }
+                for (let i = 0; i < imageFiles.length; i++) {
+                    formData.append('images', imageFiles[i]);
+                }
+                
+                // Add videos
+                const videoFiles = document.getElementById('reviewVideos').files;
+                if (videoFiles.length > 2) {
+                    showToast('Chỉ được tải lên tối đa 2 video!', 'warning', 'Giới hạn file');
+                    return;
+                }
+                for (let i = 0; i < videoFiles.length; i++) {
+                    formData.append('videos', videoFiles[i]);
+                }
+
+                try {
+                    const response = await fetch('/api/reviews', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        closeReviewModal();
+                        showSuccessOverlay(currentRating);
+                    } else {
+                        showToast(data.message || 'Có lỗi xảy ra khi gửi đánh giá', 'error', 'Lỗi');
+                    }
+                } catch (error) {
+                    console.error('Error submitting review:', error);
+                    showToast('Có lỗi xảy ra khi gửi đánh giá', 'error', 'Lỗi');
+                }
+            }
+            
+            // Image Preview Function
+            function previewImages(event) {
+                const files = event.target.files;
+                const container = document.getElementById('imagePreviewContainer');
+                container.innerHTML = '';
+                
+                if (files.length > 5) {
+                    showToast('Chỉ được tải lên tối đa 5 ảnh!', 'warning', 'Giới hạn file');
+                    event.target.value = '';
+                    return;
+                }
+                
+                Array.from(files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.createElement('div');
+                        preview.className = 'preview-item';
+                        preview.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="remove-preview" onclick="removeImage(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        container.appendChild(preview);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+            
+            // Video Preview Function
+            function previewVideos(event) {
+                const files = event.target.files;
+                const container = document.getElementById('videoPreviewContainer');
+                container.innerHTML = '';
+                
+                if (files.length > 2) {
+                    showToast('Chỉ được tải lên tối đa 2 video!', 'warning', 'Giới hạn file');
+                    event.target.value = '';
+                    return;
+                }
+                
+                Array.from(files).forEach((file, index) => {
+                    const preview = document.createElement('div');
+                    preview.className = 'preview-item video-preview';
+                    preview.innerHTML = `
+                        <div class="video-icon">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <span class="video-name">${file.name}</span>
+                        <button type="button" class="remove-preview" onclick="removeVideo(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    container.appendChild(preview);
+                });
+            }
+            
+            // Remove Image
+            function removeImage(index) {
+                const input = document.getElementById('reviewImages');
+                const dt = new DataTransfer();
+                const files = input.files;
+                
+                for (let i = 0; i < files.length; i++) {
+                    if (i !== index) {
+                        dt.items.add(files[i]);
+                    }
+                }
+                
+                input.files = dt.files;
+                previewImages({ target: input });
+            }
+            
+            // Remove Video
+            function removeVideo(index) {
+                const input = document.getElementById('reviewVideos');
+                const dt = new DataTransfer();
+                const files = input.files;
+                
+                for (let i = 0; i < files.length; i++) {
+                    if (i !== index) {
+                        dt.items.add(files[i]);
+                    }
+                }
+                
+                input.files = dt.files;
+                previewVideos({ target: input });
+            }
+            
+            // Drag & Drop for Images
+            document.addEventListener('DOMContentLoaded', function() {
+                const imageUploadArea = document.querySelector('.upload-group:first-child .custom-file-upload');
+                const videoUploadArea = document.querySelector('.upload-group:last-child .custom-file-upload');
+                
+                if (imageUploadArea) {
+                    // Prevent default drag behaviors
+                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                        imageUploadArea.addEventListener(eventName, preventDefaults, false);
+                    });
+                    
+                    function preventDefaults(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    
+                    // Highlight on drag over
+                    ['dragenter', 'dragover'].forEach(eventName => {
+                        imageUploadArea.addEventListener(eventName, () => {
+                            imageUploadArea.style.borderColor = '#667eea';
+                            imageUploadArea.style.background = 'linear-gradient(135deg, #e6f3ff 0%, #f0e7ff 100%)';
+                        });
+                    });
+                    
+                    ['dragleave', 'drop'].forEach(eventName => {
+                        imageUploadArea.addEventListener(eventName, () => {
+                            imageUploadArea.style.borderColor = '#cbd5e0';
+                            imageUploadArea.style.background = 'linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%)';
+                        });
+                    });
+                    
+                    // Handle drop for images
+                    imageUploadArea.addEventListener('drop', function(e) {
+                        const dt = e.dataTransfer;
+                        const files = dt.files;
+                        const imageInput = document.getElementById('reviewImages');
+                        imageInput.files = files;
+                        previewImages({ target: imageInput });
+                    });
+                }
+                
+                if (videoUploadArea) {
+                    // Same for videos
+                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                        videoUploadArea.addEventListener(eventName, preventDefaults, false);
+                    });
+                    
+                    function preventDefaults(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    
+                    ['dragenter', 'dragover'].forEach(eventName => {
+                        videoUploadArea.addEventListener(eventName, () => {
+                            videoUploadArea.style.borderColor = '#667eea';
+                            videoUploadArea.style.background = 'linear-gradient(135deg, #e6f3ff 0%, #f0e7ff 100%)';
+                        });
+                    });
+                    
+                    ['dragleave', 'drop'].forEach(eventName => {
+                        videoUploadArea.addEventListener(eventName, () => {
+                            videoUploadArea.style.borderColor = '#cbd5e0';
+                            videoUploadArea.style.background = 'linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%)';
+                        });
+                    });
+                    
+                    videoUploadArea.addEventListener('drop', function(e) {
+                        const dt = e.dataTransfer;
+                        const files = dt.files;
+                        const videoInput = document.getElementById('reviewVideos');
+                        videoInput.files = files;
+                        previewVideos({ target: videoInput });
+                    });
+                }
+            });
+
+            // Toast Notification Function
+            function showToast(message, type = 'success', title = '') {
+                const toastContainer = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast-notification ${type}`;
+                
+                let icon = '';
+                let toastTitle = title;
+                
+                if (type === 'success') {
+                    icon = '<i class="fas fa-check-circle"></i>';
+                    toastTitle = toastTitle || 'Thành công';
+                } else if (type === 'error') {
+                    icon = '<i class="fas fa-times-circle"></i>';
+                    toastTitle = toastTitle || 'Lỗi';
+                } else if (type === 'warning') {
+                    icon = '<i class="fas fa-exclamation-triangle"></i>';
+                    toastTitle = toastTitle || 'Cảnh báo';
+                }
+                
+                toast.innerHTML = `
+                    <div class="toast-icon">${icon}</div>
+                    <div class="toast-content">
+                        <div class="toast-title">${toastTitle}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                // Show toast
+                setTimeout(() => toast.classList.add('show'), 100);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 5000);
+            }
+
+            // Success Overlay Functions
+            function showSuccessOverlay(rating) {
+                const overlay = document.getElementById('successOverlay');
+                overlay.classList.add('active');
+            }
+
+            function closeSuccessOverlay() {
+                const overlay = document.getElementById('successOverlay');
+                overlay.classList.remove('active');
+                // Optionally reload page to show updated data
+                // location.reload();
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('reviewModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeReviewModal();
+                }
+            });
+        </script>
     </div>
 </body>
 </html>

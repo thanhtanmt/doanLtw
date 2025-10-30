@@ -31,6 +31,12 @@ public class Order extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "voucher_id")
     private Voucher voucher;
+    
+    @Column(name = "voucher_code")
+    private String voucherCode;
+    
+    @Column(name = "discount_amount")
+    private BigDecimal discountAmount;
 
     private BigDecimal totalPrice;
     

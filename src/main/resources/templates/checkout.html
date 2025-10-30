@@ -340,6 +340,125 @@
             color: #2c3e50;
         }
 
+        /* Voucher Section */
+        .voucher-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+        }
+
+        .voucher-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .voucher-input-group input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .voucher-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-apply-voucher {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-apply-voucher:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-apply-voucher:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .voucher-message {
+            font-size: 13px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .voucher-message.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .voucher-message.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .applied-voucher {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #2ecc71;
+            margin-top: 10px;
+        }
+
+        .voucher-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #2ecc71;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .voucher-info i {
+            font-size: 18px;
+        }
+
+        .btn-remove-voucher {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-remove-voucher:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
         .summary-divider {
             height: 2px;
             background: #f0f0f0;
@@ -578,7 +697,27 @@
 
                         <div class="summary-row">
                             <span class="summary-label">Tạm tính:</span>
-                            <span class="summary-value" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span>
+                            <span class="summary-value" id="subtotal" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span>
+                        </div>
+
+                        <!-- Voucher Section -->
+                        <div class="voucher-section">
+                            <div class="voucher-input-group">
+                                <input type="text" id="voucherCode" placeholder="Nhập mã giảm giá" maxlength="20">
+                                <button class="btn-apply-voucher" onclick="applyVoucher()">
+                                    <i class="fas fa-check"></i> Áp dụng
+                                </button>
+                            </div>
+                            <div id="voucherMessage" class="voucher-message"></div>
+                            <div id="appliedVoucher" class="applied-voucher" style="display: none;">
+                                <div class="voucher-info">
+                                    <i class="fas fa-tag"></i>
+                                    <span id="appliedVoucherName"></span>
+                                </div>
+                                <button class="btn-remove-voucher" onclick="removeVoucher()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="summary-row" id="discount-row" style="display: none;">
@@ -626,6 +765,123 @@
 <!-- Checkout Page Scripts -->
 <th:block layout:fragment="scripts">
 <script>
+    // Voucher management
+    let appliedVoucherCode = null;
+    let appliedVoucherDiscount = 0;
+    const originalTotal = parseFloat('[[${cart.totalAmount}]]');
+    
+    // Apply voucher
+    async function applyVoucher() {
+        const code = document.getElementById('voucherCode').value.trim().toUpperCase();
+        const messageDiv = document.getElementById('voucherMessage');
+        const applyBtn = document.querySelector('.btn-apply-voucher');
+        
+        if (!code) {
+            showVoucherMessage('Vui lòng nhập mã giảm giá!', 'error');
+            return;
+        }
+        
+        // Disable button
+        applyBtn.disabled = true;
+        applyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kiểm tra...';
+        
+        try {
+            const response = await fetch(`/api/vouchers/validate?code=${code}&orderAmount=${originalTotal}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                appliedVoucherCode = code;
+                appliedVoucherDiscount = data.discountAmount;
+                
+                // Show applied voucher
+                document.getElementById('appliedVoucherName').textContent = 
+                    `${code} - Giảm ${formatCurrency(data.discountAmount)}`;
+                document.getElementById('appliedVoucher').style.display = 'flex';
+                document.getElementById('voucherCode').value = '';
+                document.querySelector('.voucher-input-group').style.display = 'none';
+                
+                // Update totals
+                updateOrderTotal();
+                
+                showVoucherMessage(data.message || 'Áp dụng mã giảm giá thành công!', 'success');
+            } else {
+                showVoucherMessage(data.message || 'Mã giảm giá không hợp lệ!', 'error');
+            }
+        } catch (error) {
+            console.error('Error applying voucher:', error);
+            showVoucherMessage('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
+        } finally {
+            applyBtn.disabled = false;
+            applyBtn.innerHTML = '<i class="fas fa-check"></i> Áp dụng';
+        }
+    }
+    
+    // Remove voucher
+    function removeVoucher() {
+        appliedVoucherCode = null;
+        appliedVoucherDiscount = 0;
+        
+        document.getElementById('appliedVoucher').style.display = 'none';
+        document.querySelector('.voucher-input-group').style.display = 'flex';
+        document.getElementById('voucherMessage').style.display = 'none';
+        
+        updateOrderTotal();
+    }
+    
+    // Update order total
+    function updateOrderTotal() {
+        const discountRow = document.getElementById('discount-row');
+        const discountAmount = document.getElementById('discount-amount');
+        const finalTotal = document.getElementById('final-total');
+        
+        if (appliedVoucherDiscount > 0) {
+            discountRow.style.display = 'flex';
+            discountAmount.textContent = '-' + formatCurrency(appliedVoucherDiscount);
+            
+            const newTotal = originalTotal - appliedVoucherDiscount;
+            finalTotal.textContent = formatCurrency(newTotal);
+        } else {
+            discountRow.style.display = 'none';
+            finalTotal.textContent = formatCurrency(originalTotal);
+        }
+    }
+    
+    // Show voucher message
+    function showVoucherMessage(message, type) {
+        const messageDiv = document.getElementById('voucherMessage');
+        messageDiv.textContent = message;
+        messageDiv.className = `voucher-message ${type}`;
+        messageDiv.style.display = 'block';
+        
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+    }
+    
+    // Format currency
+    function formatCurrency(amount) {
+        return Math.round(amount).toLocaleString('vi-VN') + 'đ';
+    }
+    
+    // Enter key on voucher input
+    document.addEventListener('DOMContentLoaded', function() {
+        const voucherInput = document.getElementById('voucherCode');
+        if (voucherInput) {
+            voucherInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyVoucher();
+                }
+            });
+        }
+    });
+    
     // Payment method selection
     document.querySelectorAll('.payment-method').forEach(method => {
         method.addEventListener('click', function() {
@@ -774,7 +1030,7 @@
                 shippingAddress: formData.get('shippingAddress')?.trim(),
                 paymentMethod: paymentMethodRadio.value,
                 notes: formData.get('notes')?.trim() || '',
-                voucherCode: formData.get('voucherCode')?.trim() || ''
+                voucherCode: appliedVoucherCode || '' // Lấy từ biến đã được set khi apply voucher
             };
 
             // Validate required fields

@@ -340,44 +340,6 @@
             color: #667eea;
         }
 
-        .coupon-section {
-            margin: 25px 0;
-        }
-
-        .coupon-input-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .coupon-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-        }
-
-        .coupon-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn-apply-coupon {
-            padding: 12px 25px;
-            background: white;
-            border: 2px solid #667eea;
-            color: #667eea;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-apply-coupon:hover {
-            background: #667eea;
-            color: white;
-        }
-
         .btn-checkout {
             width: 100%;
             padding: 18px;
@@ -565,21 +527,6 @@
                         <div class="summary-row">
                             <span class="summary-label">Tạm tính:</span>
                             <span class="summary-value" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
-                        </div>
-
-                        <div class="summary-row">
-                            <span class="summary-label">Giảm giá:</span>
-                            <span class="summary-value" style="color: #e74c3c;">-0đ</span>
-                        </div>
-
-                        <div class="coupon-section">
-                            <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 14px; color: #2c3e50;">
-                                Mã giảm giá
-                            </label>
-                            <div class="coupon-input-group">
-                                <input type="text" class="coupon-input" placeholder="Nhập mã giảm giá">
-                                <button class="btn-apply-coupon">Áp dụng</button>
-                            </div>
                         </div>
 
                         <div class="summary-row">

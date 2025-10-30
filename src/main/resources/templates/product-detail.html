@@ -596,6 +596,32 @@
             font-weight: 600;
             font-size: 20px;
         }
+        
+        /* Different avatar colors */
+        .reviewer-avatar.color-1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .reviewer-avatar.color-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .reviewer-avatar.color-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .reviewer-avatar.color-4 {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .reviewer-avatar.color-5 {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .reviewer-avatar.color-6 {
+            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+        }
+        .reviewer-avatar.color-7 {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        .reviewer-avatar.color-8 {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        }
 
         .reviewer-name {
             font-weight: 600;
@@ -851,7 +877,8 @@
                     <div class="tab-buttons">
                         <button class="tab-button active" data-tab="description">MÔ TẢ</button>
                         <button class="tab-button" data-tab="specifications">THÔNG SỐ</button>
-                        <button class="tab-button" data-tab="reviews">ĐÁNH GIÁ (128)</button>
+                        <button class="tab-button" data-tab="reviews" 
+                                th:text="'ĐÁNH GIÁ (' + ${reviewStats.totalReviews != null ? reviewStats.totalReviews : 0} + ')'">ĐÁNH GIÁ (0)</button>
                     </div>
 
                     <!-- Description Tab -->
@@ -913,101 +940,95 @@
                     <div class="tab-content" id="reviews">
                         <div class="reviews-summary">
                             <div class="rating-overview">
-                                <div class="rating-score">4.5</div>
+                                <div class="rating-score" th:text="${reviewStats.averageRating != null ? #numbers.formatDecimal(reviewStats.averageRating, 1, 1) : '0.0'}">0.0</div>
                                 <div class="rating-stars-large">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
+                                    <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                        <i th:if="${reviewStats.averageRating != null && i <= reviewStats.averageRating}" class="fas fa-star"></i>
+                                        <i th:if="${reviewStats.averageRating != null && i > reviewStats.averageRating && i - 0.5 <= reviewStats.averageRating}" class="fas fa-star-half-alt"></i>
+                                        <i th:if="${reviewStats.averageRating == null || i - 0.5 > reviewStats.averageRating}" class="far fa-star"></i>
+                                    </th:block>
                                 </div>
-                                <div class="rating-total">128 đánh giá</div>
+                                <div class="rating-total" th:text="${reviewStats.totalReviews != null ? reviewStats.totalReviews : 0} + ' đánh giá'">0 đánh giá</div>
                             </div>
 
                             <div class="rating-breakdown">
                                 <div class="rating-bar">
                                     <span class="rating-bar-label">5 sao</span>
                                     <div class="rating-bar-fill">
-                                        <div class="rating-bar-inner" style="width: 75%;"></div>
+                                        <div class="rating-bar-inner" 
+                                             th:style="${reviewStats.totalReviews != null && reviewStats.totalReviews > 0 ? 'width: ' + (reviewStats.fiveStar * 100.0 / reviewStats.totalReviews) + '%;' : 'width: 0%;'}"></div>
                                     </div>
-                                    <span class="rating-bar-count">96</span>
+                                    <span class="rating-bar-count" th:text="${reviewStats.fiveStar != null ? reviewStats.fiveStar : 0}">0</span>
                                 </div>
                                 <div class="rating-bar">
                                     <span class="rating-bar-label">4 sao</span>
                                     <div class="rating-bar-fill">
-                                        <div class="rating-bar-inner" style="width: 15%;"></div>
+                                        <div class="rating-bar-inner" 
+                                             th:style="${reviewStats.totalReviews != null && reviewStats.totalReviews > 0 ? 'width: ' + (reviewStats.fourStar * 100.0 / reviewStats.totalReviews) + '%;' : 'width: 0%;'}"></div>
                                     </div>
-                                    <span class="rating-bar-count">19</span>
+                                    <span class="rating-bar-count" th:text="${reviewStats.fourStar != null ? reviewStats.fourStar : 0}">0</span>
                                 </div>
                                 <div class="rating-bar">
                                     <span class="rating-bar-label">3 sao</span>
                                     <div class="rating-bar-fill">
-                                        <div class="rating-bar-inner" style="width: 6%;"></div>
+                                        <div class="rating-bar-inner" 
+                                             th:style="${reviewStats.totalReviews != null && reviewStats.totalReviews > 0 ? 'width: ' + (reviewStats.threeStar * 100.0 / reviewStats.totalReviews) + '%;' : 'width: 0%;'}"></div>
                                     </div>
-                                    <span class="rating-bar-count">8</span>
+                                    <span class="rating-bar-count" th:text="${reviewStats.threeStar != null ? reviewStats.threeStar : 0}">0</span>
                                 </div>
                                 <div class="rating-bar">
                                     <span class="rating-bar-label">2 sao</span>
                                     <div class="rating-bar-fill">
-                                        <div class="rating-bar-inner" style="width: 3%;"></div>
+                                        <div class="rating-bar-inner" 
+                                             th:style="${reviewStats.totalReviews != null && reviewStats.totalReviews > 0 ? 'width: ' + (reviewStats.twoStar * 100.0 / reviewStats.totalReviews) + '%;' : 'width: 0%;'}"></div>
                                     </div>
-                                    <span class="rating-bar-count">4</span>
+                                    <span class="rating-bar-count" th:text="${reviewStats.twoStar != null ? reviewStats.twoStar : 0}">0</span>
                                 </div>
                                 <div class="rating-bar">
                                     <span class="rating-bar-label">1 sao</span>
                                     <div class="rating-bar-fill">
-                                        <div class="rating-bar-inner" style="width: 1%;"></div>
+                                        <div class="rating-bar-inner" 
+                                             th:style="${reviewStats.totalReviews != null && reviewStats.totalReviews > 0 ? 'width: ' + (reviewStats.oneStar * 100.0 / reviewStats.totalReviews) + '%;' : 'width: 0%;'}"></div>
                                     </div>
-                                    <span class="rating-bar-count">1</span>
+                                    <span class="rating-bar-count" th:text="${reviewStats.oneStar != null ? reviewStats.oneStar : 0}">0</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Sample Reviews -->
-                        <div class="review-item">
-                            <div class="review-header">
-                                <div class="reviewer-info">
-                                    <div class="reviewer-avatar">N</div>
-                                    <div>
-                                        <div class="reviewer-name">Nguyễn Văn A</div>
-                                        <div class="review-date">15/10/2025</div>
+                        <!-- Reviews List from Database -->
+                        <div th:if="${reviews != null && !reviews.isEmpty()}">
+                            <div class="review-item" th:each="review : ${reviews}">
+                                <div class="review-header">
+                                    <div class="reviewer-info">
+                                        <div class="reviewer-avatar" 
+                                             th:text="${review['user'] != null && review['user']['fullName'] != null && #strings.length(review['user']['fullName']) > 0 ? #strings.substring(review['user']['fullName'], 0, 1).toUpperCase() : 'U'}">U</div>
+                                        <div>
+                                            <div class="reviewer-name" 
+                                                 th:text="${review['user'] != null && review['user']['fullName'] != null ? review['user']['fullName'] : 'Người dùng'}">Người dùng</div>
+                                            <div class="review-date" 
+                                                 th:text="${review['createdAt'] != null ? #temporals.format(review['createdAt'], 'dd/MM/yyyy') : ''}">01/01/2025</div>
+                                        </div>
+                                    </div>
+                                    <div class="review-rating">
+                                        <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                            <i th:if="${i <= review['rating']}" class="fas fa-star"></i>
+                                            <i th:if="${i > review['rating']}" class="far fa-star"></i>
+                                        </th:block>
                                     </div>
                                 </div>
-                                <div class="review-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
+                                <div class="review-content" 
+                                     th:text="${review['comment'] != null && #strings.length(review['comment']) > 0 ? review['comment'] : 'Không có nhận xét'}">
+                                    Sản phẩm rất tốt!
                                 </div>
-                            </div>
-                            <div class="review-content">
-                                Áo rất đẹp, chất liệu cotton mềm mại thoáng mát. Form slim fit ôm vừa vặn, 
-                                đúng như mô tả. Giao hàng nhanh, đóng gói cẩn thận. Sẽ ủng hộ shop tiếp!
                             </div>
                         </div>
 
-                        <div class="review-item">
-                            <div class="review-header">
-                                <div class="reviewer-info">
-                                    <div class="reviewer-avatar">T</div>
-                                    <div>
-                                        <div class="reviewer-name">Trần Thị B</div>
-                                        <div class="review-date">12/10/2025</div>
-                                    </div>
-                                </div>
-                                <div class="review-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                </div>
-                            </div>
-                            <div class="review-content">
-                                Sản phẩm tốt, chất lượng ổn. Mình mua size M vừa vặn. Màu sắc giống như hình. 
-                                Giá cả hợp lý. Recommend!
-                            </div>
+                        <!-- No Reviews Message -->
+                        <div th:if="${reviews == null || reviews.isEmpty()}" 
+                             style="text-align: center; padding: 60px 20px; color: #7f8c8d;">
+                            <i class="fas fa-comment-slash" style="font-size: 48px; margin-bottom: 20px; opacity: 0.3;"></i>
+                            <p style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">Chưa có đánh giá nào</p>
+                            <p style="font-size: 14px;">Hãy là người đầu tiên đánh giá sản phẩm này!</p>
                         </div>
                     </div>
                 </div>
@@ -1085,6 +1106,15 @@
                 
                 this.classList.add('active');
                 document.getElementById(tabName).classList.add('active');
+            });
+        });
+        
+        // Add random colors to reviewer avatars
+        document.addEventListener('DOMContentLoaded', function() {
+            const avatars = document.querySelectorAll('.reviewer-avatar');
+            avatars.forEach((avatar, index) => {
+                const colorClass = 'color-' + ((index % 8) + 1);
+                avatar.classList.add(colorClass);
             });
         });
     </script>
@@ -1420,37 +1450,13 @@
                         <div class="tab-content" id="reviews">
                             <h3 style="margin-bottom: 30px; color: #2c3e50;">Đánh giá từ khách hàng</h3>
                             
-                            ${product.totalReviews > 0 ? `
-                            <!-- Reviews Summary -->
-                            <div style="display: grid; grid-template-columns: 250px 1fr; gap: 40px; margin-bottom: 40px; padding-bottom: 40px; border-bottom: 2px solid #f0f0f0;">
-                                <div style="text-align: center; background: #f8f9fa; padding: 30px; border-radius: 15px;">
-                                    <div style="font-size: 64px; font-weight: 700; color: #667eea; line-height: 1;">
-                                        ${(product.averageRating || 0).toFixed(1)}
-                                    </div>
-                                    <div style="color: #f39c12; font-size: 24px; margin: 15px 0;">
-                                        ${generateStars(product.averageRating || 0)}
-                                    </div>
-                                    <div style="color: #7f8c8d; font-size: 14px;">
-                                        ${product.totalReviews} đánh giá
-                                    </div>
-                                </div>
-                                
-                                <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center;">
-                                    ${generateRatingBars(product.totalReviews)}
+                            <!-- Reviews Section -->
+                            <div id="reviewsSection">
+                                <div style="text-align: center; padding: 40px 0; color: #7f8c8d;">
+                                    <i class="fas fa-spinner fa-spin" style="font-size: 32px;"></i>
+                                    <p style="margin-top: 15px;">Đang tải đánh giá...</p>
                                 </div>
                             </div>
-                            
-                            <!-- Sample Reviews -->
-                            <div style="display: flex; flex-direction: column; gap: 20px;">
-                                ${generateSampleReviews(product.averageRating)}
-                            </div>
-                            ` : `
-                            <div style="text-align: center; padding: 60px 0;">
-                                <i class="fas fa-comment-slash" style="font-size: 64px; color: #e0e0e0; margin-bottom: 20px;"></i>
-                                <p style="color: #7f8c8d; font-size: 16px;">Chưa có đánh giá nào cho sản phẩm này.</p>
-                                <p style="color: #95a5a6; font-size: 14px; margin-top: 10px;">Hãy là người đầu tiên đánh giá sản phẩm!</p>
-                            </div>
-                            `}
                         </div>
                     </div>
                 </div>
@@ -1459,6 +1465,9 @@
             container.innerHTML = html;
             document.getElementById('loadingState').style.display = 'none';
             container.style.display = 'block';
+
+            // Load reviews from API
+            loadProductReviews(product.id);
 
             // Re-attach event listeners
             attachEventListeners();
@@ -1511,51 +1520,177 @@
 
         // Generate sample reviews
         function generateSampleReviews(averageRating) {
-            const reviews = [
-                {
-                    name: 'Nguyễn Văn A',
-                    avatar: 'N',
-                    rating: 5,
-                    date: '15/10/2025',
-                    content: 'Sản phẩm rất đẹp, chất liệu tốt, mặc rất thoải mái. Giao hàng nhanh, đóng gói cẩn thận. Mình rất hài lòng và sẽ ủng hộ shop tiếp!'
-                },
-                {
-                    name: 'Trần Thị B',
-                    avatar: 'T',
-                    rating: 4,
-                    date: '12/10/2025',
-                    content: 'Chất lượng tốt, giá cả hợp lý. Mình mua size M vừa vặn. Màu sắc giống như hình. Recommend!'
-                },
-                {
-                    name: 'Lê Văn C',
-                    avatar: 'L',
-                    rating: 5,
-                    date: '08/10/2025',
-                    content: 'Shop giao hàng nhanh, sản phẩm đẹp như mô tả. Đã mua nhiều lần ở shop, chất lượng luôn ổn định. 5 sao!'
+            // This function is deprecated - reviews now loaded from API
+            return '';
+        }
+        
+        // Load product reviews from API
+        async function loadProductReviews(productId) {
+            const reviewsSection = document.getElementById('reviewsSection');
+            
+            try {
+                const response = await fetch(`/api/reviews/product/${productId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderReviews(data.reviews, data.stats);
+                } else {
+                    renderNoReviews();
                 }
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                renderNoReviews();
+            }
+        }
+        
+        // Render reviews
+        function renderReviews(reviews, stats) {
+            const reviewsSection = document.getElementById('reviewsSection');
+            const avatarColors = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
             ];
-
-            return reviews.map(review => `
-                <div style="padding: 30px; border: 2px solid #f0f0f0; border-radius: 15px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 20px;">
-                                ${review.avatar}
-                            </div>
-                            <div>
-                                <div style="font-weight: 600; color: #2c3e50; margin-bottom: 3px;">${review.name}</div>
-                                <div style="color: #95a5a6; font-size: 13px;">${review.date}</div>
-                            </div>
+            
+            let html = '';
+            
+            // Reviews Summary
+            if (stats && stats.totalReviews > 0) {
+                html += `
+                <div style="display: grid; grid-template-columns: 250px 1fr; gap: 40px; margin-bottom: 40px; padding-bottom: 40px; border-bottom: 2px solid #f0f0f0;">
+                    <div style="text-align: center; background: #f8f9fa; padding: 30px; border-radius: 15px;">
+                        <div style="font-size: 64px; font-weight: 700; color: #667eea; line-height: 1;">
+                            ${stats.averageRating.toFixed(1)}
                         </div>
-                        <div style="color: #f39c12; font-size: 16px;">
-                            ${generateStars(review.rating)}
+                        <div style="color: #f39c12; font-size: 24px; margin: 15px 0;">
+                            ${generateStars(stats.averageRating)}
+                        </div>
+                        <div style="color: #7f8c8d; font-size: 14px;">
+                            ${stats.totalReviews} đánh giá
                         </div>
                     </div>
-                    <div style="color: #555; line-height: 1.8;">
-                        ${review.content}
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center;">
+                        ${generateRatingBarsFromStats(stats)}
                     </div>
                 </div>
-            `).join('');
+                `;
+            }
+            
+            // Reviews List
+            if (reviews && reviews.length > 0) {
+                html += '<div style="display: flex; flex-direction: column; gap: 20px;">';
+                reviews.forEach((review, index) => {
+                    const avatarColor = avatarColors[index % avatarColors.length];
+                    const userName = review.user && review.user.fullName ? review.user.fullName : 'Người dùng';
+                    const userInitial = userName.charAt(0).toUpperCase();
+                    const reviewDate = review.createdAt ? new Date(review.createdAt).toLocaleDateString('vi-VN') : '';
+                    const comment = review.comment || 'Không có nhận xét';
+                    const images = review.images || [];
+                    const videos = review.videos || [];
+                    
+                    // Generate media HTML
+                    let mediaHTML = '';
+                    if (images.length > 0 || videos.length > 0) {
+                        mediaHTML = '<div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">';
+                        
+                        // Images
+                        images.forEach(imageUrl => {
+                            mediaHTML += `
+                                <div style="width: 100px; height: 100px; border-radius: 8px; overflow: hidden; border: 2px solid #e2e8f0; cursor: pointer;" onclick="openImageLightbox('${imageUrl}')">
+                                    <img src="${imageUrl}" alt="Review image" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                            `;
+                        });
+                        
+                        // Videos
+                        videos.forEach(videoUrl => {
+                            mediaHTML += `
+                                <div style="width: 100px; height: 100px; border-radius: 8px; overflow: hidden; border: 2px solid #e2e8f0; position: relative; cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="openVideoLightbox('${videoUrl}')">
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 32px;">
+                                        <i class="fas fa-play-circle"></i>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        mediaHTML += '</div>';
+                    }
+                    
+                    html += `
+                    <div style="padding: 30px; border: 2px solid #f0f0f0; border-radius: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: ${avatarColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 20px;">
+                                    ${userInitial}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #2c3e50; margin-bottom: 3px;">${userName}</div>
+                                    <div style="color: #95a5a6; font-size: 13px;">${reviewDate}</div>
+                                </div>
+                            </div>
+                            <div style="color: #f39c12; font-size: 16px;">
+                                ${generateStars(review.rating)}
+                            </div>
+                        </div>
+                        <div style="color: #555; line-height: 1.8;">
+                            ${comment}
+                        </div>
+                        ${mediaHTML}
+                    </div>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                html += renderNoReviewsHTML();
+            }
+            
+            reviewsSection.innerHTML = html;
+        }
+        
+        // Generate rating bars from stats
+        function generateRatingBarsFromStats(stats) {
+            const bars = [
+                { label: '5 sao', count: stats.fiveStar || 0 },
+                { label: '4 sao', count: stats.fourStar || 0 },
+                { label: '3 sao', count: stats.threeStar || 0 },
+                { label: '2 sao', count: stats.twoStar || 0 },
+                { label: '1 sao', count: stats.oneStar || 0 }
+            ];
+            
+            return bars.map(bar => {
+                const percentage = stats.totalReviews > 0 ? (bar.count / stats.totalReviews) * 100 : 0;
+                return `
+                <div style="display: grid; grid-template-columns: 60px 1fr 40px; gap: 15px; align-items: center;">
+                    <span style="color: #7f8c8d; font-size: 14px;">${bar.label}</span>
+                    <div style="height: 8px; background: #e0e0e0; border-radius: 10px; overflow: hidden;">
+                        <div style="height: 100%; background: linear-gradient(90deg, #f39c12 0%, #f1c40f 100%); width: ${percentage}%; transition: width 0.3s;"></div>
+                    </div>
+                    <span style="color: #7f8c8d; font-size: 14px; text-align: right;">${bar.count}</span>
+                </div>
+                `;
+            }).join('');
+        }
+        
+        // Render no reviews message
+        function renderNoReviews() {
+            const reviewsSection = document.getElementById('reviewsSection');
+            reviewsSection.innerHTML = renderNoReviewsHTML();
+        }
+        
+        function renderNoReviewsHTML() {
+            return `
+            <div style="text-align: center; padding: 60px 0;">
+                <i class="fas fa-comment-slash" style="font-size: 64px; color: #e0e0e0; margin-bottom: 20px;"></i>
+                <p style="color: #7f8c8d; font-size: 16px;">Chưa có đánh giá nào cho sản phẩm này.</p>
+                <p style="color: #95a5a6; font-size: 14px; margin-top: 10px;">Hãy là người đầu tiên đánh giá sản phẩm!</p>
+            </div>
+            `;
         }
 
         // Attach event listeners
@@ -1667,6 +1802,108 @@
         function showError() {
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('errorState').style.display = 'block';
+        }
+        
+        // Image Lightbox
+        function openImageLightbox(imageUrl) {
+            // Create lightbox overlay
+            const lightbox = document.createElement('div');
+            lightbox.id = 'imageLightbox';
+            lightbox.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            `;
+            
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.style.cssText = 'max-width: 90%; max-height: 90%; border-radius: 8px;';
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border: none;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                font-size: 24px;
+                cursor: pointer;
+                z-index: 10001;
+            `;
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                document.body.removeChild(lightbox);
+            };
+            
+            lightbox.appendChild(img);
+            lightbox.appendChild(closeBtn);
+            lightbox.onclick = () => document.body.removeChild(lightbox);
+            
+            document.body.appendChild(lightbox);
+        }
+        
+        // Video Lightbox
+        function openVideoLightbox(videoUrl) {
+            const lightbox = document.createElement('div');
+            lightbox.id = 'videoLightbox';
+            lightbox.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            `;
+            
+            const video = document.createElement('video');
+            video.src = videoUrl;
+            video.controls = true;
+            video.autoplay = true;
+            video.style.cssText = 'max-width: 90%; max-height: 90%; border-radius: 8px;';
+            video.onclick = (e) => e.stopPropagation();
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border: none;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                font-size: 24px;
+                cursor: pointer;
+                z-index: 10001;
+            `;
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                document.body.removeChild(lightbox);
+            };
+            
+            lightbox.appendChild(video);
+            lightbox.appendChild(closeBtn);
+            lightbox.onclick = () => document.body.removeChild(lightbox);
+            
+            document.body.appendChild(lightbox);
         }
 
         // Load product when page loads

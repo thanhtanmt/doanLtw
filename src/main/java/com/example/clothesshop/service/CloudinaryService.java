@@ -46,6 +46,36 @@ public class CloudinaryService {
         // Trả về secure URL (HTTPS)
         return (String) uploadResult.get("secure_url");
     }
+    
+    /**
+     * Upload video lên Cloudinary
+     * @param file - File video cần upload
+     * @param folder - Thư mục lưu trữ trên Cloudinary
+     * @return URL của video đã upload
+     */
+    @SuppressWarnings("unchecked")
+    public String uploadVideo(MultipartFile file, String folder) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File không được trống");
+        }
+
+        // Kiểm tra file type
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("video/")) {
+            throw new IllegalArgumentException("File phải là video (mp4, mov, avi, etc.)");
+        }
+
+        // Upload lên Cloudinary với resource_type là video
+        Map<String, Object> uploadParams = ObjectUtils.asMap(
+            "folder", folder,
+            "resource_type", "video"
+        );
+
+        Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
+        
+        // Trả về secure URL (HTTPS)
+        return (String) uploadResult.get("secure_url");
+    }
 
     /**
      * Xóa ảnh khỏi Cloudinary

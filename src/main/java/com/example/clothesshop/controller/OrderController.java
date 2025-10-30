@@ -204,8 +204,16 @@ public class OrderController {
             order.setShippingAddress(request.getShippingAddress());
             order.setDeliveryNotes(request.getNotes()); // Lưu ghi chú
             order.setPaymentMethod(paymentMethod);
-            order.setTotalAmount(finalAmount);
+            order.setTotalPrice(subtotal); // Giá gốc trước giảm
+            order.setTotalAmount(finalAmount); // Giá sau giảm (giá thực tế phải trả)
             order.setStatus(OrderStatus.PENDING);
+            
+            // Lưu thông tin voucher và discount
+            if (voucher != null) {
+                order.setVoucher(voucher);
+                order.setVoucherCode(voucher.getCode());
+                order.setDiscountAmount(discount);
+            }
             
             if (paymentMethod.equals("COD")) {
                 order.setCodAmount(finalAmount);
@@ -381,8 +389,12 @@ public class OrderController {
             
             // Refund if paid by wallet
             if ("WALLET".equalsIgnoreCase(order.getPaymentMethod())) {
-                BigDecimal refundAmount = order.getTotalPrice();
-                if (refundAmount != null && refundAmount.compareTo(BigDecimal.ZERO) > 0) {
+                // Hoàn lại số tiền thực tế khách đã trả (sau khi áp dụng voucher)
+                BigDecimal refundAmount = order.getTotalAmount() != null ? 
+                    order.getTotalAmount() : 
+                    (order.getTotalPrice() != null ? order.getTotalPrice() : BigDecimal.ZERO);
+                    
+                if (refundAmount.compareTo(BigDecimal.ZERO) > 0) {
                     walletService.refund(user, refundAmount, 
                         "Hoàn tiền đơn hàng #" + order.getOrderCode(), order);
                     
@@ -431,6 +443,11 @@ public class OrderController {
         map.put("shippingName", order.getShippingName());
         map.put("createdAt", order.getCreatedAt());
         map.put("failureReason", order.getFailureReason());
+        
+        // Thêm thông tin voucher và discount
+        map.put("voucherCode", order.getVoucherCode());
+        map.put("discountAmount", order.getDiscountAmount());
+        
         return map;
     }
     

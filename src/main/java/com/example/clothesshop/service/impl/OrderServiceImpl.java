@@ -10,11 +10,13 @@ import com.example.clothesshop.dto.ShipperStatsDto;
 import com.example.clothesshop.dto.DeliveryUpdateDto;
 import com.example.clothesshop.repository.OrderRepository;
 import com.example.clothesshop.service.OrderService;
+import com.example.clothesshop.service.WalletService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.List;
@@ -27,6 +29,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+    
+    @Autowired
+    private WalletService walletService;
 
     @Override
     public List<Order> findAll() {
@@ -89,8 +94,31 @@ public class OrderServiceImpl implements OrderService {
             order.setDeliveryNotes(deliveryUpdate.getDeliveryNotes());
         } else if (deliveryUpdate.getStatus().equals("FAILED")) {
             order.setStatus(OrderStatus.FAILED);
-            order.setDeliveredDate(LocalDateTime.now()); // ✅ thêm dòng này
+            order.setDeliveredDate(LocalDateTime.now());
             order.setFailureReason(deliveryUpdate.getFailureReason());
+            
+            // Hoàn tiền cho khách hàng nếu thanh toán bằng ví
+            if ("WALLET".equalsIgnoreCase(order.getPaymentMethod())) {
+                BigDecimal refundAmount = order.getTotalAmount() != null ? 
+                    order.getTotalAmount() : 
+                    (order.getTotalPrice() != null ? order.getTotalPrice() : BigDecimal.ZERO);
+                
+                // Trừ phí ship 15,000đ cho shipper
+                BigDecimal shippingFee = new BigDecimal("15000");
+                BigDecimal finalRefund = refundAmount.subtract(shippingFee);
+                
+                // Đảm bảo không hoàn số âm
+                if (finalRefund.compareTo(BigDecimal.ZERO) > 0) {
+                    // Hoàn tiền cho khách hàng (trừ phí ship)
+                    walletService.refund(order.getUser(), finalRefund, 
+                        "Hoàn tiền đơn hàng giao thất bại #" + order.getOrderCode() + " (đã trừ phí ship 15.000đ)", 
+                        order);
+                    
+                    // Cộng phí ship vào ví shipper
+                    walletService.deposit(shipper, shippingFee, 
+                        "Phí giao hàng thất bại đơn #" + order.getOrderCode());
+                }
+            }
         }
         
         return orderRepository.save(order);
