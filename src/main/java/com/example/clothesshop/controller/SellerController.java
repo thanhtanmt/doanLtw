@@ -29,10 +29,10 @@ public class SellerController {
     private final VoucherRepository voucherRepository;
     private final ProductImageRepository productImageRepository;
 
-    public SellerController(UserRepository userRepository, ProductRepository productRepository, 
-                          CategoryRepository categoryRepository, CloudinaryService cloudinaryService,
-                          OrderRepository orderRepository, VoucherRepository voucherRepository,
-                          ProductImageRepository productImageRepository) {
+    public SellerController(UserRepository userRepository, ProductRepository productRepository,
+                            CategoryRepository categoryRepository, CloudinaryService cloudinaryService,
+                            OrderRepository orderRepository, VoucherRepository voucherRepository,
+                            ProductImageRepository productImageRepository) {
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
@@ -42,125 +42,136 @@ public class SellerController {
         this.productImageRepository = productImageRepository;
     }
 
+    // ===== DASHBOARD PAGE =====
     @GetMapping
     public String seller(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-            User seller = userRepository.findByUsername(username)
-                    .or(() -> userRepository.findByEmail(username))
-                    .orElse(null);
-            
-            if (seller != null) {
-                // Get seller's products
-                List<Product> products = productRepository.findBySeller(seller);
-                model.addAttribute("products", products);
-                model.addAttribute("seller", seller);
-                
-                // Calculate statistics
-                long totalProducts = products.size();
-                long activeProducts = products.stream().filter(Product::isActive).count();
-                int totalStock = products.stream()
-                        .filter(p -> p.getVariants() != null)
-                        .flatMap(p -> p.getVariants().stream())
-                        .filter(v -> v.getQuantity() != null)
-                        .mapToInt(ProductVariant::getQuantity)
-                        .sum();
-                
-                // Get orders containing seller's products
-                List<Order> allOrders = orderRepository.findAll();
-                List<Order> sellerOrders = allOrders.stream()
-                        .filter(order -> order.getOrderDetails().stream()
-                                .anyMatch(detail -> detail.getVariant() != null && 
-                                         detail.getVariant().getProduct().getSeller() != null &&
-                                         detail.getVariant().getProduct().getSeller().getId().equals(seller.getId())))
-                        .collect(Collectors.toList());
-                
-                long totalOrders = sellerOrders.size();
-                BigDecimal totalRevenue = sellerOrders.stream()
-                        .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
-                        .map(Order::getTotalPrice)
-                        .filter(price -> price != null)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                
-                model.addAttribute("totalProducts", totalProducts);
-                model.addAttribute("activeProducts", activeProducts);
-                model.addAttribute("totalStock", totalStock);
-                model.addAttribute("totalOrders", totalOrders);
-                model.addAttribute("totalRevenue", totalRevenue);
-                model.addAttribute("sellerOrders", sellerOrders);
-            }
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "seller"; // unauthenticated view (same as before)
         }
+
+        String username = authentication.getName();
+        User seller = userRepository.findByUsername(username)
+                .or(() -> userRepository.findByEmail(username))
+                .orElse(null);
+
+        if (seller == null) return "seller";
+
+        List<Product> products = productRepository.findBySeller(seller);
+        model.addAttribute("products", products);
+        model.addAttribute("seller", seller);
+
+        long totalProducts = products.size();
+        long activeProducts = products.stream().filter(Product::isActive).count();
+        int totalStock = products.stream()
+                .filter(p -> p.getVariants() != null)
+                .flatMap(p -> p.getVariants().stream())
+                .filter(v -> v.getQuantity() != null)
+                .mapToInt(ProductVariant::getQuantity)
+                .sum();
+
+        List<Order> allOrders = orderRepository.findAll();
+        List<Order> sellerOrders = allOrders.stream()
+                .filter(o -> o.getOrderDetails().stream()
+                        .anyMatch(d -> d.getVariant() != null &&
+                                d.getVariant().getProduct().getSeller() != null &&
+                                d.getVariant().getProduct().getSeller().getId().equals(seller.getId())))
+                .collect(Collectors.toList());
+
+        long totalOrders = sellerOrders.size();
+        BigDecimal totalRevenue = sellerOrders.stream()
+                .filter(o -> o.getStatus() == OrderStatus.DELIVERED)
+                .map(Order::getTotalPrice)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        model.addAttribute("totalProducts", totalProducts);
+        model.addAttribute("activeProducts", activeProducts);
+        model.addAttribute("totalStock", totalStock);
+        model.addAttribute("totalOrders", totalOrders);
+        model.addAttribute("totalRevenue", totalRevenue);
+        model.addAttribute("sellerOrders", sellerOrders);
+
         return "seller";
     }
-    
+
+    // ===== COMMON HELPERS =====
+    private User getCurrentSeller() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("Bạn chưa đăng nhập");
+        }
+        String username = authentication.getName();
+        return userRepository.findByUsername(username)
+                .or(() -> userRepository.findByEmail(username))
+                .orElseThrow(() -> new IllegalStateException("Không tìm thấy người dùng"));
+    }
+
+    private ResponseEntity<Map<String, Object>> forbidden(String message) {
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("success", false);
+        resp.put("message", message);
+        return ResponseEntity.status(403).body(resp);
+    }
+
+    private ResponseEntity<Map<String, Object>> errorResponse(Exception e) {
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("success", false);
+        resp.put("message", "Lỗi: " + e.getMessage());
+        return ResponseEntity.badRequest().body(resp);
+    }
+
+    private Map<String, Object> successMap(String message, Object data) {
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("success", true);
+        if (message != null) resp.put("message", message);
+        if (data != null) resp.put("data", data);
+        return resp;
+    }
+
     // ===== PRODUCT MANAGEMENT APIS =====
-    
-    /**
-     * API: Get all products of current seller
-     * GET /seller/api/products
-     */
+
     @GetMapping("/api/products")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getSellerProducts() {
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
             List<Product> products = productRepository.findBySeller(seller);
-            
             List<Map<String, Object>> productData = products.stream()
                     .map(this::convertProductToMap)
                     .collect(Collectors.toList());
-            
-            response.put("success", true);
-            response.put("data", productData);
-            response.put("total", products.size());
-            
-            return ResponseEntity.ok(response);
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("data", productData);
+            resp.put("total", products.size());
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    /**
-     * API: Get product by ID (only seller's products)
-     * GET /seller/api/products/{id}
-     */
+
     @GetMapping("/api/products/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getProductById(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
-            
-            // Check ownership
+
             if (product.getSeller() == null || !product.getSeller().getId().equals(seller.getId())) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền truy cập sản phẩm này");
-                return ResponseEntity.status(403).body(response);
+                return forbidden("Bạn không có quyền truy cập sản phẩm này");
             }
-            
-            response.put("success", true);
-            response.put("data", convertProductToMap(product));
-            
-            return ResponseEntity.ok(response);
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("data", convertProductToMap(product));
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    /**
-     * API: Create new product
-     * POST /seller/api/products
-     */
+
     @PostMapping("/api/products")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> createProduct(
@@ -174,13 +185,10 @@ public class SellerController {
             @RequestParam Long categoryId,
             @RequestParam(required = false) List<MultipartFile> images,
             @RequestParam(required = false) String variantsJson) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
+
         try {
             User seller = getCurrentSeller();
-            
-            // Create product
+
             Product product = new Product();
             product.setName(name);
             product.setBrand(brand);
@@ -191,19 +199,16 @@ public class SellerController {
             product.setMaterial(material);
             product.setActive(true);
             product.setSeller(seller);
-            
-            // Set category
+
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục"));
             product.setCategory(category);
-            
-            // Save product first to get ID
+
             product = productRepository.save(product);
-            
-            // Upload images
-            if (images != null && !images.isEmpty()) {
+
+            if (images != null) {
                 for (MultipartFile file : images) {
-                    if (!file.isEmpty()) {
+                    if (file != null && !file.isEmpty()) {
                         String imageUrl = cloudinaryService.uploadImage(file, "products");
                         ProductImage productImage = new ProductImage();
                         productImage.setProduct(product);
@@ -212,44 +217,30 @@ public class SellerController {
                     }
                 }
             }
-            
-            // Parse and add variants
+
             if (variantsJson != null && !variantsJson.trim().isEmpty()) {
-                // Expected format: [{"size":"S","price":250000,"quantity":50,"sku":"PRO-S"}]
-                // Simple parsing - in production use Jackson
                 List<Map<String, String>> variants = parseVariantsJson(variantsJson);
-                for (Map<String, String> variantData : variants) {
+                for (Map<String, String> v : variants) {
                     ProductVariant variant = new ProductVariant();
                     variant.setProduct(product);
-                    variant.setSize(variantData.get("size"));
-                    variant.setPrice(new BigDecimal(variantData.get("price")));
-                    variant.setQuantity(Integer.parseInt(variantData.get("quantity")));
-                    variant.setSku(variantData.get("sku"));
+                    variant.setSize(v.get("size"));
+                    variant.setPrice(new BigDecimal(v.get("price")));
+                    variant.setQuantity(Integer.parseInt(v.get("quantity")));
+                    variant.setSku(v.get("sku"));
                     variant.setAvailable(true);
                     product.getVariants().add(variant);
                 }
             }
-            
-            // Save with images and variants
+
             product = productRepository.save(product);
-            
-            response.put("success", true);
-            response.put("message", "Tạo sản phẩm thành công");
-            response.put("data", convertProductToMap(product));
-            
-            return ResponseEntity.ok(response);
+
+            return ResponseEntity.ok(successMap("Tạo sản phẩm thành công", convertProductToMap(product)));
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    /**
-     * API: Update product
-     * PUT /seller/api/products/{id}
-     */
+
     @PutMapping("/api/products/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateProduct(
@@ -265,22 +256,16 @@ public class SellerController {
             @RequestParam(required = false) List<MultipartFile> images,
             @RequestParam(required = false) String deletedImageIds,
             @RequestParam(required = false) String variantsJson) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
+
         try {
             User seller = getCurrentSeller();
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
-            
-            // Check ownership
+
             if (product.getSeller() == null || !product.getSeller().getId().equals(seller.getId())) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền sửa sản phẩm này");
-                return ResponseEntity.status(403).body(response);
+                return forbidden("Bạn không có quyền sửa sản phẩm này");
             }
-            
-            // Update product info
+
             product.setName(name);
             product.setBrand(brand);
             product.setGender(gender);
@@ -289,60 +274,48 @@ public class SellerController {
             product.setSpecification(specification);
             product.setMaterial(material);
             product.setUpdatedAt(LocalDateTime.now());
-            
-            // Update category
+
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục"));
             product.setCategory(category);
-            
-            // Delete images if requested
+
+            // Delete images
             if (deletedImageIds != null && !deletedImageIds.trim().isEmpty()) {
                 try {
-                    // Parse JSON array: [1, 2, 3]
                     String ids = deletedImageIds.trim();
-                    if (ids.startsWith("[") && ids.endsWith("]")) {
-                        ids = ids.substring(1, ids.length() - 1);
-                    }
+                    if (ids.startsWith("[") && ids.endsWith("]")) ids = ids.substring(1, ids.length() - 1);
                     if (!ids.isEmpty()) {
                         String[] idArray = ids.split(",");
-                        List<Long> imageIdsToDelete = new ArrayList<>();
-                        
-                        for (String idStr : idArray) {
-                            Long imageId = Long.parseLong(idStr.trim());
-                            imageIdsToDelete.add(imageId);
-                            
-                            // Xóa ảnh trên Cloudinary
-                            Optional<ProductImage> imageOpt = productImageRepository.findById(imageId);
-                            if (imageOpt.isPresent()) {
-                                ProductImage image = imageOpt.get();
+                        List<Long> toDelete = new ArrayList<>();
+                        for (String s : idArray) {
+                            Long imgId = Long.parseLong(s.trim());
+                            toDelete.add(imgId);
+                            productImageRepository.findById(imgId).ifPresent(image -> {
                                 if (image.getUrl() != null && image.getUrl().contains("cloudinary.com")) {
                                     try {
                                         String publicId = cloudinaryService.extractPublicId(image.getUrl());
                                         cloudinaryService.deleteImage(publicId);
-                                    } catch (Exception e) {
-                                        System.err.println("Không thể xóa ảnh trên Cloudinary: " + e.getMessage());
+                                    } catch (Exception ex) {
+                                        System.err.println("Không thể xóa ảnh trên Cloudinary: " + ex.getMessage());
                                     }
                                 }
-                            }
+                            });
                         }
-                        
-                        // Xóa ảnh trong database
-                        if (!imageIdsToDelete.isEmpty()) {
-                            productImageRepository.deleteAllById(imageIdsToDelete);
-                            // Remove từ product's images list
-                            product.getImages().removeIf(img -> imageIdsToDelete.contains(img.getId()));
+                        if (!toDelete.isEmpty()) {
+                            productImageRepository.deleteAllById(toDelete);
+                            product.getImages().removeIf(img -> img.getId() != null && toDelete.contains(img.getId()));
                         }
                     }
-                } catch (Exception e) {
-                    System.err.println("Error deleting images: " + e.getMessage());
-                    e.printStackTrace();
+                } catch (Exception ex) {
+                    System.err.println("Error deleting images: " + ex.getMessage());
+                    ex.printStackTrace();
                 }
             }
-            
-            // Add new images if provided
-            if (images != null && !images.isEmpty()) {
+
+            // Add new images
+            if (images != null) {
                 for (MultipartFile file : images) {
-                    if (!file.isEmpty()) {
+                    if (file != null && !file.isEmpty()) {
                         String imageUrl = cloudinaryService.uploadImage(file, "products");
                         ProductImage productImage = new ProductImage();
                         productImage.setProduct(product);
@@ -351,159 +324,233 @@ public class SellerController {
                     }
                 }
             }
-            
-            // Update variants if provided
+
+            // Variants update
             if (variantsJson != null && !variantsJson.trim().isEmpty()) {
-                List<Map<String, String>> newVariantsData = parseVariantsJson(variantsJson);
-                List<ProductVariant> existingVariants = product.getVariants();
-                
-                // Track which existing variants are still in the new list (by SKU)
-                List<String> newSkus = newVariantsData.stream()
-                    .map(v -> v.get("sku"))
-                    .collect(java.util.stream.Collectors.toList());
-                
-                // Mark variants not in the new list as unavailable (soft delete)
-                for (ProductVariant existingVariant : existingVariants) {
-                    if (!newSkus.contains(existingVariant.getSku())) {
-                        existingVariant.setAvailable(false);
+                List<Map<String, String>> newVariants = parseVariantsJson(variantsJson);
+                List<ProductVariant> existing = product.getVariants();
+                List<String> newSkus = newVariants.stream().map(v -> v.get("sku")).collect(Collectors.toList());
+
+                // Mark missing SKUs as unavailable
+                for (ProductVariant ev : existing) {
+                    if (!newSkus.contains(ev.getSku())) {
+                        ev.setAvailable(false);
                     }
                 }
-                
-                // Update existing variants or add new ones
-                for (Map<String, String> variantData : newVariantsData) {
-                    String sku = variantData.get("sku");
-                    
-                    // Find existing variant by SKU
-                    ProductVariant existingVariant = existingVariants.stream()
-                        .filter(v -> sku.equals(v.getSku()))
-                        .findFirst()
-                        .orElse(null);
-                    
-                    if (existingVariant != null) {
-                        // Update existing variant
-                        existingVariant.setSize(variantData.get("size"));
-                        existingVariant.setPrice(new BigDecimal(variantData.get("price")));
-                        existingVariant.setQuantity(Integer.parseInt(variantData.get("quantity")));
-                        existingVariant.setAvailable(true);
+
+                for (Map<String, String> vData : newVariants) {
+                    String sku = vData.get("sku");
+                    ProductVariant found = existing.stream()
+                            .filter(v -> sku.equals(v.getSku()))
+                            .findFirst()
+                            .orElse(null);
+                    if (found != null) {
+                        found.setSize(vData.get("size"));
+                        found.setPrice(new BigDecimal(vData.get("price")));
+                        found.setQuantity(Integer.parseInt(vData.get("quantity")));
+                        found.setAvailable(true);
                     } else {
-                        // Add new variant
-                        ProductVariant newVariant = new ProductVariant();
-                        newVariant.setProduct(product);
-                        newVariant.setSize(variantData.get("size"));
-                        newVariant.setPrice(new BigDecimal(variantData.get("price")));
-                        newVariant.setQuantity(Integer.parseInt(variantData.get("quantity")));
-                        newVariant.setSku(sku);
-                        newVariant.setAvailable(true);
-                        product.getVariants().add(newVariant);
+                        ProductVariant nv = new ProductVariant();
+                        nv.setProduct(product);
+                        nv.setSize(vData.get("size"));
+                        nv.setPrice(new BigDecimal(vData.get("price")));
+                        nv.setQuantity(Integer.parseInt(vData.get("quantity")));
+                        nv.setSku(sku);
+                        nv.setAvailable(true);
+                        product.getVariants().add(nv);
                     }
                 }
             }
-            
+
             product = productRepository.save(product);
-            
-            response.put("success", true);
-            response.put("message", "Cập nhật sản phẩm thành công");
-            response.put("data", convertProductToMap(product));
-            
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(successMap("Cập nhật sản phẩm thành công", convertProductToMap(product)));
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    /**
-     * API: Delete product (soft delete - set active=false)
-     * DELETE /seller/api/products/{id}
-     */
+
     @DeleteMapping("/api/products/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
-            
-            // Check ownership
+
             if (product.getSeller() == null || !product.getSeller().getId().equals(seller.getId())) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền xóa sản phẩm này");
-                return ResponseEntity.status(403).body(response);
+                return forbidden("Bạn không có quyền xóa sản phẩm này");
             }
-            
-            // Soft delete
+
             product.setActive(false);
             product.setUpdatedAt(LocalDateTime.now());
             productRepository.save(product);
-            
-            response.put("success", true);
-            response.put("message", "Xóa sản phẩm thành công");
-            
-            return ResponseEntity.ok(response);
+
+            return ResponseEntity.ok(successMap("Xóa sản phẩm thành công", null));
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    /**
-     * API: Toggle product active status
-     * POST /seller/api/products/{id}/toggle
-     */
+
     @PostMapping("/api/products/{id}/toggle")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggleProductStatus(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
-            
-            // Check ownership
+
             if (product.getSeller() == null || !product.getSeller().getId().equals(seller.getId())) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền thay đổi trạng thái sản phẩm này");
-                return ResponseEntity.status(403).body(response);
+                return forbidden("Bạn không có quyền thay đổi trạng thái sản phẩm này");
             }
-            
-            // Toggle active status
+
             product.setActive(!product.isActive());
             product.setUpdatedAt(LocalDateTime.now());
             productRepository.save(product);
-            
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
             String status = product.isActive() ? "kích hoạt" : "vô hiệu hóa";
-            response.put("success", true);
-            response.put("message", "Đã " + status + " sản phẩm thành công");
-            response.put("active", product.isActive());
-            
-            return ResponseEntity.ok(response);
+            resp.put("message", "Đã " + status + " sản phẩm thành công");
+            resp.put("active", product.isActive());
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    // ===== HELPER METHODS =====
-    
-    private User getCurrentSeller() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalStateException("Bạn chưa đăng nhập");
+
+    // ===== ORDER MANAGEMENT =====
+
+    @GetMapping("/api/orders")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getSellerOrders(@RequestParam(required = false) String status) {
+        try {
+            User seller = getCurrentSeller();
+            List<Order> allOrders = orderRepository.findAll();
+
+            List<Map<String, Object>> sellerOrders = allOrders.stream()
+                    .filter(order -> {
+                        boolean hasSellerProduct = order.getOrderDetails().stream()
+                                .anyMatch(detail -> detail.getProduct() != null
+                                        && detail.getProduct().getSeller() != null
+                                        && detail.getProduct().getSeller().getId().equals(seller.getId()));
+                        if (status != null && !status.isEmpty()) {
+                            return hasSellerProduct && order.getStatus().name().equals(status);
+                        }
+                        return hasSellerProduct;
+                    })
+                    .map(this::convertOrderToMap)
+                    .collect(Collectors.toList());
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("data", sellerOrders);
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return errorResponse(e);
         }
-        
-        String username = authentication.getName();
-        return userRepository.findByUsername(username)
-                .or(() -> userRepository.findByEmail(username))
-                .orElseThrow(() -> new IllegalStateException("Không tìm thấy người dùng"));
     }
-    
+
+    @GetMapping("/api/orders/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getOrderDetail(@PathVariable Long id) {
+        try {
+            User seller = getCurrentSeller();
+            Order order = orderRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
+
+            boolean hasSellerProduct = order.getOrderDetails().stream()
+                    .anyMatch(detail -> detail.getProduct() != null
+                            && detail.getProduct().getSeller() != null
+                            && detail.getProduct().getSeller().getId().equals(seller.getId()));
+
+            if (!hasSellerProduct) return forbidden("Bạn không có quyền xem đơn hàng này");
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("data", convertOrderToDetailMap(order, seller));
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return errorResponse(e);
+        }
+    }
+
+    @PostMapping("/api/orders/{id}/confirm")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> confirmOrder(@PathVariable Long id) {
+        try {
+            User seller = getCurrentSeller();
+            Order order = orderRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
+
+            boolean hasSellerProduct = order.getOrderDetails().stream()
+                    .anyMatch(detail -> detail.getProduct() != null
+                            && detail.getProduct().getSeller() != null
+                            && detail.getProduct().getSeller().getId().equals(seller.getId()));
+
+            if (!hasSellerProduct) return forbidden("Bạn không có quyền xác nhận đơn hàng này");
+            if (order.getStatus() != OrderStatus.PENDING) {
+                Map<String, Object> resp = new HashMap<>();
+                resp.put("success", false);
+                resp.put("message", "Chỉ có thể xác nhận đơn hàng ở trạng thái chờ xác nhận");
+                return ResponseEntity.badRequest().body(resp);
+            }
+
+            order.setStatus(OrderStatus.CONFIRMED);
+            orderRepository.save(order);
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("message", "Đã xác nhận đơn hàng #" + order.getOrderCode());
+            resp.put("data", convertOrderToMap(order));
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return errorResponse(e);
+        }
+    }
+
+    @PostMapping("/api/orders/{id}/cancel")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> cancelOrder(@PathVariable Long id,
+                                                           @RequestParam(required = false) String reason) {
+        try {
+            User seller = getCurrentSeller();
+            Order order = orderRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
+
+            boolean hasSellerProduct = order.getOrderDetails().stream()
+                    .anyMatch(detail -> detail.getProduct() != null
+                            && detail.getProduct().getSeller() != null
+                            && detail.getProduct().getSeller().getId().equals(seller.getId()));
+
+            if (!hasSellerProduct) return forbidden("Bạn không có quyền hủy đơn hàng này");
+            if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.CANCELED) {
+                Map<String, Object> resp = new HashMap<>();
+                resp.put("success", false);
+                resp.put("message", "Không thể hủy đơn hàng ở trạng thái này");
+                return ResponseEntity.badRequest().body(resp);
+            }
+
+            order.setStatus(OrderStatus.CANCELED);
+            if (reason != null && !reason.trim().isEmpty()) order.setFailureReason(reason);
+            orderRepository.save(order);
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("message", "Đã hủy đơn hàng #" + order.getOrderCode());
+            resp.put("data", convertOrderToMap(order));
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return errorResponse(e);
+        }
+    }
+
+    // ===== CONVERTERS =====
+
     private Map<String, Object> convertProductToMap(Product product) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", product.getId());
@@ -517,14 +564,14 @@ public class SellerController {
         map.put("active", product.isActive());
         map.put("createdAt", product.getCreatedAt());
         map.put("updatedAt", product.getUpdatedAt());
-        
+
         if (product.getCategory() != null) {
             Map<String, Object> categoryMap = new HashMap<>();
             categoryMap.put("id", product.getCategory().getId());
             categoryMap.put("name", product.getCategory().getName());
             map.put("category", categoryMap);
         }
-        
+
         List<Map<String, Object>> images = product.getImages().stream()
                 .map(img -> {
                     Map<String, Object> imgMap = new HashMap<>();
@@ -534,7 +581,7 @@ public class SellerController {
                 })
                 .collect(Collectors.toList());
         map.put("images", images);
-        
+
         List<Map<String, Object>> variants = product.getVariants().stream()
                 .map(v -> {
                     Map<String, Object> vMap = new HashMap<>();
@@ -548,28 +595,25 @@ public class SellerController {
                 })
                 .collect(Collectors.toList());
         map.put("variants", variants);
-        
+
         map.put("minPrice", product.getMinPrice());
         map.put("maxPrice", product.getMaxPrice());
         map.put("totalQuantity", product.getTotalQuantity());
         map.put("hasStock", product.hasStock());
-        
+
         return map;
     }
-    
+
     private List<Map<String, String>> parseVariantsJson(String json) {
-        // Simple JSON parsing - in production use Jackson or Gson
+        // Keep the same simple parser used previously (not production-ready)
         List<Map<String, String>> variants = new ArrayList<>();
-        
-        // Remove brackets and split by objects
         json = json.trim().replaceAll("^\\[|\\]$", "");
         if (json.isEmpty()) return variants;
-        
+
         String[] objects = json.split("\\},\\s*\\{");
         for (String obj : objects) {
             obj = obj.replaceAll("^\\{|\\}$", "");
             Map<String, String> variant = new HashMap<>();
-            
             String[] pairs = obj.split(",");
             for (String pair : pairs) {
                 String[] keyValue = pair.split(":");
@@ -579,206 +623,11 @@ public class SellerController {
                     variant.put(key, value);
                 }
             }
-            if (!variant.isEmpty()) {
-                variants.add(variant);
-            }
+            if (!variant.isEmpty()) variants.add(variant);
         }
-        
         return variants;
     }
-    
-    // ===== ORDER MANAGEMENT APIs =====
-    
-    /**
-     * API: Get seller's orders (orders containing seller's products)
-     * GET /seller/api/orders
-     */
-    @GetMapping("/api/orders")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getSellerOrders(
-            @RequestParam(required = false) String status) {
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            User seller = getCurrentSeller();
-            
-            // Get all orders with order details containing seller's products
-            List<Order> allOrders = orderRepository.findAll();
-            
-            List<Map<String, Object>> sellerOrders = allOrders.stream()
-                    .filter(order -> {
-                        // Check if order contains any product from this seller
-                        boolean hasSellersProduct = order.getOrderDetails().stream()
-                                .anyMatch(detail -> detail.getProduct() != null 
-                                        && detail.getProduct().getSeller() != null
-                                        && detail.getProduct().getSeller().getId().equals(seller.getId()));
-                        
-                        // Filter by status if provided
-                        if (status != null && !status.isEmpty()) {
-                            return hasSellersProduct && order.getStatus().name().equals(status);
-                        }
-                        return hasSellersProduct;
-                    })
-                    .map(this::convertOrderToMap)
-                    .collect(Collectors.toList());
-            
-            response.put("success", true);
-            response.put("data", sellerOrders);
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-    
-    /**
-     * API: Get order details
-     * GET /seller/api/orders/{id}
-     */
-    @GetMapping("/api/orders/{id}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getOrderDetail(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            User seller = getCurrentSeller();
-            Order order = orderRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
-            
-            // Check if order contains seller's products
-            boolean hasSellersProduct = order.getOrderDetails().stream()
-                    .anyMatch(detail -> detail.getProduct() != null 
-                            && detail.getProduct().getSeller() != null
-                            && detail.getProduct().getSeller().getId().equals(seller.getId()));
-            
-            if (!hasSellersProduct) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền xem đơn hàng này");
-                return ResponseEntity.status(403).body(response);
-            }
-            
-            response.put("success", true);
-            response.put("data", convertOrderToDetailMap(order, seller));
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-    
-    /**
-     * API: Confirm order (change status from PENDING to CONFIRMED)
-     * POST /seller/api/orders/{id}/confirm
-     */
-    @PostMapping("/api/orders/{id}/confirm")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> confirmOrder(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            User seller = getCurrentSeller();
-            Order order = orderRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
-            
-            // Check if order contains seller's products
-            boolean hasSellersProduct = order.getOrderDetails().stream()
-                    .anyMatch(detail -> detail.getProduct() != null 
-                            && detail.getProduct().getSeller() != null
-                            && detail.getProduct().getSeller().getId().equals(seller.getId()));
-            
-            if (!hasSellersProduct) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền xác nhận đơn hàng này");
-                return ResponseEntity.status(403).body(response);
-            }
-            
-            // Check current status
-            if (order.getStatus() != OrderStatus.PENDING) {
-                response.put("success", false);
-                response.put("message", "Chỉ có thể xác nhận đơn hàng ở trạng thái chờ xác nhận");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            // Update status
-            order.setStatus(OrderStatus.CONFIRMED);
-            orderRepository.save(order);
-            
-            response.put("success", true);
-            response.put("message", "Đã xác nhận đơn hàng #" + order.getOrderCode());
-            response.put("data", convertOrderToMap(order));
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-    
-    /**
-     * API: Cancel order
-     * POST /seller/api/orders/{id}/cancel
-     */
-    @PostMapping("/api/orders/{id}/cancel")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> cancelOrder(
-            @PathVariable Long id,
-            @RequestParam(required = false) String reason) {
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            User seller = getCurrentSeller();
-            Order order = orderRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
-            
-            // Check if order contains seller's products
-            boolean hasSellersProduct = order.getOrderDetails().stream()
-                    .anyMatch(detail -> detail.getProduct() != null 
-                            && detail.getProduct().getSeller() != null
-                            && detail.getProduct().getSeller().getId().equals(seller.getId()));
-            
-            if (!hasSellersProduct) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền hủy đơn hàng này");
-                return ResponseEntity.status(403).body(response);
-            }
-            
-            // Check if order can be canceled
-            if (order.getStatus() == OrderStatus.DELIVERED || 
-                order.getStatus() == OrderStatus.CANCELED) {
-                response.put("success", false);
-                response.put("message", "Không thể hủy đơn hàng ở trạng thái này");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            // Update status
-            order.setStatus(OrderStatus.CANCELED);
-            if (reason != null && !reason.trim().isEmpty()) {
-                order.setFailureReason(reason);
-            }
-            orderRepository.save(order);
-            
-            response.put("success", true);
-            response.put("message", "Đã hủy đơn hàng #" + order.getOrderCode());
-            response.put("data", convertOrderToMap(order));
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-    
-    // Helper methods for order conversion
+
     private Map<String, Object> convertOrderToMap(Order order) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", order.getId());
@@ -791,20 +640,14 @@ public class SellerController {
         map.put("shippingPhone", order.getShippingPhone());
         map.put("shippingAddress", order.getShippingAddress());
         map.put("createdAt", order.getCreatedAt());
-        
-        // Count items
-        int totalItems = order.getOrderDetails().stream()
-                .mapToInt(OrderDetail::getQuantity)
-                .sum();
+
+        int totalItems = order.getOrderDetails().stream().mapToInt(OrderDetail::getQuantity).sum();
         map.put("totalItems", totalItems);
-        
         return map;
     }
-    
+
     private Map<String, Object> convertOrderToDetailMap(Order order, User seller) {
         Map<String, Object> map = convertOrderToMap(order);
-        
-        // Add customer info
         if (order.getUser() != null) {
             Map<String, Object> customer = new HashMap<>();
             customer.put("name", order.getUser().getFirstName() + " " + order.getUser().getLastName());
@@ -812,12 +655,10 @@ public class SellerController {
             customer.put("phone", order.getUser().getPhone());
             map.put("customer", customer);
         }
-        
-        // Add order details (only seller's products)
+
         List<Map<String, Object>> details = order.getOrderDetails().stream()
-                .filter(detail -> detail.getProduct() != null 
-                        && detail.getProduct().getSeller() != null
-                        && detail.getProduct().getSeller().getId().equals(seller.getId()))
+                .filter(d -> d.getProduct() != null && d.getProduct().getSeller() != null
+                        && d.getProduct().getSeller().getId().equals(seller.getId()))
                 .map(detail -> {
                     Map<String, Object> detailMap = new HashMap<>();
                     detailMap.put("id", detail.getId());
@@ -826,20 +667,16 @@ public class SellerController {
                     detailMap.put("quantity", detail.getQuantity());
                     detailMap.put("unitPrice", detail.getUnitPrice());
                     detailMap.put("totalPrice", detail.getTotalPrice());
-                    
-                    // Add product image
                     if (detail.getProduct().getImages() != null && !detail.getProduct().getImages().isEmpty()) {
                         detailMap.put("image", detail.getProduct().getImages().get(0).getUrl());
                     }
-                    
                     return detailMap;
                 })
                 .collect(Collectors.toList());
         map.put("orderDetails", details);
-        
         return map;
     }
-    
+
     private String getStatusDisplay(OrderStatus status) {
         switch (status) {
             case PENDING: return "Chờ xác nhận";
@@ -852,86 +689,54 @@ public class SellerController {
             default: return status.name();
         }
     }
-    
-    // ===== DASHBOARD STATISTICS API =====
-    
-    /**
-     * API: Get seller dashboard statistics
-     * GET /seller/api/dashboard-stats
-     */
+
+    // ===== DASHBOARD STATS =====
     @GetMapping("/api/dashboard-stats")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getDashboardStats() {
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
-            
-            // Get seller's products
             List<Product> products = productRepository.findBySeller(seller);
             long totalProducts = products.size();
             long activeProducts = products.stream().filter(Product::isActive).count();
-            
-            // Calculate total stock
             int totalStock = products.stream()
                     .filter(p -> p.getVariants() != null)
                     .flatMap(p -> p.getVariants().stream())
                     .filter(v -> v.getQuantity() != null)
                     .mapToInt(ProductVariant::getQuantity)
                     .sum();
-            
-            // Get orders containing seller's products
+
             List<Order> allOrders = orderRepository.findAll();
             List<Order> sellerOrders = allOrders.stream()
                     .filter(order -> order.getOrderDetails().stream()
-                            .anyMatch(detail -> detail.getVariant() != null && 
-                                     detail.getVariant().getProduct().getSeller() != null &&
-                                     detail.getVariant().getProduct().getSeller().getId().equals(seller.getId())))
+                            .anyMatch(detail -> detail.getVariant() != null &&
+                                    detail.getVariant().getProduct().getSeller() != null &&
+                                    detail.getVariant().getProduct().getSeller().getId().equals(seller.getId())))
                     .collect(Collectors.toList());
-            
+
             long totalOrders = sellerOrders.size();
-            
-            // Calculate total revenue (only delivered orders)
             BigDecimal totalRevenue = sellerOrders.stream()
-                    .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
+                    .filter(o -> o.getStatus() == OrderStatus.DELIVERED)
                     .map(Order::getTotalPrice)
-                    .filter(price -> price != null)
+                    .filter(Objects::nonNull)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            
-            // Calculate this month's revenue
+
             LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
             BigDecimal monthlyRevenue = sellerOrders.stream()
-                    .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
-                    .filter(order -> order.getCreatedAt() != null && order.getCreatedAt().isAfter(startOfMonth))
+                    .filter(o -> o.getStatus() == OrderStatus.DELIVERED)
+                    .filter(o -> o.getCreatedAt() != null && o.getCreatedAt().isAfter(startOfMonth))
                     .map(Order::getTotalPrice)
-                    .filter(price -> price != null)
+                    .filter(Objects::nonNull)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            
-            // Count orders by status
-            long pendingOrders = sellerOrders.stream()
-                    .filter(order -> order.getStatus() == OrderStatus.PENDING)
-                    .count();
-            
-            long confirmedOrders = sellerOrders.stream()
-                    .filter(order -> order.getStatus() == OrderStatus.CONFIRMED)
-                    .count();
-            
-            long deliveringOrders = sellerOrders.stream()
-                    .filter(order -> order.getStatus() == OrderStatus.DELIVERING || 
-                                   order.getStatus() == OrderStatus.ASSIGNED)
-                    .count();
-            
-            long deliveredOrders = sellerOrders.stream()
-                    .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
-                    .count();
-            
-            // Get vouchers count
+
+            long pendingOrders = sellerOrders.stream().filter(o -> o.getStatus() == OrderStatus.PENDING).count();
+            long confirmedOrders = sellerOrders.stream().filter(o -> o.getStatus() == OrderStatus.CONFIRMED).count();
+            long deliveringOrders = sellerOrders.stream().filter(o -> o.getStatus() == OrderStatus.DELIVERING || o.getStatus() == OrderStatus.ASSIGNED).count();
+            long deliveredOrders = sellerOrders.stream().filter(o -> o.getStatus() == OrderStatus.DELIVERED).count();
+
             long totalVouchers = voucherRepository.findByCreatedByAndType(seller, VoucherType.SELLER).size();
-            long activeVouchers = voucherRepository.findByCreatedByAndType(seller, VoucherType.SELLER).stream()
-                    .filter(Voucher::isActive)
-                    .count();
-            
-            // Build response
+            long activeVouchers = voucherRepository.findByCreatedByAndType(seller, VoucherType.SELLER).stream().filter(Voucher::isActive).count();
+
             Map<String, Object> stats = new HashMap<>();
             stats.put("totalProducts", totalProducts);
             stats.put("activeProducts", activeProducts);
@@ -945,89 +750,51 @@ public class SellerController {
             stats.put("deliveredOrders", deliveredOrders);
             stats.put("totalVouchers", totalVouchers);
             stats.put("activeVouchers", activeVouchers);
-            
-            response.put("success", true);
-            response.put("data", stats);
-            return ResponseEntity.ok(response);
-            
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("data", stats);
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    // ===== VOUCHER MANAGEMENT APIs =====
-    
-    /**
-     * API: Get seller's vouchers
-     * GET /seller/api/vouchers
-     */
+
+    // ===== VOUCHERS =====
     @GetMapping("/api/vouchers")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getSellerVouchers() {
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
-            
-            // Get vouchers created by this seller
             List<Voucher> vouchers = voucherRepository.findByCreatedByAndType(seller, VoucherType.SELLER);
-            
-            List<Map<String, Object>> voucherList = vouchers.stream()
-                    .map(this::convertVoucherToMap)
-                    .collect(Collectors.toList());
-            
-            response.put("success", true);
-            response.put("data", voucherList);
-            return ResponseEntity.ok(response);
-            
+            List<Map<String, Object>> voucherList = vouchers.stream().map(this::convertVoucherToMap).collect(Collectors.toList());
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("data", voucherList);
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    /**
-     * API: Get voucher detail
-     * GET /seller/api/vouchers/{id}
-     */
+
     @GetMapping("/api/vouchers/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getVoucherDetail(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
-            Voucher voucher = voucherRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy voucher"));
-            
-            // Check ownership
+            Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy voucher"));
             if (voucher.getCreatedBy() == null || !voucher.getCreatedBy().getId().equals(seller.getId())) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền xem voucher này");
-                return ResponseEntity.status(403).body(response);
+                return forbidden("Bạn không có quyền xem voucher này");
             }
-            
-            response.put("success", true);
-            response.put("data", convertVoucherToMap(voucher));
-            return ResponseEntity.ok(response);
-            
+            return ResponseEntity.ok(successMap(null, convertVoucherToMap(voucher)));
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    /**
-     * API: Create voucher
-     * POST /seller/api/vouchers
-     */
+
     @PostMapping("/api/vouchers")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> createVoucher(
@@ -1043,20 +810,15 @@ public class SellerController {
             @RequestParam String startDate,
             @RequestParam String endDate,
             @RequestParam(defaultValue = "true") Boolean active) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
-            
-            // Check if code already exists
             if (voucherRepository.existsByCode(code)) {
-                response.put("success", false);
-                response.put("message", "Mã voucher đã tồn tại");
-                return ResponseEntity.badRequest().body(response);
+                Map<String, Object> resp = new HashMap<>();
+                resp.put("success", false);
+                resp.put("message", "Mã voucher đã tồn tại");
+                return ResponseEntity.badRequest().body(resp);
             }
-            
-            // Create voucher
+
             Voucher voucher = new Voucher();
             voucher.setCode(code.toUpperCase());
             voucher.setName(name);
@@ -1072,26 +834,15 @@ public class SellerController {
             voucher.setActive(active);
             voucher.setType(VoucherType.SELLER);
             voucher.setCreatedBy(seller);
-            
+
             voucher = voucherRepository.save(voucher);
-            
-            response.put("success", true);
-            response.put("message", "Tạo voucher thành công");
-            response.put("data", convertVoucherToMap(voucher));
-            
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(successMap("Tạo voucher thành công", convertVoucherToMap(voucher)));
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    /**
-     * API: Update voucher
-     * PUT /seller/api/vouchers/{id}
-     */
+
     @PutMapping("/api/vouchers/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateVoucher(
@@ -1107,22 +858,13 @@ public class SellerController {
             @RequestParam String startDate,
             @RequestParam String endDate,
             @RequestParam(defaultValue = "true") Boolean active) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
-            Voucher voucher = voucherRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy voucher"));
-            
-            // Check ownership
+            Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy voucher"));
             if (voucher.getCreatedBy() == null || !voucher.getCreatedBy().getId().equals(seller.getId())) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền sửa voucher này");
-                return ResponseEntity.status(403).body(response);
+                return forbidden("Bạn không có quyền sửa voucher này");
             }
-            
-            // Update voucher
+
             voucher.setName(name);
             voucher.setDescription(description);
             voucher.setDiscountType(DiscountType.valueOf(discountType));
@@ -1134,123 +876,76 @@ public class SellerController {
             voucher.setStartDate(LocalDate.parse(startDate));
             voucher.setEndDate(LocalDate.parse(endDate));
             voucher.setActive(active);
-            
+
             voucher = voucherRepository.save(voucher);
-            
-            response.put("success", true);
-            response.put("message", "Cập nhật voucher thành công");
-            response.put("data", convertVoucherToMap(voucher));
-            
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(successMap("Cập nhật voucher thành công", convertVoucherToMap(voucher)));
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    /**
-     * API: Delete voucher
-     * DELETE /seller/api/vouchers/{id}
-     */
+
     @DeleteMapping("/api/vouchers/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteVoucher(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
-            Voucher voucher = voucherRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy voucher"));
-            
-            // Check ownership
+            Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy voucher"));
             if (voucher.getCreatedBy() == null || !voucher.getCreatedBy().getId().equals(seller.getId())) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền xóa voucher này");
-                return ResponseEntity.status(403).body(response);
+                return forbidden("Bạn không có quyền xóa voucher này");
             }
-            
-            // Check if voucher is being used
             if (voucher.getUsedQuantity() > 0) {
-                response.put("success", false);
-                response.put("message", "Không thể xóa voucher đã được sử dụng. Bạn có thể vô hiệu hóa nó thay thế.");
-                return ResponseEntity.badRequest().body(response);
+                Map<String, Object> resp = new HashMap<>();
+                resp.put("success", false);
+                resp.put("message", "Không thể xóa voucher đã được sử dụng. Bạn có thể vô hiệu hóa nó thay thế.");
+                return ResponseEntity.badRequest().body(resp);
             }
-            
             voucherRepository.delete(voucher);
-            
-            response.put("success", true);
-            response.put("message", "Xóa voucher thành công");
-            
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(successMap("Xóa voucher thành công", null));
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    /**
-     * API: Toggle voucher status
-     * POST /seller/api/vouchers/{id}/toggle
-     */
+
     @PostMapping("/api/vouchers/{id}/toggle")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggleVoucherStatus(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        
         try {
             User seller = getCurrentSeller();
-            Voucher voucher = voucherRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy voucher"));
-            
-            // Check ownership
+            Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy voucher"));
             if (voucher.getCreatedBy() == null || !voucher.getCreatedBy().getId().equals(seller.getId())) {
-                response.put("success", false);
-                response.put("message", "Bạn không có quyền thay đổi voucher này");
-                return ResponseEntity.status(403).body(response);
+                return forbidden("Bạn không có quyền thay đổi trạng thái voucher này");
             }
-            
             voucher.setActive(!voucher.isActive());
-            voucher = voucherRepository.save(voucher);
-            
-            response.put("success", true);
-            response.put("message", voucher.isActive() ? "Đã kích hoạt voucher" : "Đã vô hiệu hóa voucher");
-            response.put("data", convertVoucherToMap(voucher));
-            
-            return ResponseEntity.ok(response);
+            voucherRepository.save(voucher);
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("message", voucher.isActive() ? "Kích hoạt voucher thành công" : "Đã vô hiệu hóa voucher");
+            resp.put("active", voucher.isActive());
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return errorResponse(e);
         }
     }
-    
-    // Helper method to convert Voucher to Map
-    private Map<String, Object> convertVoucherToMap(Voucher voucher) {
+
+    private Map<String, Object> convertVoucherToMap(Voucher v) {
         Map<String, Object> map = new HashMap<>();
-        map.put("id", voucher.getId());
-        map.put("code", voucher.getCode());
-        map.put("name", voucher.getName());
-        map.put("description", voucher.getDescription());
-        map.put("discountType", voucher.getDiscountType().name());
-        map.put("discountTypeDisplay", voucher.getDiscountType() == DiscountType.PERCENTAGE ? "Phần trăm" : "Số tiền cố định");
-        map.put("discountValue", voucher.getDiscountValue());
-        map.put("maxDiscount", voucher.getMaxDiscount());
-        map.put("minOrderValue", voucher.getMinOrderValue());
-        map.put("totalQuantity", voucher.getTotalQuantity());
-        map.put("usedQuantity", voucher.getUsedQuantity());
-        map.put("remainingQuantity", voucher.getTotalQuantity() - voucher.getUsedQuantity());
-        map.put("usageLimit", voucher.getUsageLimit());
-        map.put("startDate", voucher.getStartDate());
-        map.put("endDate", voucher.getEndDate());
-        map.put("active", voucher.isActive());
-        map.put("createdAt", voucher.getCreatedAt());
+        map.put("id", v.getId());
+        map.put("code", v.getCode());
+        map.put("name", v.getName());
+        map.put("description", v.getDescription());
+        map.put("discountType", v.getDiscountType());
+        map.put("discountValue", v.getDiscountValue());
+        map.put("maxDiscount", v.getMaxDiscount());
+        map.put("minOrderValue", v.getMinOrderValue());
+        map.put("totalQuantity", v.getTotalQuantity());
+        map.put("usageLimit", v.getUsageLimit());
+        map.put("startDate", v.getStartDate());
+        map.put("endDate", v.getEndDate());
+        map.put("active", v.isActive());
+        map.put("usedQuantity", v.getUsedQuantity());
         return map;
     }
 }
-
-
