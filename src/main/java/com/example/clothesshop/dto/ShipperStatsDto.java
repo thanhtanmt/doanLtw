@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+// DTO for shipper statistics
 public class ShipperStatsDto {
     private Long totalPendingOrders;
     private Long totalDeliveredOrders;
